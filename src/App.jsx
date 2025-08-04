@@ -4,10 +4,12 @@ import './App.css';
 import ProductsPage from './components/ProductsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Product from "./components/Product";
-import Register from "./views/Register";
-import Login from "./views/Login";
+import Register from "./Views/Register";
+
 import CreateProduct from "./components/CreateProduct";
 import NavBar from "./components/NavBar";  
+
+import LoginFixed from "./Views/LoginFixed"; // Importa el componente LoginFixed
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -38,7 +40,7 @@ function AppContent() {
         {/* Ruta raíz redirige según si hay usuario o no */}
         <Route path="/" element={user ? <Navigate to="/products" replace /> : <Navigate to="/login" replace />} />
 
-        <Route path="/login" element={user ? <Navigate to="/products" replace /> : <Login onLoginSuccess={handleLogin} />} />
+        <Route path="/login" element={user ? <Navigate to="/products" replace /> : <LoginFixed onLoginSuccess={handleLogin} />} />
         <Route path="/register" element={user ? <Navigate to="/products" replace /> : <Register onRegisterSuccess={() => {}} />} />
 
         <Route path="/create-product" element={<ProtectedRoute user={user}><CreateProduct /></ProtectedRoute>} />

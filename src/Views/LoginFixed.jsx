@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { supabase } from "../supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
 
-const Login = ({ onLoginSuccess }) => {  // Recibe la prop
+const LoginFixed = ({ onLoginSuccess }) => {  // Recibe la prop
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -52,5 +52,4 @@ const Login = ({ onLoginSuccess }) => {  // Recibe la prop
     );
 };
 
-export default Login;
-
+export default LoginFixed;
