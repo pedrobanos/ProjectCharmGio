@@ -4,7 +4,7 @@ import './App.css';
 import ProductsPage from './components/ProductsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Product from "./components/Product";
-import NavBar from "./components/NavBar";
+import Navbar from "./components/Navbar";
 import Register from "./views/Register";
 import Login from "./views/Login";
 import CreateProduct from "./components/CreateProduct";
@@ -29,11 +29,11 @@ function AppContent() {
     navigate("/login");
   };
 
-  const hideNavBar = location.pathname === "/login" || location.pathname === "/register";
+  const hideNavbar = location.pathname === "/login" || location.pathname === "/register";
 
   return (
     <>
-      {!hideNavBar && user && <NavBar user={user} onLogout={handleLogout} />}
+      {!hideNavbar && user && <Navbar user={user} onLogout={handleLogout} />}
       <Routes>
         {/* Ruta raíz redirige según si hay usuario o no */}
         <Route path="/" element={user ? <Navigate to="/products" replace /> : <Navigate to="/login" replace />} />
