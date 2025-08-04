@@ -16,7 +16,7 @@ const Navbar = ({ user, onLogout }) => {
                         <button
                             onClick={onLogout}
                             className="hover:bg-red-600 px-3 py-1 rounded"
-                            title="Cerrar sesión"
+                            title="Cerrar sesión;"
                         >
                             <i className="fa-solid fa-arrow-right-from-bracket"></i>
                         </button>
