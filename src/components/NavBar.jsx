@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const Navbar = ({ user, onLogout }) => {
+const NavBar = ({ user, onLogout }) => {
     return (
         <nav className="w-full bg-gray-800 text-white px-4 py-3">
             <div className="flex items-center justify-between max-w-6xl mx-auto overflow-x-auto">
@@ -27,4 +27,4 @@ const Navbar = ({ user, onLogout }) => {
     );
 };
 
-export default Navbar;
+export default NavBar;
