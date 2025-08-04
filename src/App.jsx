@@ -4,7 +4,7 @@ import './App.css';
 import ProductsPage from './components/ProductsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Product from "./components/Product";
-import NavBar from "./components/Navbar";
+import NavBar from "./components/NavBar";
 import Register from "./views/Register";
 import Login from "./views/Login";
 import CreateProduct from "./components/CreateProduct";
