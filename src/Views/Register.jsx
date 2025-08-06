@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { supabase } from "../supabaseClient"; // Asegúrate de que la ruta sea correcta
 import { useNavigate } from "react-router-dom";
+import bgImage from "../../public/loginFoto.png"; // Asegúrate de que la ruta sea correcta
+
 
 const Register = () => {
   const [email, setEmail] = useState("");
@@ -27,7 +29,14 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div
+      className="min-h-screen w-full flex items-center justify-start bg-no-repeat  bg-cover"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: "80%",
+        backgroundColor: "#beedff",
+      }}
+    >
       <form onSubmit={handleRegister} className="bg-white p-8 shadow-md rounded w-96">
         <h2 className="text-2xl font-bold mb-6">Registrarse</h2>
         <input

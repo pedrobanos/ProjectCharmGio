@@ -97,12 +97,12 @@ const CreateProduct = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto p-6 bg-white rounded shadow mt-6">
-            <h2 className="text-xl font-bold mb-4">Crear nuevo producto</h2>
+        <div className="max-w-md mx-auto p-6 bg-white rounded mt-6">
+            <h2 className="text-3xl font-bold mb-4">Crear nuevo producto</h2>
             {error && <p className="text-red-500 mb-2">{error}</p>}
             {success && <p className="text-green-500 mb-2">{success}</p>}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="mt-8">
                 {[
                     { label: "Nombre", value: nombre, set: setNombre },
                     { label: "Cantidad", value: cantidad, set: setCantidad, type: "number" },
@@ -117,7 +117,7 @@ const CreateProduct = () => {
                             type={type}
                             value={value}
                             onChange={(e) => set(e.target.value)}
-                            className="border p-2 rounded w-full"
+                            className="border p-2 rounded w-full border-blue-600"
                             required
                         />
                     </div>
@@ -126,7 +126,7 @@ const CreateProduct = () => {
                 <div className="mb-4">
                     <label className="block mb-1 font-semibold">URL:</label>
                     <div className="flex">
-                        <span className="inline-flex items-center px-3 rounded-l border border-r-0 bg-gray-100 text-gray-600 text-sm">
+                        <span className="inline-flex items-center px-3 rounded-l border border-r-0 bg-gray-100 border-blue-600 text-gray-600 text-sm">
                             https://
                         </span>
                         <input
@@ -134,7 +134,7 @@ const CreateProduct = () => {
                             value={urlInput}
                             onChange={(e) => setUrlInput(e.target.value)}
                             placeholder="www.ejemplo.com"
-                            className="border p-2 rounded-r w-full"
+                            className="border p-2 rounded-r w-full border-blue-600"
                         />
                     </div>
                 </div>
@@ -143,7 +143,7 @@ const CreateProduct = () => {
                     type="file"
                     accept="image/*"
                     onChange={(e) => setFoto(e.target.files[0])}
-                    className="border p-2 rounded w-full mb-4"
+                    className="border p-2 rounded w-full mb-4 border-blue-600"
                 />
                 {foto && (
                     <div className="mb-4">
@@ -155,13 +155,15 @@ const CreateProduct = () => {
                         />
                     </div>
                 )}
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 w-full"
-                >
-                    {loading ? "Creando..." : "Crear Producto"}
-                </button>
+                <div className="flex justify-center mt-3">
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="bg-gray-800 w-1/2 text-white py-2 px-4 rounded hover:bg-blue-600"
+                    >
+                        {loading ? "Creando..." : "Crear Producto"}
+                    </button>
+                </div>
             </form>
         </div>
     );

@@ -138,7 +138,7 @@ const ProductsPage = () => {
 
     return (
         <div className="flex flex-col items-center justify-center gap-4 p-6">
-            <h1 className="text-4xl text-center font-bold mb-4 text-blue-500">
+            <h1 className="text-5xl text-center font-bold mb-4 mt-4 text-blue-500">
                 Productos de la tienda <span className="mx-4">💍</span> 
             </h1>
             <div className="flex items-center space-x-3 w-full max-w-xl mx-auto">
