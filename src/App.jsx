@@ -7,9 +7,10 @@ import Product from "./components/Product";
 import Register from "./Views/Register";
 
 import CreateProduct from "./components/CreateProduct";
-import NavBar from "./components/NavBar";  
+import NavBar from "./components/NavBar";
 
 import LoginFixed from "./Views/LoginFixed"; // Importa el componente LoginFixed
+import Footer from "./components/Footer";
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -34,20 +35,22 @@ function AppContent() {
   const hideNavBar = location.pathname === "/login" || location.pathname === "/register";
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
+      {/* Header/NavBar */}
       {!hideNavBar && user && <NavBar user={user} onLogout={handleLogout} />}
-      <Routes>
-        {/* Ruta raíz redirige según si hay usuario o no */}
-        <Route path="/" element={user ? <Navigate to="/products" replace /> : <Navigate to="/login" replace />} />
-
-        <Route path="/login" element={user ? <Navigate to="/products" replace /> : <LoginFixed onLoginSuccess={handleLogin} />} />
-        <Route path="/register" element={user ? <Navigate to="/products" replace /> : <Register onRegisterSuccess={() => {}} />} />
-
-        <Route path="/create-product" element={<ProtectedRoute user={user}><CreateProduct /></ProtectedRoute>} />
-        <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage /></ProtectedRoute>} />
-        <Route path="/products/:id" element={<ProtectedRoute user={user}><Product /></ProtectedRoute>} />
-      </Routes>
-    </>
+      {/* Main content, crece para ocupar el espacio */}
+      <div className="flex-grow">
+        <Routes>
+          <Route path="/" element={user ? <Navigate to="/products" replace /> : <Navigate to="/login" replace />} />
+          <Route path="/login" element={user ? <Navigate to="/products" replace /> : <LoginFixed onLoginSuccess={handleLogin} />} />
+          <Route path="/register" element={user ? <Navigate to="/products" replace /> : <Register onRegisterSuccess={() => { }} />} />
+          <Route path="/create-product" element={<ProtectedRoute user={user}><CreateProduct /></ProtectedRoute>} />
+          <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage /></ProtectedRoute>} />
+          <Route path="/products/:id" element={<ProtectedRoute user={user}><Product /></ProtectedRoute>} />
+        </Routes>
+      </div>
+      {!hideNavBar && <Footer />}
+    </div>
   );
 }
 
