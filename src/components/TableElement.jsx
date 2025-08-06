@@ -1,8 +1,14 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 
 const EditableCell = ({ value, onChange }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
+
+   useEffect(() => {
+    if (!isEditing) {
+      setTempValue(value);
+    }
+  }, [value, isEditing]);
 
   const handleDoubleClick = () => setIsEditing(true);
 
@@ -21,6 +27,7 @@ const EditableCell = ({ value, onChange }) => {
     }
   };
 
+
   return isEditing ? (
     <input
       type="text"
@@ -32,6 +39,7 @@ const EditableCell = ({ value, onChange }) => {
       autoFocus
     />
   ) : (
+
     <span onDoubleClick={handleDoubleClick} className="cursor-pointer">
       {value}
     </span>
@@ -53,7 +61,7 @@ const SortableHeader = ({
       className="px-4 py-3 text-center cursor-pointer select-none"
       onClick={() => onSort(columnKey)}
     >
-      <div className="flex items-center justify-center space-x-1">
+      <div className="flex items-center justify-center space-x-1 ">
         <span>{label}</span>
         <span>{arrow}</span>
       </div>
@@ -71,10 +79,11 @@ const TableElement = ({
   orderDirection,
   onSort,
 }) => {
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
   const totalPages = Math.ceil(products.length / itemsPerPage);
+  //const [isCantidadMenorQueCinco, setIsCantidadMenorQueCinco] = useState(false);
 
   // Productos para la página actual
   const paginatedProducts = useMemo(() => {
@@ -149,7 +158,6 @@ const TableElement = ({
                     <span className="text-xs">Sin foto</span>
                   )}
                 </td>
-
                 {[
                   "nombre",
                   "cantidad",
@@ -158,15 +166,21 @@ const TableElement = ({
                   "proveedor",
                   "codigoProveedor",
                   "url",
-                ].map((field) => (
-                  <td key={field} className="px-2 py-2 whitespace-nowrap">
-                    <EditableCell
-                      value={product[field]}
-                      onChange={(val) => onEditCell(product.id, field, val)}
-                    />
-                  </td>
-                ))}
-
+                ].map((field) => {
+                  const isLowStock = field === "cantidad" && parseInt(product[field], 10) <= 5;
+                  return (
+                    <td
+                      key={field}
+                      className={`px-2 py-2 whitespace-nowrap ${isLowStock ? "text-red-600 font-semibold" : ""
+                        }`}
+                    >
+                      <EditableCell
+                        value={product[field]}
+                        onChange={(val) => onEditCell(product.id, field, val)}
+                      />
+                    </td>
+                  );
+                })}
                 <td className="px-2 py-2 flex flex-col sm:flex-row gap-2 justify-center items-center whitespace-nowrap">
                   <button
                     className="text-green-500 hover:text-green-600 text-base sm:text-lg"
@@ -200,9 +214,8 @@ const TableElement = ({
         <button
           onClick={handlePrev}
           disabled={currentPage === 1}
-          className={`px-3 py-1 rounded bg-gray-300 disabled:opacity-50 hover:bg-gray-400 ${
-            totalPages === 1 ? "invisible" : ""
-          }`}
+          className={`px-3 py-1 rounded bg-gray-300 disabled:opacity-50 hover:bg-gray-400 ${totalPages === 1 ? "invisible" : ""
+            }`}
         >
           &lt; Anterior
         </button>
@@ -214,9 +227,8 @@ const TableElement = ({
         <button
           onClick={handleNext}
           disabled={currentPage === totalPages}
-          className={`px-3 py-1 rounded bg-gray-300 disabled:opacity-50 hover:bg-gray-400 ${
-            totalPages === 1 ? "invisible" : ""
-          }`}
+          className={`px-3 py-1 rounded bg-gray-300 disabled:opacity-50 hover:bg-gray-400 ${totalPages === 1 ? "invisible" : ""
+            }`}
         >
           Siguiente &gt;
         </button>
