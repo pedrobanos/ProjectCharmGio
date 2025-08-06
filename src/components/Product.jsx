@@ -31,7 +31,7 @@ const Product = () => {
     if (!product) return <p>Producto no existe.</p>;
 
     return (
-        <div className="min-h-[auto] sm:min-h-screen flex flex-col sm:justify-center items-center p-4 bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-[auto] sm:min-h-screen flex flex-col sm:justify-center items-center p-4 bg-gray-50 ">
             <div className="bg-white dark:bg-gray-800 shadow rounded p-6 w-full max-w-full sm:max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-start sm:gap-6">
                 {/* Foto arriba en móvil, al lado en escritorio */}
                 {product.foto && (
@@ -50,6 +50,7 @@ const Product = () => {
                     <p><strong>Lugar del producto:</strong> {product.lugar}</p>
                     <p><strong>Proveedor:</strong> {product.proveedor}</p>
                     <p><strong>Código proveedor:</strong> {product.codigoProveedor}</p>
+                    <p><strong>Descripción:</strong> {product.descripcion}</p>
                     <p>
                         <strong>URL:</strong>{" "}
                         <a
