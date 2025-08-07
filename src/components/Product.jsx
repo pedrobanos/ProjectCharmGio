@@ -32,7 +32,7 @@ const Product = () => {
 
     return (
         <div className="min-h-[auto] sm:min-h-screen flex flex-col sm:justify-center items-center p-4 bg-gray-50 ">
-            <div className="bg-white dark:bg-gray-800 shadow rounded p-6 w-full max-w-full sm:max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-start sm:gap-6">
+            <div className="bg-white  shadow rounded p-6 w-full max-w-full sm:max-w-4xl mx-auto flex flex-col sm:flex-row sm:items-start sm:gap-6">
                 {/* Foto arriba en móvil, al lado en escritorio */}
                 {product.foto && (
                     <img
