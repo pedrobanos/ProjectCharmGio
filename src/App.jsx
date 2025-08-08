@@ -43,7 +43,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={user ? <Navigate to="/products" replace /> : <Navigate to="/login" replace />} />
           <Route path="/login" element={user ? <Navigate to="/products" replace /> : <LoginFixed onLoginSuccess={handleLogin} />} />
-          <Route path="/register" element={user ? <Navigate to="/products" replace /> : <Register onRegisterSuccess={() => { }} />} />
+          {/* <Route path="/register" element={user ? <Navigate to="/products" replace /> : <Register onRegisterSuccess={() => { }} />} /> */}
           <Route path="/create-product" element={<ProtectedRoute user={user}><CreateProduct /></ProtectedRoute>} />
           <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage /></ProtectedRoute>} />
           <Route path="/products/:id" element={<ProtectedRoute user={user}><Product /></ProtectedRoute>} />

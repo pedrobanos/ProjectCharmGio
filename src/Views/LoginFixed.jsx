@@ -55,11 +55,11 @@ const LoginFixed = ({ onLoginSuccess }) => {
                     >
                         Entrar
                     </button>
-                    <div className="text-center mt-4">
+                    {/* <div className="text-center mt-4">
                         <Link to="/register" className="text-blue-600 hover:underline">
                             ¿No tienes cuenta? Regístrate!
                         </Link>
-                    </div>
+                    </div> */}
                 </form>
             </div>
         </div>

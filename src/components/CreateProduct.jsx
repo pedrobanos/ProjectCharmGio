@@ -306,9 +306,9 @@ const CreateProduct = () => {
                         onChange={(e) => setDescripcion(e.target.value)}
                         className="border p-2 rounded w-full border-blue-600"
                         rows={3}
-                        maxLength={250}
+                        required
                     />
-                    <div className="text-sm text-gray-500 text-right">{descripcion.length}/250</div>
+                    {/* <div className="text-sm text-gray-500 text-right">{descripcion.length}/250</div> */}
                 </div>
 
                 {/* URL con https:// fijo */}
@@ -324,6 +324,7 @@ const CreateProduct = () => {
                             onChange={(e) => setUrlInput(e.target.value)}
                             placeholder="www.ejemplo.com"
                             className="border p-2 rounded-r w-full border-blue-600"
+                            required
                         />
                     </div>
                 </div>
@@ -334,6 +335,7 @@ const CreateProduct = () => {
                     accept="image/*"
                     onChange={(e) => setFoto(e.target.files[0])}
                     className="border p-2 rounded w-full mb-4 border-blue-600"
+                    required
                 />
                 {foto && (
                     <div className="mb-4">
