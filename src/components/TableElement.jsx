@@ -464,7 +464,7 @@ const TableElement = ({
               key={pageNumber}
               type="button"
               onClick={() => handlePageChange(pageNumber)}
-              className={`px-3 py-1 rounded ${
+              className={`px-3 py-1 rounded cursor-pointer ${
                 currentPage === pageNumber
                   ? "text-red-500 font-bold underline"
                   : "text-blue-600 hover:text-blue-900"
