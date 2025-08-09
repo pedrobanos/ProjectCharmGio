@@ -96,15 +96,15 @@ const TableElement = ({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handlePrev = () => {
-    setCurrentPage((p) => Math.max(p - 1, 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  // const handlePrev = () => { servia para ir a la página anterior y siguiente
+  //   setCurrentPage((p) => Math.max(p - 1, 1));
+  //   window.scrollTo({ top: 0, behavior: "smooth" });
+  // };
 
-  const handleNext = () => {
-    setCurrentPage((p) => Math.min(p + 1, totalPages));
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  // const handleNext = () => {
+  //   setCurrentPage((p) => Math.min(p + 1, totalPages));
+  //   window.scrollTo({ top: 0, behavior: "smooth" });
+  // };
 
   return (
     <>
@@ -147,11 +147,18 @@ const TableElement = ({
                   "url",
                 ].map((field) => {
                   const isLowStock = field === "cantidad" && parseInt(product[field], 10) <= 5;
+                  const isUrl = field === "url";
 
                   return (
                     <td
                       key={field}
-                      className={`px-2 py-2 whitespace-normal break-words ${isLowStock ? "text-red-600 font-semibold" : ""}`}
+                      className={[
+                        "px-2 py-2",
+                        isUrl
+                          ? "whitespace-normal break-all max-w-[750px]" // <-- clave para URLs largas
+                          : "whitespace-normal break-words",
+                        isLowStock ? "text-red-600 font-semibold" : "",
+                      ].join(" ")}
                       title={product[field]}
                     >
                       <EditableCell
@@ -161,6 +168,7 @@ const TableElement = ({
                     </td>
                   );
                 })}
+
                 <td className="px-2 py-2 flex flex-col sm:flex-row gap-2 justify-center items-center">
                   <button
                     type="button"
@@ -205,8 +213,8 @@ const TableElement = ({
               type="button"
               onClick={() => handlePageChange(pageNumber)}
               className={`px-3 py-1 rounded ${currentPage === pageNumber
-                  ? "text-red-500 font-bold underline"
-                  : "text-blue-600 hover:text-blue-900"
+                ? "text-red-500 font-bold underline"
+                : "text-blue-600 hover:text-blue-900"
                 }`}
             >
               {pageNumber}
