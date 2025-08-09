@@ -5,6 +5,7 @@ import ProductsPage from './components/ProductsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Product from "./components/Product";
 import Register from "./Views/Register";
+import EditProduct from "./Views/EditProduct";
 
 import CreateProduct from "./components/CreateProduct";
 import NavBar from "./components/NavBar";
@@ -47,6 +48,7 @@ function AppContent() {
           <Route path="/create-product" element={<ProtectedRoute user={user}><CreateProduct /></ProtectedRoute>} />
           <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage /></ProtectedRoute>} />
           <Route path="/products/:id" element={<ProtectedRoute user={user}><Product /></ProtectedRoute>} />
+          <Route path="/products/edit/:id" element={<ProtectedRoute user={user}><EditProduct /></ProtectedRoute>} />
         </Routes>
       </div>
       {!hideNavBar && <Footer />}

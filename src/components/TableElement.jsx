@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const EditableCell = ({ value, onChange }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -163,15 +164,18 @@ const TableElement = ({
                 <td className="px-2 py-2 flex flex-col sm:flex-row gap-2 justify-center items-center">
                   <button
                     type="button"
-                    className="text-green-500 hover:text-green-600 text-base sm:text-lg"
+                    className="text-green-500 hover:text-green-600 text-base sm:text-lg cursor-pointer"
                     onClick={() => onView(product)}
                     title="Ver"
                   >
                     <i className="fa-solid fa-circle-info"></i>
                   </button>
+                  <Link to={`/products/edit/${product.id}`} className="text-blue-500 hover:text-blue-600 text-base sm:text-lg">
+                    <i className="fa-solid fa-pen-to-square"></i>
+                  </Link>
                   <button
                     type="button"
-                    className="text-yellow-500 hover:text-yellow-600 text-base sm:text-lg"
+                    className="text-yellow-500 hover:text-yellow-600 text-base sm:text-lg cursor-pointer"
                     onClick={() => onSale(product)}
                     title="Venta"
                   >
@@ -179,19 +183,19 @@ const TableElement = ({
                   </button>
                   <button
                     type="button"
-                    className="text-red-500 hover:text-red-600 text-base sm:text-lg"
+                    className="text-red-500 hover:text-red-600 text-base sm:text-lg cursor-pointer"
                     onClick={() => onDelete(product)}
                     title="Eliminar"
                   >
                     <i className="fa-solid fa-trash"></i>
                   </button>
+
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
       <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
         {Array.from({ length: totalPages }, (_, index) => {
           const pageNumber = index + 1;
@@ -200,11 +204,10 @@ const TableElement = ({
               key={pageNumber}
               type="button"
               onClick={() => handlePageChange(pageNumber)}
-              className={`px-3 py-1 rounded ${
-                currentPage === pageNumber
+              className={`px-3 py-1 rounded ${currentPage === pageNumber
                   ? "text-red-500 font-bold underline"
                   : "text-blue-600 hover:text-blue-900"
-              }`}
+                }`}
             >
               {pageNumber}
             </button>
