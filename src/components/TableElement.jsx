@@ -299,6 +299,20 @@ const SortableHeader = ({
   );
 };
 
+// Fuera del JSX (arriba del componente o al inicio del archivo)
+const COLS = [
+  "w-16",     // Foto
+  "w-[18%]",  // Producto
+  "w-[7%]",   // Cantidad
+  "w-[9%]",   // Precio
+  "w-[15%]",  // Lugar
+  "w-[12%]",  // Proveedor
+  "w-[9%]",   // Cod. Proveedor
+  "w-[24%]",  // URL
+  "w-[10%]",  // Acciones
+];
+
+
 const TableElement = ({
   products,
   onView,
@@ -327,18 +341,13 @@ const TableElement = ({
     <>
       {/* Contenedor: mantiene scroll horizontal y centra en pantallas grandes */}
       <div className="w-full overflow-x-auto max-w-screen-xl mx-auto px-4">
-        <table className="w-full table-fixed border-collapse text-[12px] sm:text-sm">
+        {/* // ANTES
+        // DESPUÉS (solo cambia esta línea): */}
+        <table className="min-w-[1200px] sm:min-w-full w-full table-fixed border-collapse text-[12px] sm:text-sm">
+
           {/* Anchos fijos por columna para evitar “bailes” entre páginas */}
           <colgroup>
-            <col className="w-16" />            {/* Foto */}
-            <col className="w-[18%]" />         {/* Producto */}
-            <col className="w-[7%]" />          {/* Cantidad */}
-            <col className="w-[9%]" />         {/* Precio */}
-            <col className="w-[15%]" />         {/* Lugar */}
-            <col className="w-[12%]" />         {/* Proveedor */}
-            <col className="w-[9%]" />         {/* Cod. Proveedor */}
-            <col className="w-[24%]" />         {/* URL */}
-            <col className="w-[10%]" />         {/* Acciones */}
+            {COLS.map((cls, i) => <col key={i} className={cls} />)}
           </colgroup>
 
           <thead className="bg-gray-100 text-gray-700 uppercase text-[11px] sm:text-sm">
@@ -464,11 +473,10 @@ const TableElement = ({
               key={pageNumber}
               type="button"
               onClick={() => handlePageChange(pageNumber)}
-              className={`px-3 py-1 rounded cursor-pointer ${
-                currentPage === pageNumber
-                  ? "text-red-500 font-bold underline"
-                  : "text-blue-600 hover:text-blue-900"
-              }`}
+              className={`px-3 py-1 rounded cursor-pointer ${currentPage === pageNumber
+                ? "text-red-500 font-bold underline"
+                : "text-blue-600 hover:text-blue-900"
+                }`}
             >
               {pageNumber}
             </button>
