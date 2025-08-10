@@ -324,7 +324,7 @@ const TableElement = ({
   onSort,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 15;
   const totalPages = Math.ceil(products.length / itemsPerPage);
 
   const paginatedProducts = useMemo(() => {
