@@ -6,10 +6,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Product from "./components/Product";
 import Register from "./Views/Register";
 import EditProduct from "./Views/EditProduct";
-
 import CreateProduct from "./components/CreateProduct";
 import NavBar from "./components/NavBar";
-
 import LoginFixed from "./Views/LoginFixed"; // Importa el componente LoginFixed
 import Footer from "./components/Footer";
 

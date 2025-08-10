@@ -1,3 +1,4 @@
+
 // import React, { useState, useMemo, useEffect } from "react";
 // import { Link } from "react-router-dom";
 
@@ -6,9 +7,7 @@
 //   const [tempValue, setTempValue] = useState(value);
 
 //   useEffect(() => {
-//     if (!isEditing) {
-//       setTempValue(value);
-//     }
+//     if (!isEditing) setTempValue(value);
 //   }, [value, isEditing]);
 
 //   const handleDoubleClick = () => setIsEditing(true);
@@ -58,7 +57,6 @@
 // }) => {
 //   const isActive = orderBy === columnKey;
 //   const arrow = isActive ? (orderDirection === "asc" ? "↑" : "↓") : "";
-
 //   return (
 //     <th
 //       className="px-4 py-3 text-center cursor-pointer select-none"
@@ -72,18 +70,32 @@
 //   );
 // };
 
+// // Fuera del JSX (arriba del componente o al inicio del archivo)
+// const COLS = [
+//   "w-16",     // Foto
+//   "w-[18%]",  // Producto
+//   "w-[7%]",   // Cantidad
+//   "w-[9%]",   // Precio
+//   "w-[15%]",  // Lugar
+//   "w-[12%]",  // Proveedor
+//   "w-[9%]",   // Cod. Proveedor
+//   "w-[24%]",  // URL
+//   "w-[10%]",  // Acciones
+// ];
+
 // const TableElement = ({
 //   products,
-//   onView,
+//   // onView,
 //   onEditCell,
 //   onDelete,
 //   onSale,
 //   orderBy,
 //   orderDirection,
-//   onSort,
+//   onSort
 // }) => {
+
 //   const [currentPage, setCurrentPage] = useState(1);
-//   const itemsPerPage = 10;
+//   const itemsPerPage = 15;
 //   const totalPages = Math.ceil(products.length / itemsPerPage);
 
 //   const paginatedProducts = useMemo(() => {
@@ -96,20 +108,17 @@
 //     window.scrollTo({ top: 0, behavior: "smooth" });
 //   };
 
-//   // const handlePrev = () => { servia para ir a la página anterior y siguiente
-//   //   setCurrentPage((p) => Math.max(p - 1, 1));
-//   //   window.scrollTo({ top: 0, behavior: "smooth" });
-//   // };
-
-//   // const handleNext = () => {
-//   //   setCurrentPage((p) => Math.min(p + 1, totalPages));
-//   //   window.scrollTo({ top: 0, behavior: "smooth" });
-//   // };
-
 //   return (
 //     <>
-//       <div className="w-full overflow-x-auto lg:overflow-visible lg:max-w-6xl lg:mx-auto">
-//         <table className="min-w-[900px] w-full table-auto border-collapse text-[12px] sm:text-sm">
+//       {/* Contenedor: mantiene scroll horizontal y centra en pantallas grandes */}
+//       <div className="w-full overflow-x-auto max-w-screen-xl mx-auto px-4">
+//         {/* // ANTES
+//         // DESPUÉS (solo cambia esta línea): */}
+//         <table className="min-w-[1200px] sm:min-w-full w-full table-fixed border-collapse text-[12px] sm:text-sm">
+//           {/* Anchos fijos por columna para evitar “bailes” entre páginas */}
+//           <colgroup>
+//             {COLS.map((cls, i) => <col key={i} className={cls} />)}
+//           </colgroup>
 //           <thead className="bg-gray-100 text-gray-700 uppercase text-[11px] sm:text-sm">
 //             <tr>
 //               <th className="px-2 py-2 text-center">Foto</th>
@@ -146,39 +155,53 @@
 //                   "codigoProveedor",
 //                   "url",
 //                 ].map((field) => {
-//                   const isLowStock = field === "cantidad" && parseInt(product[field], 10) <= 5;
+//                   const isLowStock =
+//                     field === "cantidad" &&
+//                     parseInt(product[field], 10) <= 5;
 //                   const isUrl = field === "url";
 
 //                   return (
 //                     <td
 //                       key={field}
 //                       className={[
-//                         "px-2 py-2",
-//                         isUrl
-//                           ? "whitespace-normal break-all max-w-[750px]" // <-- clave para URLs largas
-//                           : "whitespace-normal break-words",
+//                         "px-2 py-2 whitespace-normal",
+//                         isUrl ? "break-all" : "break-words",
 //                         isLowStock ? "text-red-600 font-semibold" : "",
 //                       ].join(" ")}
 //                       title={product[field]}
 //                     >
-//                       <EditableCell
-//                         value={product[field]}
-//                         onChange={(val) => onEditCell(product.id, field, val)}
-//                       />
+//                       {/* Limita y fuerza corte en URL para evitar desbordes */}
+//                       <div
+//                         className={
+//                           isUrl
+//                             ? "block max-w-[28rem] [overflow-wrap:anywhere]"
+//                             : "block"
+//                         }
+//                       >
+//                         <EditableCell
+//                           value={product[field]}
+//                           onChange={(val) =>
+//                             onEditCell(product.id, field, val)
+//                           }
+//                         />
+//                       </div>
 //                     </td>
 //                   );
 //                 })}
-
-//                 <td className="px-2 py-2 flex flex-col sm:flex-row gap-2 justify-center items-center">
-//                   <button
-//                     type="button"
-//                     className="text-green-500 hover:text-green-600 text-base sm:text-lg cursor-pointer"
-//                     onClick={() => onView(product)}
-//                     title="Ver"
+//                 <td className="px-2 py-2 whitespace-nowrap flex flex-col sm:flex-row gap-2 justify-center items-center">
+//                   <Link
+//                     to={`/products/${product.id}`}
+//                     className="text-green-500 hover:text-green-600 text-base sm:text-lg"
+//                     title="Detalle"
 //                   >
-//                     <i className="fa-solid fa-circle-info"></i>
-//                   </button>
-//                   <Link to={`/products/edit/${product.id}`} className="text-blue-500 hover:text-blue-600 text-base sm:text-lg">
+//                      <i className="fa-solid fa-circle-info"></i>
+//                   </Link>
+
+//                   <Link
+//                     to={`/products/edit/${product.id}`}
+//                     className="text-blue-500 hover:text-blue-600 text-base sm:text-lg"
+//                     title="Editar"
+//                   >
 //                     <i className="fa-solid fa-pen-to-square"></i>
 //                   </Link>
 //                   <button
@@ -197,13 +220,13 @@
 //                   >
 //                     <i className="fa-solid fa-trash"></i>
 //                   </button>
-
 //                 </td>
 //               </tr>
 //             ))}
 //           </tbody>
 //         </table>
 //       </div>
+//       {/* Paginación */}
 //       <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
 //         {Array.from({ length: totalPages }, (_, index) => {
 //           const pageNumber = index + 1;
@@ -225,11 +248,11 @@
 //     </>
 //   );
 // };
-
 // export default TableElement;
 
+
 import React, { useState, useMemo, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 
 const EditableCell = ({ value, onChange }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -289,7 +312,7 @@ const SortableHeader = ({
   return (
     <th
       className="px-4 py-3 text-center cursor-pointer select-none"
-      onClick={() => onSort(columnKey)}
+      onClick={() => onSort?.(columnKey)}
     >
       <div className="flex items-center justify-center space-x-1">
         <span>{label}</span>
@@ -299,7 +322,6 @@ const SortableHeader = ({
   );
 };
 
-// Fuera del JSX (arriba del componente o al inicio del archivo)
 const COLS = [
   "w-16",     // Foto
   "w-[18%]",  // Producto
@@ -312,10 +334,8 @@ const COLS = [
   "w-[10%]",  // Acciones
 ];
 
-
 const TableElement = ({
   products,
-  onView,
   onEditCell,
   onDelete,
   onSale,
@@ -323,9 +343,20 @@ const TableElement = ({
   orderDirection,
   onSort,
 }) => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const itemsPerPage = 15;
-  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(products.length / itemsPerPage));
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Sincroniza la página con ?page= en la URL
+  useEffect(() => {
+    const p = parseInt(searchParams.get("page") || "1", 10);
+    const safe = Number.isNaN(p) ? 1 : Math.min(Math.max(p, 1), totalPages);
+    setCurrentPage(safe);
+  }, [searchParams, totalPages]);
 
   const paginatedProducts = useMemo(() => {
     const startIdx = (currentPage - 1) * itemsPerPage;
@@ -334,22 +365,19 @@ const TableElement = ({
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    const next = new URLSearchParams(searchParams);
+    next.set("page", String(pageNumber));
+    setSearchParams(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <>
-      {/* Contenedor: mantiene scroll horizontal y centra en pantallas grandes */}
       <div className="w-full overflow-x-auto max-w-screen-xl mx-auto px-4">
-        {/* // ANTES
-        // DESPUÉS (solo cambia esta línea): */}
         <table className="min-w-[1200px] sm:min-w-full w-full table-fixed border-collapse text-[12px] sm:text-sm">
-
-          {/* Anchos fijos por columna para evitar “bailes” entre páginas */}
           <colgroup>
             {COLS.map((cls, i) => <col key={i} className={cls} />)}
           </colgroup>
-
           <thead className="bg-gray-100 text-gray-700 uppercase text-[11px] sm:text-sm">
             <tr>
               <th className="px-2 py-2 text-center">Foto</th>
@@ -363,7 +391,6 @@ const TableElement = ({
               <th className="px-2 py-2 text-center">Acciones</th>
             </tr>
           </thead>
-
           <tbody className="divide-y divide-gray-200 text-gray-800">
             {paginatedProducts.map((product) => (
               <tr key={product.id} className="text-center">
@@ -389,8 +416,7 @@ const TableElement = ({
                   "url",
                 ].map((field) => {
                   const isLowStock =
-                    field === "cantidad" &&
-                    parseInt(product[field], 10) <= 5;
+                    field === "cantidad" && parseInt(product[field], 10) <= 5;
                   const isUrl = field === "url";
 
                   return (
@@ -403,7 +429,6 @@ const TableElement = ({
                       ].join(" ")}
                       title={product[field]}
                     >
-                      {/* Limita y fuerza corte en URL para evitar desbordes */}
                       <div
                         className={
                           isUrl
@@ -413,9 +438,7 @@ const TableElement = ({
                       >
                         <EditableCell
                           value={product[field]}
-                          onChange={(val) =>
-                            onEditCell(product.id, field, val)
-                          }
+                          onChange={(val) => onEditCell(product.id, field, val)}
                         />
                       </div>
                     </td>
@@ -423,14 +446,15 @@ const TableElement = ({
                 })}
 
                 <td className="px-2 py-2 whitespace-nowrap flex flex-col sm:flex-row gap-2 justify-center items-center">
-                  <button
-                    type="button"
-                    className="text-green-500 hover:text-green-600 text-base sm:text-lg cursor-pointer"
-                    onClick={() => onView(product)}
-                    title="Ver"
+                  {/* Detalle: pasa fromSearch para volver a la misma página */}
+                  <Link
+                    to={`/products/${product.id}`}
+                    state={{ fromSearch: location.search }}
+                    className="text-green-500 hover:text-green-600 text-base sm:text-lg"
+                    title="Detalle"
                   >
                     <i className="fa-solid fa-circle-info"></i>
-                  </button>
+                  </Link>
 
                   <Link
                     to={`/products/edit/${product.id}`}
@@ -473,10 +497,11 @@ const TableElement = ({
               key={pageNumber}
               type="button"
               onClick={() => handlePageChange(pageNumber)}
-              className={`px-3 py-1 rounded cursor-pointer ${currentPage === pageNumber
-                ? "text-red-500 font-bold underline"
-                : "text-blue-600 hover:text-blue-900"
-                }`}
+              className={`px-3 py-1 rounded cursor-pointer ${
+                currentPage === pageNumber
+                  ? "text-red-500 font-bold underline"
+                  : "text-blue-600 hover:text-blue-900"
+              }`}
             >
               {pageNumber}
             </button>

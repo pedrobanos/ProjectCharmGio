@@ -82,10 +82,6 @@ const ProductsPage = () => {
         });
     }, [products, searchTerm, orderBy, orderDirection]);
 
-    const handleView = (product) => {
-        navigate(`/products/${product.id}`);
-    };
-
     const handleEditCell = async (id, field, newValue) => {
         try {
             const updated = await updateProduct(id, { [field]: newValue });
@@ -146,7 +142,6 @@ const ProductsPage = () => {
                     onSearch={setSearchTerm}
                     placeholder="Buscar por nombre, proveedor, código, URL, lugar o precio..."
                 />
-
                 <Link
                     to="/create-product"
                     className="flex items-center justify-center whitespace-nowrap
@@ -161,7 +156,6 @@ const ProductsPage = () => {
 
             <TableElement
                 products={filteredProducts}
-                onView={handleView}
                 onEditCell={handleEditCell}
                 onDelete={handleDelete}
                 onSale={handleSale}
