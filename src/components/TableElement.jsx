@@ -376,18 +376,48 @@ const TableElement = ({
       <div className="w-full overflow-x-auto max-w-screen-xl mx-auto px-4">
         <table className="min-w-[1200px] sm:min-w-full w-full table-fixed border-collapse text-[12px] sm:text-sm">
           <colgroup>
-            {COLS.map((cls, i) => <col key={i} className={cls} />)}
+            {COLS.map((cls, i) => (
+              <col key={i} className={cls} />
+            ))}
           </colgroup>
           <thead className="bg-gray-100 text-gray-700 uppercase text-[11px] sm:text-sm">
             <tr>
               <th className="px-2 py-2 text-center">Foto</th>
-              <SortableHeader label="Producto" columnKey="nombre" {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="Cantidad" columnKey="cantidad" {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="Precio" columnKey="precio" {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="Lugar" columnKey="lugar" {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="Proveedor" columnKey="proveedor" {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="URL" columnKey="url" {...{ orderBy, orderDirection, onSort }} />
+              <SortableHeader
+                label="Producto"
+                columnKey="nombre"
+                {...{ orderBy, orderDirection, onSort }}
+              />
+              <SortableHeader
+                label="Cantidad"
+                columnKey="cantidad"
+                {...{ orderBy, orderDirection, onSort }}
+              />
+              <SortableHeader
+                label="Precio"
+                columnKey="precio"
+                {...{ orderBy, orderDirection, onSort }}
+              />
+              <SortableHeader
+                label="Lugar"
+                columnKey="lugar"
+                {...{ orderBy, orderDirection, onSort }}
+              />
+              <SortableHeader
+                label="Proveedor"
+                columnKey="proveedor"
+                {...{ orderBy, orderDirection, onSort }}
+              />
+              <SortableHeader
+                label="Cod. Proveedor"
+                columnKey="codigoProveedor"
+                {...{ orderBy, orderDirection, onSort }}
+              />
+              <SortableHeader
+                label="URL"
+                columnKey="url"
+                {...{ orderBy, orderDirection, onSort }}
+              />
               <th className="px-2 py-2 text-center">Acciones</th>
             </tr>
           </thead>
@@ -416,8 +446,22 @@ const TableElement = ({
                   "url",
                 ].map((field) => {
                   const isLowStock =
-                    field === "cantidad" && parseInt(product[field], 10) <= 5;
+                    field === "cantidad" &&
+                    parseInt(product[field], 10) <= 5;
                   const isUrl = field === "url";
+
+                  // ✅ Evaluar descripción por producto
+                  const hasLongDescription =
+                    product.descripcion &&
+                    product.descripcion.length > 10;
+
+                  // ✅ Solo colorear la celda "nombre" según la longitud de la descripción
+                  const nameColorClass =
+                    field === "nombre"
+                      ? hasLongDescription
+                        ? "text-grey-600"
+                        : "text-red-600"
+                      : "";
 
                   return (
                     <td
@@ -426,6 +470,7 @@ const TableElement = ({
                         "px-2 py-2 whitespace-normal",
                         isUrl ? "break-all" : "break-words",
                         isLowStock ? "text-red-600 font-semibold" : "",
+                        nameColorClass,
                       ].join(" ")}
                       title={product[field]}
                     >
@@ -438,7 +483,9 @@ const TableElement = ({
                       >
                         <EditableCell
                           value={product[field]}
-                          onChange={(val) => onEditCell(product.id, field, val)}
+                          onChange={(val) =>
+                            onEditCell(product.id, field, val)
+                          }
                         />
                       </div>
                     </td>
