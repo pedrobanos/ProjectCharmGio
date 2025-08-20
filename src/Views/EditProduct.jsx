@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getProductById, updateProduct } from "../services/productServices"; // ajusta el path si es distinto
 
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
@@ -8,7 +8,7 @@ const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
+  const location = useLocation();
   // Campos del producto
   const [nombre, setNombre] = useState("");
   const [cantidad, setCantidad] = useState("");
@@ -131,6 +131,20 @@ const EditProduct = () => {
       await updateProduct(Number(id), updates);
       setSuccess("Producto actualizado con éxito!");
       // Navega al listado (ajusta la ruta si hace falta)
+
+
+      const fromSearch = location.state?.fromSearch;
+      if (fromSearch) {
+        // Vuelve a la lista con la misma página (?page=…)
+        navigate(`/products${fromSearch}`, { replace: true });
+      } else if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate("/products");
+      }
+
+
+
       navigate("/products");
     } catch (err) {
       console.error(err);

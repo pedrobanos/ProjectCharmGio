@@ -504,7 +504,7 @@ const TableElement = ({
                   </Link>
 
                   <Link
-                    to={`/products/edit/${product.id}`}
+                    to={`/products/edit/${product.id}${location.search}`}
                     className="text-blue-500 hover:text-blue-600 text-base sm:text-lg"
                     title="Editar"
                   >
@@ -560,6 +560,3 @@ const TableElement = ({
 };
 
 export default TableElement;
-
-
-
