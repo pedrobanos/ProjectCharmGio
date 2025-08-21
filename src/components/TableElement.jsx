@@ -429,7 +429,7 @@ const TableElement = ({
                     <img
                       src={product.foto}
                       alt={`Foto de ${product.nombre}`}
-                      className="h-10 w-10 object-cover rounded-full mx-auto hover:scale-110 transition-transform duration-200"
+                      className="h-10 w-10 object-cover rounded-full mx-auto hover:scale-200 transition-transform duration-200"
                     />
                   ) : (
                     <span className="text-xs">Sin foto</span>
