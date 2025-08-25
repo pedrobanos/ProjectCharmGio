@@ -258,7 +258,7 @@ const ProductsPage = () => {
                             <img
                                 src={selectedProduct.foto}
                                 alt={selectedProduct.nombre}
-                                className="w-full max-w-xs rounded-full mx-auto sm:w-48 sm:h-48 object-cover rounded"
+                                className="w-full max-w-xs rounded-full mx-auto sm:w-48 sm:h-48 object-cover"
                             />
                         )}
                         <label className="block text-sm font-medium mb-1">

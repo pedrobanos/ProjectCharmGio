@@ -200,7 +200,7 @@ const Product = () => {
             <table className="w-full border border-gray-300">
               <thead>
                 <tr className="bg-gray-100">
-                  <th className="border px-2 py-1">Fecha</th>
+                  <th className="border px-2 py-1">Fecha de Venta</th>
                   <th className="border px-2 py-1">Cliente</th>
                   <th className="border px-2 py-1">Cantidad</th>
                 </tr>
