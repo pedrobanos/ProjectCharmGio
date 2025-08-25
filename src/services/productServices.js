@@ -31,21 +31,34 @@ export const createProduct = async (product) => {
   return data;
 };
 
+// export const getProductById = async (id) => {
+//   const parsedId = Number(id);
+//   console.log("getProductById con id:", parsedId);
+
+//   const { data, error } = await supabase
+//     .from("products")
+//     .select("*")
+//     .eq("id", parsedId)
+//     .single();
+
+//   if (error) {
+//     console.error("Error Supabase getProductById:", error);
+//     throw error;
+//   }
+//   return data;
+// };
+
 export const getProductById = async (id) => {
   const parsedId = Number(id);
-  console.log("getProductById con id:", parsedId);
-
   const { data, error } = await supabase
-    .from("products")
+    .from("products_with_sales")
     .select("*")
     .eq("id", parsedId)
     .single();
 
-  if (error) {
-    console.error("Error Supabase getProductById:", error);
-    throw error;
-  }
-  return data;
+  if (error) throw error;
+  // opcional: camelCase
+  return { ...data, historicoVentas: data.historico_ventas };
 };
 
 

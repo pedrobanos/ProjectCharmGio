@@ -9,6 +9,10 @@ import {
 } from "../services/productServices";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import { createSale } from "../services/salesServices";
+import { diaMadridYYYYMMDD } from "../Constants";
+import { supabase } from "../supabaseClient";
+
 const ProductsPage = () => {
     const [products, setProducts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,6 +20,8 @@ const ProductsPage = () => {
     const [cantidadVenta, setCantidadVenta] = useState(1);
     const [searchTerm, setSearchTerm] = useState("");
     const [error, setError] = useState("");
+    const [sales, setSales] = useState([]); // para añadir ventas localmente
+    const [cliente, setCliente] = useState("");
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -110,32 +116,110 @@ const ProductsPage = () => {
         setIsModalOpen(true);
     };
 
+
+    // const confirmSale = async () => {
+    //     if (cantidadVenta < 1) return setError("La cantidad debe ser mayor o igual a 1.");
+    //     if (cantidadVenta > selectedProduct.cantidad)
+    //         return setError("No hay suficiente stock.");
+
+    //     try {
+    //         const updated = await updateProduct(selectedProduct.id, {
+    //             cantidad: selectedProduct.cantidad - cantidadVenta,
+    //         });
+
+    //         setProducts((prev) =>
+    //             prev.map((p) =>
+    //                 p.id === selectedProduct.id ? { ...p, ...updated } : p
+    //             )
+    //         );
+    //         setIsModalOpen(false);
+    //     } catch (err) {
+    //         console.error("Error en venta:", err);
+    //         setError("Error al realizar la venta.");
+    //     }
+    // };
+    // const confirmSale = async () => {
+    //     if (cantidadVenta < 1)
+    //         return setError("La cantidad debe ser mayor o igual a 1.");
+    //     if (cantidadVenta > selectedProduct.cantidad)
+    //         return setError("No hay suficiente stock.");
+
+    //     try {
+    //         // 1) Llama a la RPC transaccional (crea fila en sales + descuenta stock de products)
+    //         const { data: sale, error } = await supabase.rpc("confirm_sale", {
+    //             p_product_id: Number(selectedProduct.id), // bigint
+    //             p_cantidad: Number(cantidadVenta),        // integer
+    //             p_dia: null,                              // o diaMadridYYYYMMDD()
+    //         });
+
+    //         if (error) {
+    //             console.error("RPC error:", error);
+    //             throw new Error(error.message); // muestra el error real
+    //         }
+
+    //         // 2) Refresca el estado local de productos (descuenta stock en UI)
+    //         setProducts(prev =>
+    //             prev.map(p =>
+    //                 p.id === selectedProduct.id
+    //                     ? { ...p, cantidad: p.cantidad - cantidadVenta }
+    //                     : p
+    //             )
+    //         );
+
+    //         // 3) (Opcional) añade la venta al estado local
+    //         setSales?.(prev => [sale, ...(prev || [])]);
+
+    //         setIsModalOpen(false);
+    //         setError(null);
+    //     } catch (err) {
+    //         console.error("Error en venta:", err);
+    //         setError(err.message || "Error al realizar la venta.");
+    //     }
+    // };
+
     const confirmSale = async () => {
-        if (cantidadVenta < 1) return setError("La cantidad debe ser mayor o igual a 1.");
+        if (cantidadVenta < 1)
+            return setError("La cantidad debe ser mayor o igual a 1.");
         if (cantidadVenta > selectedProduct.cantidad)
             return setError("No hay suficiente stock.");
 
         try {
-            const updated = await updateProduct(selectedProduct.id, {
-                cantidad: selectedProduct.cantidad - cantidadVenta,
+            const { data: sale, error } = await supabase.rpc("confirm_sale", {
+                p_product_id: Number(selectedProduct.id), // bigint
+                p_cantidad: Number(cantidadVenta),        // integer
+                p_dia: null,                              // o tu diaMadridYYYYMMDD()
+                p_cliente: cliente || null,               // 👈 pasa el cliente (puede ser null)
             });
 
-            setProducts((prev) =>
-                prev.map((p) =>
-                    p.id === selectedProduct.id ? { ...p, ...updated } : p
+            if (error) {
+                console.error("RPC error:", error);
+                throw new Error(error.message);
+            }
+
+            // UI reactiva
+            setProducts(prev =>
+                prev.map(p =>
+                    p.id === selectedProduct.id
+                        ? { ...p, cantidad: p.cantidad - cantidadVenta }
+                        : p
                 )
             );
+
+            setSales?.(prev => [sale, ...(prev || [])]);
             setIsModalOpen(false);
+            setCliente("");
+            setError(null);
         } catch (err) {
             console.error("Error en venta:", err);
-            setError("Error al realizar la venta.");
+            setError(err.message || "Error al realizar la venta.");
         }
     };
+
 
     return (
         <div className="flex flex-col items-center justify-center gap-4 p-6">
             <h1 className="text-5xl text-center font-bold mb-4 mt-4 text-blue-500">
-                Productos de la tienda <span className="mx-4">💍</span> 
+                Productos de la tienda <span className="mx-4">💍</span>
             </h1>
             <div className="flex items-center space-x-3 w-full max-w-xl mx-auto">
                 <SearchBar
@@ -170,6 +254,13 @@ const ProductsPage = () => {
                         <h2 className="text-lg font-semibold mb-4">
                             Vender: {selectedProduct.nombre}
                         </h2>
+                        {selectedProduct.foto && (
+                            <img
+                                src={selectedProduct.foto}
+                                alt={selectedProduct.nombre}
+                                className="w-full max-w-xs rounded-full mx-auto sm:w-48 sm:h-48 object-cover rounded"
+                            />
+                        )}
                         <label className="block text-sm font-medium mb-1">
                             Cantidad a vender (Stock: {selectedProduct.cantidad})
                         </label>
@@ -178,6 +269,13 @@ const ProductsPage = () => {
                             min="1"
                             value={cantidadVenta}
                             onChange={(e) => setCantidadVenta(Number(e.target.value))}
+                            className="border border-gray-300 rounded-md p-2 w-full mb-2"
+                        />
+                        <input
+                            type="text"
+                            value={cliente}
+                            onChange={(e) => setCliente(e.target.value)}
+                            placeholder="Nombre del cliente"
                             className="border border-gray-300 rounded-md p-2 w-full mb-2"
                         />
                         {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
