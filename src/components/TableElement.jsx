@@ -125,7 +125,6 @@ const TableElement = ({
     const p = parseInt(searchParams.get("page") || "1", 10);
     const safe = Number.isNaN(p) ? 1 : Math.min(Math.max(p, 1), totalPages);
     setCurrentPage(safe);
-    setLoading(true);
   }, [searchParams, totalPages]);
 
   const paginatedProducts = useMemo(() => {

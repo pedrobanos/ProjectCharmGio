@@ -154,7 +154,7 @@ const CreateProduct = () => {
                             onChange={(e) => setUrlInput(e.target.value)}
                             placeholder="www.ejemplo.com"
                             className="border p-2 rounded-r w-full border-blue-600"
-                            required
+                            // required
                         />
                     </div>
                 </div>
