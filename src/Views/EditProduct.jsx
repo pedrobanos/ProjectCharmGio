@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getProductById, updateProduct } from "../services/productServices"; // ajusta el path si es distinto
+import Loading from "../components/Loading";
 
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -156,7 +157,7 @@ const EditProduct = () => {
 
   if (loading) {
     return (
-      <div className="max-w-md mx-auto p-6 bg-white rounded mt-6">Cargando...</div>
+      <Loading />
     );
   }
 
