@@ -10,12 +10,16 @@ import CreateProduct from "./components/CreateProduct";
 import NavBar from "./components/NavBar";
 import LoginFixed from "./Views/LoginFixed"; // Importa el componente LoginFixed
 import Footer from "./components/Footer";
+import StatsView from "./Views/StatsView";
 
 function AppContent() {
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
+
+  const [products, setProducts] = useState([]);
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -45,6 +49,7 @@ function AppContent() {
           {/* <Route path="/register" element={user ? <Navigate to="/products" replace /> : <Register onRegisterSuccess={() => { }} />} /> */}
           <Route path="/create-product" element={<ProtectedRoute user={user}><CreateProduct /></ProtectedRoute>} />
           <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage /></ProtectedRoute>} />
+           <Route path="/stats" element={<ProtectedRoute user={user}><StatsView /></ProtectedRoute>} />
           <Route path="/products/:id" element={<ProtectedRoute user={user}><Product /></ProtectedRoute>} />
           <Route path="/products/edit/:id" element={<ProtectedRoute user={user}><EditProduct /></ProtectedRoute>} />
         </Routes>

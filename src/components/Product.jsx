@@ -97,6 +97,7 @@ const Product = () => {
                   <th className="border px-2 py-1">Fecha de Venta</th>
                   <th className="border px-2 py-1">Cliente</th>
                   <th className="border px-2 py-1">Cantidad</th>
+                   <th className="border px-2 py-1">Precio Venta</th>
                 </tr>
               </thead>
               <tbody>
@@ -105,6 +106,7 @@ const Product = () => {
                     <td className="border px-2 py-1 text-center">{formatDateTime(s.created_at)}</td>
                     <td className="border px-2 py-1 text-center">{s.cliente} </td>
                     <td className="border px-2 py-1 text-center">{s.cantidad} unds</td>
+                     <td className="border px-2 py-1 text-center">{s.precio_venta} €</td>
                   </tr>
                 ))}
               </tbody>

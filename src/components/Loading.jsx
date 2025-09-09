@@ -26,7 +26,7 @@ export default function Loading({
 
   return (
     // Ocupa alto de la ventana y centra el loader como una navbar centrada
-    <div className="min-h-screen w-full grid place-items-center" role="status" aria-label={label}>
+    <div className="min-h-screen w-full grid place-items-center" role="status" aria-label={label} >
       <span className="sr-only">{label}</span>
 
       {/* Wrapper con tamaño fijo y posicionamiento relativo para centrar el aro interior */}

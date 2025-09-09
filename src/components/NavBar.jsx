@@ -13,9 +13,18 @@ const NavBar = ({ user, onLogout }) => {
                         <span className="mr-2">Hola, {user.email}</span>
                     </li>
                     <li className="flex-shrink-0">
+                        <Link
+                            to="/stats"
+                            className="hover:text-yellow-400 rounded"
+                            title="Estadisticas"
+                        >
+                            <i className="fa-solid fa-chart-simple"></i>
+                        </Link>
+                    </li>
+                    <li className="flex-shrink-0">
                         <button
                             onClick={onLogout}
-                            className="hover:bg-red-600 px-3 py-1 rounded"
+                            className="hover:text-red-600 rounded cursor-pointer"
                             title="Cerrar sesión"
                         >
                             <i className="fa-solid fa-arrow-right-from-bracket"></i>

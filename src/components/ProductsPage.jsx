@@ -18,12 +18,14 @@ const ProductsPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [cantidadVenta, setCantidadVenta] = useState(1);
+    const [precioVenta, setPrecioVenta] = useState(0); // nuevo estado para precio de venta
     const [searchTerm, setSearchTerm] = useState("");
     const [error, setError] = useState("");
     const [sales, setSales] = useState([]); // para añadir ventas localmente
     const [cliente, setCliente] = useState("");
     const location = useLocation();
     const navigate = useNavigate();
+
 
     // Estado para ordenamiento
     const [orderBy, setOrderBy] = useState(null);
@@ -189,6 +191,7 @@ const ProductsPage = () => {
                 p_cantidad: Number(cantidadVenta),        // integer
                 p_dia: null,                              // o tu diaMadridYYYYMMDD()
                 p_cliente: cliente || null,               // 👈 pasa el cliente (puede ser null)
+                p_precio_venta: Number(precioVenta) || null,      // 👈 pasa el precio de venta (puede ser null)
             });
 
             if (error) {
@@ -208,6 +211,8 @@ const ProductsPage = () => {
             setSales?.(prev => [sale, ...(prev || [])]);
             setIsModalOpen(false);
             setCliente("");
+            setCantidadVenta(1);
+            setPrecioVenta(0); // reset precio de venta
             setError(null);
         } catch (err) {
             console.error("Error en venta:", err);
@@ -275,6 +280,13 @@ const ProductsPage = () => {
                             type="text"
                             value={cliente}
                             onChange={(e) => setCliente(e.target.value)}
+                            placeholder="Nombre del cliente"
+                            className="border border-gray-300 rounded-md p-2 w-full mb-2"
+                        />
+                        <input
+                            type="text"
+                            value={precioVenta}
+                            onChange={(e) => setPrecioVenta(e.target.value)}
                             placeholder="Nombre del cliente"
                             className="border border-gray-300 rounded-md p-2 w-full mb-2"
                         />
