@@ -276,13 +276,19 @@ const ProductsPage = () => {
                             onChange={(e) => setCantidadVenta(Number(e.target.value))}
                             className="border border-gray-300 rounded-md p-2 w-full mb-2"
                         />
+                         <label className="block text-sm font-medium mb-1">
+                            Nombre Cliente
+                        </label>
                         <input
                             type="text"
                             value={cliente}
                             onChange={(e) => setCliente(e.target.value)}
-                            placeholder="Nombre del cliente"
+                            placeholder="John Doe"
                             className="border border-gray-300 rounded-md p-2 w-full mb-2"
                         />
+                        <label className="block text-sm font-medium mb-1">
+                            Precio de Venta (€)
+                        </label>
                         <input
                             type="text"
                             value={precioVenta}
