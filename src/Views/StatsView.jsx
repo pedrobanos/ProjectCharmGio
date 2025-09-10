@@ -71,6 +71,14 @@ const StatsView = ({ productId }) => {
     // Calcular total de productos restantes sumando todas las cantidades de products
     const totalRestantes = products.reduce((acc, product) => acc + product.cantidad, 0)
 
+    const beneficio = sales.reduce((acc, s) => {
+        const product = products.find(p => Number(p.id) === Number(s.product_id));
+        if (product && s.precio_venta != null) {
+            return acc + (s.precio_venta - product.precio) * s.cantidad;
+        }
+        return acc;
+    }, 0);
+
     return (
         <div className="max-w-screen-lg mx-auto p-4 space-y-6">
             <h2 className="text-4xl text-center font-bold mb-6 mt-6">
@@ -93,14 +101,16 @@ const StatsView = ({ productId }) => {
                 ))}
             </div>
             {/* Tabla de ventas */}
-            <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse text-sm sm:text-base border border-gray-200">
+            <div className="max-h-[600px] overflow-y-auto border border-gray-200 rounded-md">
+                <table className="min-w-full border-collapse text-sm sm:text-base">
                     <colgroup>
                         {COLS.map((cls, i) => (
                             <col key={i} className={cls} />
                         ))}
                     </colgroup>
-                    <thead className="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm">
+
+                    {/* Cabecera */}
+                    <thead className="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm sticky top-0 z-10">
                         <tr>
                             <th className="px-2 py-2 text-center">Foto</th>
                             <th className="px-2 py-2 text-center">Producto</th>
@@ -110,8 +120,9 @@ const StatsView = ({ productId }) => {
                             <th className="px-2 py-2 text-center">Fecha</th>
                         </tr>
                     </thead>
+                    {/* Datos con scroll */}
                     <tbody className="divide-y divide-gray-200 text-gray-800">
-                        {sales.map(s => (
+                        {sales.slice(0, 15).map((s) => (
                             <tr key={s.id} className="text-center">
                                 <td className="px-2 py-3">
                                     {s.foto ? (
@@ -132,32 +143,46 @@ const StatsView = ({ productId }) => {
                                 <td className="px-2 py-2">
                                     {s.precio_venta != null ? `${s.precio_venta} €` : "-"}
                                 </td>
-                                <td className="px-2 py-2">{new Date(s.created_at).toLocaleString("es-ES")}</td>
+                                <td className="px-2 py-2">
+                                    {new Date(s.created_at).toLocaleString("es-ES")}
+                                </td>
                             </tr>
                         ))}
-
-                        {sales.length > 0 && (
-                            <>
-                                {/* Total de ventas */}
-                                <tr className="bg-gray-100 font-bold text-gray-800">
-                                    <td colSpan={2} className="px-2 py-2 text-start">
-                                        Total de ventas en {MONTHS[selectedMonth]} de {year}:
-                                    </td>
-                                    <td className="px-2 py-2 text-start text-green-600">{totalVentas} unds</td>
-                                    <td colSpan={3}></td>
-                                </tr>
-
-                                {/* Total de productos restantes */}
-                                <tr className="bg-gray-100 font-bold text-gray-800">
-                                    <td colSpan={2} className="px-2 py-2 text-start">
-                                        Total de productos restantes:
-                                    </td>
-                                    <td className="px-2 py-2 text-blue-600 ">{totalRestantes} unds</td>
-                                    <td colSpan={3}></td>
-                                </tr>
-                            </>
-                        )}
                     </tbody>
+                    {/* Totales fijos al final */}
+                    {sales.length > 0 && (
+                        <tfoot className="bg-gray-100 font-bold text-gray-800 sticky bottom-0">
+                            <tr className="border-t border-gray-300">
+                                <td colSpan={2} className="px-2 py-2 text-start">
+                                    Total de ventas en {MONTHS[selectedMonth]} de {year}:
+                                </td>
+                                <td className="px-2 py-2 text-start text-green-600">
+                                    {totalVentas} unds
+                                </td>
+                                <td colSpan={3}></td>
+                            </tr>
+
+                            <tr className="border-t border-gray-300">
+                                <td colSpan={2} className="px-2 py-2 text-start">
+                                    Total de productos restantes:
+                                </td>
+                                <td className="px-2 py-2 text-blue-600">
+                                    {totalRestantes} unds
+                                </td>
+                                <td colSpan={3}></td>
+                            </tr>
+
+                            <tr className="border-t border-gray-300">
+                                <td colSpan={2} className="px-2 py-2 text-start">
+                                    Beneficio:
+                                </td>
+                                <td className="px-2 py-2 text-blue-600">
+                                    {beneficio.toFixed(2)} €
+                                </td>
+                                <td colSpan={3}></td>
+                            </tr>
+                        </tfoot>
+                    )}
                 </table>
             </div>
         </div>
