@@ -299,6 +299,7 @@ const ProductsPage = () => {
                 nombreLower: normalizeString(p.nombre),
                 lugarLower: normalizeString(p.lugar),
                 codigoProveedorLower: normalizeString(p.codigoProveedor),
+                descripcionLower: normalizeString(p.descripcion),
             }));
             setProducts(normalized);
         } catch (err) {
@@ -323,7 +324,8 @@ const ProductsPage = () => {
         const filtered = products.filter((p) =>
             (p.nombreLower || "").includes(term) ||
             (p.lugarLower || "").includes(term) ||
-            (p.codigoProveedorLower || "").includes(term)
+            (p.codigoProveedorLower || "").includes(term) ||
+            (p.descripcionLower || "").includes(term)
         );
 
         if (!orderBy) return filtered;
@@ -361,6 +363,9 @@ const ProductsPage = () => {
                 lugarLower: normalizeString(updated.lugar),
                 codigoProveedorLower: normalizeString(updated.codigoProveedor),
             };
+
+            console.log("Producto actualizado:", updatedNormalized.descripcionLower);
+
             setProducts((prev) =>
                 prev.map((p) => (p.id === id ? { ...p, ...updatedNormalized } : p))
             );
@@ -430,7 +435,7 @@ const ProductsPage = () => {
                     <h1 className="text-5xl text-center font-bold mb-4 text-blue-500">
                         Productos de la tienda <span className="mx-4">💍</span>
                     </h1>
-                    <div className="flex items-center space-x-3 w-full max-w-xl mx-auto">
+                    <div className="flex items-center space-x-3 w-full max-w-xl mx-auto mb-4">
                         <SearchBar
                             onSearch={setSearchTerm}
                             placeholder="Buscar por nombre, lugar o código de proveedor..."
