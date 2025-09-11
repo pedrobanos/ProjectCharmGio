@@ -140,8 +140,7 @@ const CreateProduct = () => {
                     />
                     {/* <div className="text-sm text-gray-500 text-right">{descripcion.length}/250</div> */}
                 </div>
-
-                {/* URL con https:// fijo */}
+                {/* URL con https:// fijo
                 <div className="mb-4">
                     <label className="block mb-1 font-semibold">URL:</label>
                     <div className="flex">
@@ -157,8 +156,7 @@ const CreateProduct = () => {
                         // required
                         />
                     </div>
-                </div>
-
+                </div> */}
                 <label className="block mb-2 font-semibold">Foto:</label>
                 <input
                     type="file"

@@ -73,14 +73,13 @@ const SortableHeader = ({
 
 const COLS = [
   "w-16",     // Foto
-  "w-[18%]",  // Producto
+  "w-[21%]",  // Producto
   "w-[9%]",   // Cantidad
   "w-[11%]",   // Precio
   "w-[15%]",  // Lugar
   "w-[12%]",  // Proveedor
-  "w-[9%]",   // Cod. Proveedor
-  "w-[20%]",  // URL
-  "w-[10%]",  // Acciones
+  "w-[11%]",   // Cod. Proveedor
+  "w-[15%]",  // Acciones
 ];
 
 
@@ -290,7 +289,7 @@ const TableElement = ({
               <SortableHeader label="Lugar" columnKey="lugar" {...{ orderBy, orderDirection, onSort }} />
               <SortableHeader label="Proveedor" columnKey="proveedor" {...{ orderBy, orderDirection, onSort }} />
               <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="URL" columnKey="url" {...{ orderBy, orderDirection, onSort }} />
+              {/* <SortableHeader label="URL" columnKey="url" {...{ orderBy, orderDirection, onSort }} /> */}
               <th className="px-2 py-2 text-center" scope="col">Acciones</th>
             </tr>
           </thead>
@@ -317,12 +316,12 @@ const TableElement = ({
                   "lugar",
                   "proveedor",
                   "codigoProveedor",
-                  "url",
+                  // "url",
                 ].map((field) => {
                   const isLowStock =
                     field === "cantidad" &&
                     parseInt(product[field], 10) <= 5;
-                  const isUrl = field === "url";
+                  // const isUrl = field === "url";
 
                   const hasLongDescription =
                     product.descripcion &&
@@ -340,18 +339,18 @@ const TableElement = ({
                       key={field}
                       className={[
                         "px-2 py-2 whitespace-normal",
-                        isUrl ? "break-all" : "break-words",
+                        // isUrl ? "break-all" : "break-words",
                         isLowStock ? "text-red-600 font-semibold" : "",
                         nameColorClass,
                       ].join(" ")}
                       title={product[field]}
                     >
                       <div
-                        className={
-                          isUrl
-                            ? "block max-w-[28rem] [overflow-wrap:anywhere]"
-                            : "block"
-                        }
+                        // className={
+                        //   isUrl
+                        //     ? "block max-w-[28rem] [overflow-wrap:anywhere]"
+                        //     : "block"
+                        // }
                       >
                         <EditableCell
                           value={product[field]}
