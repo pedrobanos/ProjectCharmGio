@@ -49,7 +49,7 @@ function AppContent() {
       {/* Main layout con sidebar + contenido */}
       <div className="flex flex-1">
         {!hideNavBar && user && (
-          <SidebarActions user={user} />
+          <SidebarActions  />
         )}
 
         {/* Contenido principal */}

@@ -266,8 +266,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import Loading from "./Loading";
 import { normalizeString } from "../Constants";
+import { SaleConfirmedModal } from "./SaleConfirmedModal";
 
-// Helper: normaliza (quita tildes/diacríticos) y pasa a minúsculas
 
 const ProductsPage = () => {
     const [products, setProducts] = useState([]);
@@ -283,6 +283,8 @@ const ProductsPage = () => {
     const [cliente, setCliente] = useState("");
     const [error, setError] = useState("");
     const [sales, setSales] = useState([]);
+    const [isSaleConfirmed, setIsSaleConfirmed] = useState(false);
+
 
     useEffect(() => {
         fetchProducts();
@@ -413,6 +415,7 @@ const ProductsPage = () => {
 
             setSales?.((prev) => [sale, ...(prev || [])]);
             setIsModalOpen(false);
+            setIsSaleConfirmed(true);
         } catch (err) {
             setError(err.message || "Error al realizar la venta.");
         }
@@ -510,6 +513,10 @@ const ProductsPage = () => {
                             </div>
                         </div>
                     )}
+                    <SaleConfirmedModal
+                        isOpen={isSaleConfirmed}
+                        onClose={() => setIsSaleConfirmed(false)}
+                    />
                 </>
             )}
         </div>
