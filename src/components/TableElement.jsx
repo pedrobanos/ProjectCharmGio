@@ -74,12 +74,12 @@ const SortableHeader = ({
 const COLS = [
   "w-16",     // Foto
   "w-[18%]",  // Producto
-  "w-[7%]",   // Cantidad
-  "w-[9%]",   // Precio
+  "w-[9%]",   // Cantidad
+  "w-[11%]",   // Precio
   "w-[15%]",  // Lugar
   "w-[12%]",  // Proveedor
   "w-[9%]",   // Cod. Proveedor
-  "w-[24%]",  // URL
+  "w-[20%]",  // URL
   "w-[10%]",  // Acciones
 ];
 

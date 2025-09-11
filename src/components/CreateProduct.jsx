@@ -103,7 +103,7 @@ const CreateProduct = () => {
 
     return (
         <div className="max-w-md mx-auto p-6 bg-white rounded mt-6">
-            <h2 className="text-3xl font-bold mb-4">Crear nuevo producto</h2>
+            <h1 className="text-5xl text-center font-bold mb-4 text-blue-500">Crear Producto </h1>
             {error && <p className="text-red-500 mb-2">{error}</p>}
             {success && <p className="text-green-500 mb-2">{success}</p>}
 
@@ -154,7 +154,7 @@ const CreateProduct = () => {
                             onChange={(e) => setUrlInput(e.target.value)}
                             placeholder="www.ejemplo.com"
                             className="border p-2 rounded-r w-full border-blue-600"
-                            // required
+                        // required
                         />
                     </div>
                 </div>

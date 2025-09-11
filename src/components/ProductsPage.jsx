@@ -223,7 +223,7 @@ const ProductsPage = () => {
 
     return (
         <div className="flex flex-col items-center justify-center gap-4 p-6">
-            <h1 className="text-5xl text-center font-bold mb-4 mt-4 text-blue-500">
+            <h1 className="text-5xl text-center font-bold mb-4 text-blue-500">
                 Productos de la tienda <span className="mx-4">💍</span>
             </h1>
             <div className="flex items-center space-x-3 w-full max-w-xl mx-auto">
@@ -233,14 +233,13 @@ const ProductsPage = () => {
                 />
                 <Link
                     to="/create-product"
-                    className="flex items-center justify-center whitespace-nowrap
-             bg-transparent sm:bg-blue-100 hover:sm:bg-blue-200 rounded-full px-3 py-2"
+                    className="sm:hidden flex items-center justify-center whitespace-nowrap
+             bg-blue-600 hover:bg-blue-700 rounded-full p-3"
                 >
-                    <span className="bg-blue-600 rounded-full p-2 flex items-center justify-center">
-                        <i className="fa-solid fa-plus text-white"></i>
-                    </span>
-                    <span className="hidden sm:inline ml-2 text-blue-800">Crear Producto</span>
+                    <i className="fa-solid fa-plus text-white"></i>
                 </Link>
+
+
             </div>
 
             <TableElement
@@ -276,7 +275,7 @@ const ProductsPage = () => {
                             onChange={(e) => setCantidadVenta(Number(e.target.value))}
                             className="border border-gray-300 rounded-md p-2 w-full mb-2"
                         />
-                         <label className="block text-sm font-medium mb-1">
+                        <label className="block text-sm font-medium mb-1">
                             Nombre Cliente
                         </label>
                         <input

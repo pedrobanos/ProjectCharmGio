@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const NavBar = ({ user, onLogout }) => {
     return (
-        <nav className="w-full bg-gray-800 text-white px-4 py-3">
+        <nav className="w-full h-full bg-gray-800 text-white px-4 py-3">
             <div className="flex items-center justify-between max-w-6xl mx-auto overflow-x-auto">
                 <div className="text-xl font-bold flex-shrink-0">
                     <Link to="/products"><span className="mx-2">💍</span> Charm Gio <span className="mx-2">💍</span></Link>
