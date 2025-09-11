@@ -28,3 +28,12 @@ export const formatCurrency = (value) => {
   return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(Number(value));
 }
 
+export const normalizeString = (str) => {
+    if (!str) return "";
+    return str
+        .normalize("NFD")                // separa letra + diacrítico
+        .replace(/[\u0300-\u036f]/g, "") // quita tildes, diéresis...
+        .toLowerCase();
+    // Si quieres tratar ñ == n, descomenta la siguiente línea:
+    // .replace(/ñ/g, "n").replace(/Ñ/g, "N")
+};

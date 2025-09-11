@@ -270,7 +270,6 @@ const TableElement = ({
             </table>
           </div>
         </div>
-
         {/* TABLA NORMAL */}
         <table ref={bodyTableRef} className="min-w-[1200px] sm:min-w-full w-full table-fixed border-collapse text-[12px] sm:text-sm">
           <colgroup>
@@ -278,7 +277,6 @@ const TableElement = ({
               <col key={`bcol-${i}`} className={cls} />
             ))}
           </colgroup>
-
           {/* thead visible (para accesibilidad y medición inicial) */}
           <thead className="bg-gray-100 text-gray-700 uppercase text-[11px] sm:text-sm">
             <tr>
@@ -293,7 +291,6 @@ const TableElement = ({
               <th className="px-2 py-2 text-center" scope="col">Acciones</th>
             </tr>
           </thead>
-
           <tbody className="divide-y divide-gray-200 text-gray-800">
             {paginatedProducts.map((product) => (
               <tr key={product.id} className="text-center">
@@ -308,7 +305,6 @@ const TableElement = ({
                     <span className="text-xs">Sin foto</span>
                   )}
                 </td>
-
                 {[
                   "nombre",
                   "cantidad",
@@ -322,18 +318,15 @@ const TableElement = ({
                     field === "cantidad" &&
                     parseInt(product[field], 10) <= 5;
                   // const isUrl = field === "url";
-
                   const hasLongDescription =
                     product.descripcion &&
                     product.descripcion.length > 10;
-
                   const nameColorClass =
                     field === "nombre"
                       ? hasLongDescription
                         ? "text-gray-600" // corregido (no 'grey')
                         : "text-red-600"
                       : "";
-
                   return (
                     <td
                       key={field}
@@ -373,7 +366,6 @@ const TableElement = ({
                     >
                       <i className="fa-solid fa-circle-info"></i>
                     </Link>
-
                     <Link
                       to={`/products/edit/${product.id}${location.search}`}
                       className="text-blue-500 hover:text-blue-600 text-base sm:text-lg"
@@ -381,7 +373,6 @@ const TableElement = ({
                     >
                       <i className="fa-solid fa-pen-to-square"></i>
                     </Link>
-
                     <button
                       type="button"
                       className="text-yellow-500 hover:text-yellow-600 text-base sm:text-lg cursor-pointer"
@@ -390,7 +381,6 @@ const TableElement = ({
                     >
                       <i className="fa-solid fa-cart-plus"></i>
                     </button>
-
                     <button
                       type="button"
                       className="text-red-500 hover:text-red-600 text-base sm:text-lg cursor-pointer"
@@ -401,13 +391,11 @@ const TableElement = ({
                     </button>
                   </div>
                 </td>
-
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
       {/* Paginación */}
       <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
         {Array.from({ length: totalPages }, (_, index) => {
