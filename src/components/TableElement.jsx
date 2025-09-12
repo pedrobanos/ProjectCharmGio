@@ -255,11 +255,12 @@ const TableElement = ({
                 ))}
               </colgroup>
               <thead>
-                <tr>
+                <tr> 
+                  {/* tabla de header fijo */}
                   <th className="px-2 py-2 text-center bg-gray-100" scope="col">Foto</th>
                   <SortableHeader label="Producto" columnKey="nombre" {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Cantidad" columnKey="cantidad" {...{ orderBy, orderDirection, onSort }} />
-                  <SortableHeader label="Precio" columnKey="precio" {...{ orderBy, orderDirection, onSort }} />
+                  <SortableHeader label="Precio(€)" columnKey="precio" {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Lugar" columnKey="lugar" {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Proveedor" columnKey="proveedor" {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" {...{ orderBy, orderDirection, onSort }} />
