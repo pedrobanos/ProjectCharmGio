@@ -263,7 +263,7 @@ const TableElement = ({
                   <SortableHeader label="Lugar" columnKey="lugar" {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Proveedor" columnKey="proveedor" {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" {...{ orderBy, orderDirection, onSort }} />
-                  <SortableHeader label="URL" columnKey="url" {...{ orderBy, orderDirection, onSort }} />
+                  {/* <SortableHeader label="URL" columnKey="url" {...{ orderBy, orderDirection, onSort }} /> */}
                   <th className="px-2 py-2 text-center bg-gray-100" scope="col">Acciones</th>
                 </tr>
               </thead>
