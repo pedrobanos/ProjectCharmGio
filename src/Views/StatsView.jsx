@@ -96,10 +96,22 @@ const StatsView = () => {
                     map[pid].unidades += v.cantidad;
                     map[pid].totalDinero += v.cantidad * v.precio_venta;
                 }
-
+                //ESTE ES PARA ORDENAR POR UNIDADES VENDIDAS PRIMERO
+                // const statsArray = Object.values(map)
+                //     .map(x => ({ ...x, unidades: Number(x.unidades), totalDinero: Number(x.totalDinero) }))
+                //     .sort((a, b) => b.unidades !== a.unidades ? b.unidades - a.unidades : b.totalDinero - a.totalDinero);
                 const statsArray = Object.values(map)
-                    .map(x => ({ ...x, unidades: Number(x.unidades), totalDinero: Number(x.totalDinero) }))
-                    .sort((a, b) => b.unidades !== a.unidades ? b.unidades - a.unidades : b.totalDinero - a.totalDinero);
+                    .map(x => ({
+                        ...x,
+                        unidades: Number(x.unidades),
+                        totalDinero: Number(x.totalDinero)
+                    }))
+                    .sort((a, b) =>
+                        b.totalDinero !== a.totalDinero
+                            ? b.totalDinero - a.totalDinero
+                            : b.unidades - a.unidades
+                    );
+
 
                 setTop5(statsArray.slice(0, 5));
                 setBestProduct(statsArray[0] ? {
