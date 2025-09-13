@@ -100,6 +100,7 @@ const StatsView = () => {
                 // const statsArray = Object.values(map)
                 //     .map(x => ({ ...x, unidades: Number(x.unidades), totalDinero: Number(x.totalDinero) }))
                 //     .sort((a, b) => b.unidades !== a.unidades ? b.unidades - a.unidades : b.totalDinero - a.totalDinero);
+
                 const statsArray = Object.values(map)
                     .map(x => ({
                         ...x,
@@ -111,7 +112,6 @@ const StatsView = () => {
                             ? b.totalDinero - a.totalDinero
                             : b.unidades - a.unidades
                     );
-
 
                 setTop5(statsArray.slice(0, 5));
                 setBestProduct(statsArray[0] ? {
@@ -135,7 +135,6 @@ const StatsView = () => {
     return (
         <div className="p-4 space-y-6">
             <h1 className="text-2xl font-bold">📊 Estadísticas</h1>
-
             {/* Selector mes/año */}
             <div className="flex gap-4 items-center">
                 <label className="flex items-center gap-2">
@@ -149,7 +148,6 @@ const StatsView = () => {
                     <input type="number" value={year} onChange={e => setYear(Number(e.target.value))} className="border rounded px-2 py-1 w-24" />
                 </label>
             </div>
-
             {/* Producto del mes */}
             <div className="rounded-2xl border bg-white shadow-sm p-6">
                 <h2 className="text-lg font-semibold mb-4">⭐️ Producto del mes</h2>
@@ -165,7 +163,6 @@ const StatsView = () => {
                     </div>
                 ) : <p>No hay ventas en {MONTHS[selectedMonth]} de {year}.</p>}
             </div>
-
             {/* Top5 */}
             <div className="rounded-2xl border bg-white shadow-sm p-6">
                 <h3 className="text-lg font-semibold mb-4">🏆 Top 5 Ventas del mes</h3>
@@ -191,7 +188,6 @@ const StatsView = () => {
                     </ul>
                 }
             </div>
-
             {/* Gráfico mensual */}
             <div className="rounded-2xl border bg-white shadow-sm p-6">
                 <h2 className="text-lg font-semibold mb-4">📈 Ventas mes a mes (Ingresos vs Beneficio)</h2>
