@@ -91,21 +91,42 @@ export async function createSale({ productId, cantidad, dia = null, cliente = nu
 /**
  * Listar ventas con filtros opcionales
  */
-export async function listSales({ from, to, productId, limit = 100, offset = 0 } = {}) {
+// export async function listSales({ from, to, productId, limit = 100, offset = 0 } = {}) {
+//   let q = supabase
+//     .from("sales")
+//     .select("id, product_id, cantidad, precio_venta, dia, cliente, created_at", { count: "exact" })
+//     .order("created_at", { ascending: false })
+//     .range(offset, offset + limit - 1);
+
+//   if (productId) q = q.eq("product_id", Number(productId));
+//   if (from) q = q.gte("dia", from);
+//   if (to) q = q.lte("dia", to);
+
+//   const { data, error, count } = await q;
+//   if (error) throw error;
+//   return { data, count };
+// }
+
+export async function listSales({ from, to, productId } = {}) {
   let q = supabase
     .from("sales")
     .select("id, product_id, cantidad, precio_venta, dia, cliente, created_at", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(offset, offset + limit - 1);
+    .order("created_at", { ascending: true }); // ordenar por created_at
 
   if (productId) q = q.eq("product_id", Number(productId));
-  if (from) q = q.gte("dia", from);
-  if (to) q = q.lte("dia", to);
+
+  // Filtrado por created_at, no por dia
+  if (from) q = q.gte("created_at", from); 
+  if (to) q = q.lte("created_at", to);
 
   const { data, error, count } = await q;
   if (error) throw error;
   return { data, count };
 }
+
+
+
+
 
 /**
  * Resumen diario (agregado rápido en cliente)

@@ -60,30 +60,60 @@ const StatsView = () => {
                 setSalesEnriched(enriched);
 
                 // Calcular resumen mensual para gráfica
-                const monthly = {};
-                for (const s of enriched) {
-                    if (!s.dia) continue;
-                    const mes = s.dia.slice(0, 7); // 'YYYY-MM'
-                    const ingresoFila = s.cantidad * s.precio_venta;
-                    let beneficioFila = ingresoFila - (s.cantidad * s.coste_unitario);
+                // const monthly = {};
+                // for (const s of enriched) {
+                //     if (!s.dia) continue;
+                //     const mes = s.dia.slice(0, 7); // 'YYYY-MM'
+                //     const ingresoFila = s.cantidad * s.precio_venta;
+                //     let beneficioFila = ingresoFila - (s.cantidad * s.coste_unitario);
 
-                    // No dibujar barra si beneficio < 0
-                    if (beneficioFila < 0) beneficioFila = null;
+                //     // No dibujar barra si beneficio < 0
+                //     if (beneficioFila < 0) beneficioFila = null;
 
-                    if (!monthly[mes]) monthly[mes] = { total: 0, beneficio: null };
-                    monthly[mes].total += ingresoFila;
-                    monthly[mes].beneficio = (monthly[mes].beneficio ?? 0) + (beneficioFila ?? 0);
-                }
+                //     if (!monthly[mes]) monthly[mes] = { total: 0, beneficio: null };
+                //     monthly[mes].total += ingresoFila;
+                //     monthly[mes].beneficio = (monthly[mes].beneficio ?? 0) + (beneficioFila ?? 0);
+                // }
 
-                setMonthlySummary(
-                    Object.entries(monthly)
-                        .map(([mes, vals]) => ({
-                            mes,
-                            total: vals.total,
-                            beneficio: vals.beneficio > 0 ? vals.beneficio : null,
-                        }))
-                        .sort((a, b) => a.mes.localeCompare(b.mes))
-                );
+                // setMonthlySummary(
+                //     Object.entries(monthly)
+                //         .map(([mes, vals]) => ({
+                //             mes,
+                //             total: vals.total,
+                //             beneficio: vals.beneficio > 0 ? vals.beneficio : null,
+                //         }))
+                //         .sort((a, b) => a.mes.localeCompare(b.mes))
+                // );
+                // Calcular resumen mensual para gráfica
+                // Calcular resumen mensual para gráfica
+                // Calcular resumen mensual para gráfica
+                // Calcular resumen mensual para gráfica
+                // Calcular resumen mensual para gráfica
+const monthly = {};
+for (const s of enriched) {
+    if (!s.dia) continue;
+    const mes = s.dia.slice(0, 7); // 'YYYY-MM'
+    const ingresoFila = s.cantidad * s.precio_venta;
+    const beneficioFila = ingresoFila - (s.cantidad * s.coste_unitario);
+
+    if (!monthly[mes]) monthly[mes] = { total: 0, beneficio: 0 };
+    monthly[mes].total += ingresoFila;
+    monthly[mes].beneficio += beneficioFila;
+}
+
+// Convertir a array ordenado
+setMonthlySummary(
+    Object.entries(monthly)
+        .map(([mes, vals]) => {
+            // Si el beneficio es negativo, eliminamos la propiedad
+            const obj = { mes, total: vals.total };
+            if (vals.beneficio > 0) obj.beneficio = vals.beneficio;
+            return obj;
+        })
+        .sort((a, b) => a.mes.localeCompare(b.mes))
+);
+
+
 
                 // Top productos mes seleccionado
                 const monthISO = `${year}-${String(selectedMonth + 1).padStart(2, "0")}`;
