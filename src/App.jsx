@@ -49,7 +49,7 @@ function AppContent() {
       {/* Main layout con sidebar + contenido */}
       <div className="flex flex-1">
         {!hideNavBar && user && (
-          <SidebarActions  />
+          <SidebarActions />
         )}
 
         {/* Contenido principal */}
@@ -63,6 +63,7 @@ function AppContent() {
             <Route path="/stats" element={<ProtectedRoute user={user}><StatsView /></ProtectedRoute>} />
             <Route path="/products/:id" element={<ProtectedRoute user={user}><Product /></ProtectedRoute>} />
             <Route path="/products/edit/:id" element={<ProtectedRoute user={user}><EditProduct /></ProtectedRoute>} />
+            <Route path="/create-batch" element={<ProtectedRoute user={user}><h1 className="text-3xl font-bold text-center mt-10">Crear Lote - En construcción</h1></ProtectedRoute>} /> 
           </Routes>
         </div>
       </div>
