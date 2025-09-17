@@ -6,13 +6,13 @@ const SearchBar = ({ onSearch, placeholder }) => {
   useEffect(() => {
     const handler = setTimeout(() => {
       onSearch(value);
-    }, 500); // 👈 ahora medio segundo
+    }, 400); // 👈 ahora medio segundo
     return () => clearTimeout(handler);
   }, [value, onSearch]);
 
 
   return (
-    <div className="relative flex-grow">
+    <div className="relative flex-grow w-1/2">
       <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
       <input
         type="text"

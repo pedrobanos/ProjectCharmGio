@@ -308,49 +308,50 @@ const ProductsPage = () => {
                         Productos de la tienda <span className="mx-4">💍</span>
                     </h1>
                     <div className="w-full max-w-xl mx-auto mb-4 flex flex-col gap-2">
-                        {/* SearchBar siempre arriba */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 w-full">
                             <SearchBar
                                 onSearch={setSearchTerm}
                                 placeholder="Buscar por nombre, lugar o código de proveedor..."
+                                className="w-3/5"
                             />
-                            <Link
-                                to="/create-product"
-                                className="sm:hidden flex items-center justify-center whitespace-nowrap bg-blue-600 hover:bg-blue-700 rounded-full p-3"
-                            >
-                                <i className="fa-solid fa-plus text-white"></i>
-                            </Link>
-                            {!isLote ? (
-                                // Un solo botón junto al SearchBar
-                                <button
-                                    className="hidden sm:inline-flex items-center gap-2 bg-blue-700 opacity-80 text-white px-4 py-2 rounded-lg hover:bg-blue-600 whitespace-nowrap"
-                                    onClick={handleCreateBatch}
-                                >
-                                    <i className="fa-solid fa-plus w-5 text-white" aria-hidden="true"></i>
-                                    Crear lote
-                                </button>
-                            ) : null}
+
+                            {isLote ? (
+                                <>
+                                    <button
+                                        className="w-1/7 hidden sm:flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-600 justify-center whitespace-nowrap"
+                                        onClick={createBatch}
+                                    >
+                                        <i className="fa-solid fa-layer-group w-5 text-white" aria-hidden="true"></i>
+                                        Lote 
+                                    </button>
+                                    <button
+                                        className="w-2/7 hidden sm:flex items-center gap-2 bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-600 justify-center whitespace-nowrap"
+                                        onClick={handleCreateBatch}
+                                    >
+                                        <i className="fa-solid fa-xmark w-5 text-white" aria-hidden="true"></i>
+                                        Cancelar lote
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link
+                                        to="/create-product"
+                                        className="sm:hidden flex items-center justify-center whitespace-nowrap bg-blue-600 hover:bg-blue-700 rounded-full p-3"
+                                    >
+                                        <i className="fa-solid fa-plus text-white"></i>
+                                    </Link>
+                                    <button
+                                        className="hidden sm:inline-flex w-1/5 items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 justify-center whitespace-nowrap"
+                                        onClick={handleCreateBatch}
+                                    >
+                                        <i className="fa-solid fa-plus w-5 text-white" aria-hidden="true"></i>
+                                        Crear lote
+                                    </button>
+                                </>
+                            )}
                         </div>
-                        {isLote && (
-                            // Dos botones centrados debajo del SearchBar
-                            <div className="flex justify-center items-center gap-3">
-                                <button
-                                    className="hidden sm:inline-flex items-center gap-2 bg-green-700 opacity-80 text-white px-4 py-2 rounded-lg hover:bg-green-600 whitespace-nowrap"
-                                    onClick={createBatch}
-                                >
-                                    <i className="fa-solid fa-layer-group w-5 text-white" aria-hidden="true"></i>
-                                    Seleccionar productos
-                                </button>
-                                <button
-                                    className="hidden sm:inline-flex items-center gap-2 bg-red-700 opacity-80 text-white px-4 py-2 rounded-lg hover:bg-red-600 whitespace-nowrap"
-                                    onClick={handleCreateBatch}
-                                >
-                                    <i className="fa-solid fa-xmark w-5 text-white" aria-hidden="true"></i>
-                                    Cancelar lote
-                                </button>
-                            </div>
-                        )}
                     </div>
+
                     <TableElement
                         products={filteredProducts}
                         onEditCell={handleEditCell}
@@ -365,6 +366,7 @@ const ProductsPage = () => {
                         setSelectedIds={setSelectedIds}
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}
+                        searchTerm={searchTerm}
                     />
 
                     {/* Modal de venta individual */}
