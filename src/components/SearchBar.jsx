@@ -6,10 +6,10 @@ const SearchBar = ({ onSearch, placeholder }) => {
   useEffect(() => {
     const handler = setTimeout(() => {
       onSearch(value);
-    }, 300); // debounce reducido a 300ms
-
+    }, 500); // 👈 ahora medio segundo
     return () => clearTimeout(handler);
   }, [value, onSearch]);
+
 
   return (
     <div className="relative flex-grow">

@@ -35,9 +35,16 @@ const ProductsPage = () => {
     const [batchProducts, setBatchProducts] = useState([]);
     const [precioTotalLote, setPrecioTotalLote] = useState(0);
 
+
+    const [currentPage, setCurrentPage] = useState(1);
+
     useEffect(() => {
         fetchProducts();
     }, []);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -67,18 +74,57 @@ const ProductsPage = () => {
         }
     };
 
+    // const filteredProducts = useMemo(() => {
+    //     const term = normalizeString(searchTerm);
+    //     const filtered = products.filter((p) =>
+    //         (p.nombreLower || "").includes(term) ||
+    //         (p.lugarLower || "").includes(term) ||
+    //         (p.codigoProveedorLower || "").includes(term) ||
+    //         (p.descripcionLower || "").includes(term)
+    //     );
+
+    //     if (!orderBy) return filtered;
+
+    //     return filtered.sort((a, b) => {
+    //         let valA = a[orderBy];
+    //         let valB = b[orderBy];
+
+    //         if (typeof valA === "string" && !isNaN(valA)) valA = Number(valA);
+    //         if (typeof valB === "string" && !isNaN(valB)) valB = Number(valB);
+
+    //         if (valA === undefined || valA === null) valA = "";
+    //         if (valB === undefined || valB === null) valB = "";
+
+    //         if (typeof valA === "number" && typeof valB === "number") {
+    //             return orderDirection === "asc" ? valA - valB : valB - valA;
+    //         }
+
+    //         valA = valA.toString().toLowerCase();
+    //         valB = valB.toString().toLowerCase();
+
+    //         if (valA < valB) return orderDirection === "asc" ? -1 : 1;
+    //         if (valA > valB) return orderDirection === "asc" ? 1 : -1;
+    //         return 0;
+    //     });
+    // }, [products, searchTerm, orderBy, orderDirection]);
+
     const filteredProducts = useMemo(() => {
         const term = normalizeString(searchTerm);
-        const filtered = products.filter((p) =>
-            (p.nombreLower || "").includes(term) ||
-            (p.lugarLower || "").includes(term) ||
-            (p.codigoProveedorLower || "").includes(term) ||
-            (p.descripcionLower || "").includes(term)
-        );
+
+        let filtered = products;
+        if (term) {
+            filtered = products.filter(
+                (p) =>
+                    (p.nombreLower || "").includes(term) ||
+                    (p.lugarLower || "").includes(term) ||
+                    (p.codigoProveedorLower || "").includes(term) ||
+                    (p.descripcionLower || "").includes(term)
+            );
+        }
 
         if (!orderBy) return filtered;
 
-        return filtered.sort((a, b) => {
+        return [...filtered].sort((a, b) => { // 👈 importante clonar con spread
             let valA = a[orderBy];
             let valB = b[orderBy];
 
@@ -274,7 +320,6 @@ const ProductsPage = () => {
                             >
                                 <i className="fa-solid fa-plus text-white"></i>
                             </Link>
-
                             {!isLote ? (
                                 // Un solo botón junto al SearchBar
                                 <button
@@ -286,7 +331,6 @@ const ProductsPage = () => {
                                 </button>
                             ) : null}
                         </div>
-
                         {isLote && (
                             // Dos botones centrados debajo del SearchBar
                             <div className="flex justify-center items-center gap-3">
@@ -319,6 +363,8 @@ const ProductsPage = () => {
                         isLote={isLote}
                         selectedIds={selectedIds}
                         setSelectedIds={setSelectedIds}
+                        currentPage={currentPage}
+                        setCurrentPage={setCurrentPage}
                     />
 
                     {/* Modal de venta individual */}
