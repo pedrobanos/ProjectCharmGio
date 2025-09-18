@@ -322,7 +322,7 @@ const ProductsPage = () => {
                                         onClick={createBatch}
                                     >
                                         <i className="fa-solid fa-layer-group w-5 text-white" aria-hidden="true"></i>
-                                        Lote 
+                                        Lote
                                     </button>
                                     <button
                                         className="w-2/7 hidden sm:flex items-center gap-2 bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-600 justify-center whitespace-nowrap"
@@ -373,9 +373,10 @@ const ProductsPage = () => {
                     {isModalOpen && selectedProduct && (
                         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                             <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-                                <h2 className="text-lg font-semibold mb-4">
-                                    Vender: {selectedProduct.nombre}
+                                <h2 className="text-lg font-semibold">
+                                    Charm: {selectedProduct.nombre}
                                 </h2>
+                                <span className="text-xs text-gray-500 mb-4">Lugar: {selectedProduct.lugar}</span>
                                 {selectedProduct.foto && (
                                     <img
                                         src={selectedProduct.foto}
@@ -431,8 +432,8 @@ const ProductsPage = () => {
                     {/* Modal de lote */}
                     {isBatchModalOpen && (
                         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                            <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
-                                <h2 className="text-lg font-semibold mb-4">Lote de Productos</h2>
+                            <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[95vh] overflow-y-auto">
+                                <h2 className="text-4xl text-center font-semibold mb-4">Lote de Productos</h2>
                                 <ul className="divide-y divide-gray-200">
                                     {batchProducts.map((p, index) => (
                                         <li key={p.id} className="py-2 flex flex-col gap-2">
@@ -441,15 +442,16 @@ const ProductsPage = () => {
                                                     <img
                                                         src={p.foto}
                                                         alt={p.nombre}
-                                                        className="w-10 h-10 object-cover rounded-full"
+                                                        className="w-16 h-16  hover:scale-140 transition-transform duration-200 object-cover rounded-full mx-2"
                                                     />
                                                 ) : (
-                                                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-xs">
+                                                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-xs  mx-2">
                                                         No foto
                                                     </div>
                                                 )}
                                                 <span className="font-medium">{p.nombre} (Stock: {p.cantidad})</span>
                                             </div>
+                                            <span className="text-xs text-gray-500"> {p.lugar}</span>
                                             <div className="flex gap-2">
                                                 <input
                                                     type="number"
@@ -478,39 +480,49 @@ const ProductsPage = () => {
                                         </li>
                                     ))}
                                 </ul>
-                                <label className="block text-sm font-medium mb-1">
-                                    Nombre Cliente (opcional)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={cliente}
-                                    onChange={(e) => setCliente(e.target.value)}
-                                    placeholder="John Doe"
-                                    className="border border-gray-300 rounded-md p-2 w-full mb-4"
-                                />
-                                <label className="block text-sm font-medium mb-1">Precio total del lote (€)</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    value={precioTotalLote}
-                                    onChange={(e) => setPrecioTotalLote(Number(e.target.value))}
-                                    className="border border-gray-300 rounded-md p-2 w-full mb-4"
-                                    placeholder="Precio total del lote"
-                                />
-                                <div className="flex justify-end mt-4 gap-2">
+                                <div className="flex flex-col sm:flex-row gap-4 mb-4 items-end">
+                                    <div className="flex-1">
+                                        <label className="block text-sm font-medium mb-1">
+                                            Nombre Cliente (opcional)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={cliente}
+                                            onChange={(e) => setCliente(e.target.value)}
+                                            placeholder="John Doe"
+                                            className="border border-gray-300 rounded-md p-2 w-full"
+                                        />
+                                    </div>
+
+                                    <div className="flex-1">
+                                        <label className="block text-sm font-medium mb-1">
+                                            Precio total del lote (€)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={precioTotalLote}
+                                            onChange={(e) => setPrecioTotalLote(Number(e.target.value))}
+                                            className="border border-gray-300 rounded-md p-2 w-full"
+                                            placeholder="Precio total del lote"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex justify-center text-center items-center mt-6 gap-4">
                                     <button
                                         onClick={() => setIsBatchModalOpen(false)}
-                                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md"
-                                    >
+                                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-2 rounded-md"
+                                    ><i className="fa-solid fa-xmark mx-2"></i>
                                         Cancelar
                                     </button>
                                     <button
                                         onClick={confirmBatchSale}
-                                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
-                                    >
-                                        Confirmar Lote
+                                        className="bg-green-500 hover:bg-green-600 text-white px-2 py-2 rounded-md"
+                                    ><i className="fa-solid fa-cart-shopping mx-2"></i>
+                                        Confirmar
                                     </button>
                                 </div>
+
                             </div>
                         </div>
                     )}
