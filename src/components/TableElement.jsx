@@ -829,7 +829,7 @@ const TableElement = ({
               const product = paginatedProducts[virtualRow.index];
               if (!product) return null;
               return (
-                <tr key={product.id} className="text-center">
+                <tr key={product.id} className="text-center hover:bg-gray-50">
                   {isLote && (
                     <td>
                       {product.id && (

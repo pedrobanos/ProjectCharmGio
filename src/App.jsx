@@ -4,7 +4,6 @@ import './App.css';
 import ProductsPage from './components/ProductsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Product from "./components/Product";
-import Register from "./Views/Register";
 import EditProduct from "./Views/EditProduct";
 import CreateProduct from "./components/CreateProduct";
 import NavBar from "./components/NavBar";
@@ -20,7 +19,6 @@ function AppContent() {
     return stored ? JSON.parse(stored) : null;
   });
 
-  const [products, setProducts] = useState([]);
 
   const location = useLocation();
   const navigate = useNavigate();
