@@ -12,6 +12,7 @@ import { listSales } from "../services/salesServices";
 import { getAllProducts } from "../services/productServices";
 import { formatCurrency } from "../Constants";
 import Loading from "../components/Loading";
+import { Link } from "react-router-dom";
 
 const MONTHS = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -185,19 +186,21 @@ const StatsView = () => {
                 {top5.length === 0 ? <p>No hay datos.</p> :
                     <ul className="space-y-2">
                         {top5.map((p, idx) => (
-                            <li key={p.productId} className="flex items-center gap-4 p-2 rounded-md hover:bg-gray-50">
-                                {p.foto ? <img src={p.foto} alt={p.productName} className="w-12 h-12 object-cover rounded-md border" /> :
-                                    <div className="w-12 h-12 flex items-center justify-center rounded-md border bg-gray-50 text-xs text-gray-500">--</div>}
-                                <div className="flex-1">
-                                    <div className="flex items-baseline justify-between">
-                                        <p className="font-medium">{p.productName}</p>
-                                        <p className="text-sm text-blue-500 ">#{idx + 1}</p>
+                            <Link key={p.productId} to={`/products/${p.productId}`} className="text-black-500 hover:text-blue-600">
+                                <li key={p.productId} className="flex items-center gap-4 p-2 rounded-md hover:bg-gray-50">
+                                    {p.foto ? <img src={p.foto} alt={p.productName} className="w-12 h-12 object-cover rounded-md border" /> :
+                                        <div className="w-12 h-12 flex items-center justify-center rounded-md border bg-gray-50 text-xs text-gray-500">--</div>}
+                                    <div className="flex-1">
+                                        <div className="flex items-baseline justify-between">
+                                            <p className="font-medium">{p.productName}</p>
+                                            <p className="text-sm text-blue-500 ">#{idx + 1}</p>
+                                        </div>
+                                        <p className="text-sm text-gray-600">
+                                            {porDinero ? formatCurrency(p.totalDinero) : `${p.unidades} unds`}
+                                        </p>
                                     </div>
-                                    <p className="text-sm text-gray-600">
-                                        {porDinero ? formatCurrency(p.totalDinero) : `${p.unidades} unds`}
-                                    </p>
-                                </div>
-                            </li>
+                                </li>
+                            </Link>
                         ))}
                     </ul>
                 }

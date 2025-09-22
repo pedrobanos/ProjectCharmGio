@@ -253,7 +253,7 @@ const Reembolso = ({ saldoInicial = 0, onReembolso }) => {
                                 className="border pl-3 pr-3 py-2 w-2/3 rounded focus:outline-none focus:ring-2 
                   focus:ring-yellow-500 font-bold text-yellow-900 bg-yellow-100 text-right"
                             />
-                            <span className="font-bold text-yellow-800">€</span>
+                            <span className="font-bold text-2xl text-yellow-800">€</span>
                         </div>
                     </div>
                 )}
