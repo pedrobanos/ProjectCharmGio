@@ -12,6 +12,7 @@ import Footer from "./components/Footer";
 import SalesView from "./Views/SalesView";
 import SidebarActions from "./components/SidebarActions";
 import StatsView from "./Views/StatsView";
+import BlackList from "./Views/BlackList";
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -60,9 +61,9 @@ function AppContent() {
             <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage /></ProtectedRoute>} />
             <Route path="/sales" element={<ProtectedRoute user={user}><SalesView /></ProtectedRoute>} />
             <Route path="/stats" element={<ProtectedRoute user={user}><StatsView /></ProtectedRoute>} />
+             <Route path="/black-list" element={<ProtectedRoute user={user}><BlackList /></ProtectedRoute>} />
             <Route path="/products/:id" element={<ProtectedRoute user={user}><Product /></ProtectedRoute>} />
             <Route path="/products/edit/:id" element={<ProtectedRoute user={user}><EditProduct /></ProtectedRoute>} />
-            <Route path="/create-batch" element={<ProtectedRoute user={user}><h1 className="text-3xl font-bold text-center mt-10">Crear Lote - En construcción</h1></ProtectedRoute>} />
           </Routes>
         </div>
       </div>

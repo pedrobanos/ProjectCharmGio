@@ -40,7 +40,7 @@ const Pagination = ({
 
   const handleEllipsis = (type) => {
     if (type === "left-ellipsis") {
-      const target = Math.max(1, currentPage - jumpStep);
+      const target = Math.max(1, currentPage - jumpStep)
       onPageChange(target);
     } else {
       const target = Math.min(totalPages, currentPage + jumpStep);

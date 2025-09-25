@@ -44,6 +44,14 @@ const SidebarActions = ({ user }) => {
                         <i className="fa-solid fa-chart-simple w-5"></i>
                         <span>Estadísticas</span>
                     </Link>
+                    <Link
+                        to="/black-list"
+                        className="w-full flex items-center gap-2 bg-black text-white px-2 py-2  rounded-lg hover:bg-gray-700 whitespace-nowrap"
+                    >
+                        <i className="fa-solid fa-skull-crossbones"></i>
+                        <span className="text-center">Black List </span>
+                        <i className="fa-solid fa-skull-crossbones"></i>
+                    </Link>
                     {/* <Link
             to="/promoter-profiles"
             className="w-full flex items-center gap-2 bg-pink-800 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-pink-700 whitespace-nowrap"

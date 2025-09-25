@@ -12,6 +12,7 @@ import { supabase } from "../supabaseClient";
 import Loading from "./Loading";
 import { normalizeString } from "../Constants";
 import { SaleConfirmedModal } from "./SaleConfirmedModal";
+import { getClientesBlacklisted } from "../services/clientServices";
 
 const ProductsPage = () => {
     const [products, setProducts] = useState([]);
@@ -183,6 +184,7 @@ const ProductsPage = () => {
         setIsModalOpen(true);
     };
 
+
     const confirmSale = async () => {
         if (cantidadVenta < 1)
             return setError("La cantidad debe ser mayor o igual a 1.");
@@ -190,11 +192,47 @@ const ProductsPage = () => {
             return setError("No hay suficiente stock.");
 
         try {
+            let clienteId = null;
+
+            if (cliente) {
+                // Buscar cliente por nombre
+                const { data: existingClient, error: searchError } = await supabase
+                    .from("clientes")
+                    .select("id")
+                    .eq("nombre", cliente)
+                    .single();
+
+                if (searchError && searchError.code !== "PGRST116") {
+                    throw searchError;
+                }
+
+                if (existingClient) {
+                    clienteId = existingClient.id;
+                } else {
+                    // Crear nuevo cliente
+                    const { data: newClient, error: insertError } = await supabase
+                        .from("clientes")
+                        .insert([{ nombre: cliente }])
+                        .select("id")
+                        .single();
+
+                    if (insertError) throw insertError;
+                    clienteId = newClient.id;
+                }
+
+                // 🔹 Verificar blacklist
+                const blacklistedIds = await getClientesBlacklisted();
+                if (blacklistedIds.includes(clienteId)) {
+                    return setError("❌ No se puede vender a este cliente porque está en la blacklist.");
+                }
+            }
+
+            // Llamamos a confirm_sale con cliente_id
             const { data: sale, error } = await supabase.rpc("confirm_sale", {
                 p_product_id: Number(selectedProduct.id),
                 p_cantidad: Number(cantidadVenta),
                 p_dia: null,
-                p_cliente: cliente || null,
+                p_cliente_id: clienteId,
                 p_precio_venta: precioVenta === "" ? null : Number(precioVenta),
             });
 
@@ -208,7 +246,10 @@ const ProductsPage = () => {
                 )
             );
 
-            setSales?.((prev) => [sale, ...(prev || [])]);
+            if (sale) {
+                setSales?.((prev) => [sale[0], ...(prev || [])]);
+            }
+
             setIsModalOpen(false);
             setIsSaleConfirmed(true);
             setIsLote(false);
@@ -218,6 +259,8 @@ const ProductsPage = () => {
             setError(err.message || "Error al realizar la venta.");
         }
     };
+
+
 
     const handleCreateBatch = () => {
         setIsLote(!isLote);
@@ -235,47 +278,93 @@ const ProductsPage = () => {
         setBatchProducts(productsInBatch.map((p) => ({ ...p, cantidadVenta: 1 })));
         setIsBatchModalOpen(true);
     };
-
-    // Recalcular precio unitario automáticamente cuando cambia precioTotalLote o cantidades
     useEffect(() => {
         if (batchProducts.length === 0) return;
+
         const totalUnidades = batchProducts.reduce(
             (acc, p) => acc + (p.cantidadVenta || 1),
             0
         );
         if (totalUnidades === 0) return;
-        const precioUnitario = totalUnidades === 0 ? 0 : precioTotalLote / totalUnidades;
-        setBatchProducts((prev) =>
-            prev.map((p) => ({ ...p, precioVenta: Number(precioUnitario.toFixed(2)) }))
-        );
-    }, [precioTotalLote, batchProducts]);
+
+        const precioUnitario = precioTotalLote / totalUnidades;
+
+        setBatchProducts((prev) => {
+            let changed = false;
+            const updated = prev.map((p) => {
+                const nuevoPrecio = Number(precioUnitario.toFixed(2));
+                if (p.precioVenta !== nuevoPrecio) {
+                    changed = true;
+                    return { ...p, precioVenta: nuevoPrecio };
+                }
+                return p;
+            });
+            return changed ? updated : prev; // 👈 solo actualiza si cambió
+        });
+    }, [precioTotalLote]); // 👈 solo depende de precioTotalLote
 
 
     const confirmBatchSale = async () => {
         // Validar cantidades
         for (const p of batchProducts) {
             if (p.cantidadVenta < 1) {
-                alert(`La cantidad de ${p.nombre} debe ser mayor o igual a 1.`);
-                return;
+                return setError(`La cantidad de ${p.nombre} debe ser mayor o igual a 1.`);
             }
             if (p.cantidadVenta > p.cantidad) {
-                alert(`No hay suficiente stock de ${p.nombre}.`);
-                return;
+                return setError(`No hay suficiente stock de ${p.nombre}.`);
             }
         }
 
         try {
-            // Confirmar cada producto
+            let clienteId = null;
+
+            if (cliente) {
+                // Buscar cliente por nombre
+                const { data: existingClient, error: searchError } = await supabase
+                    .from("clientes")
+                    .select("id")
+                    .eq("nombre", cliente)
+                    .single();
+
+                if (searchError && searchError.code !== "PGRST116") {
+                    throw searchError;
+                }
+
+                if (existingClient) {
+                    clienteId = existingClient.id;
+                } else {
+                    // Crear cliente nuevo
+                    const { data: newClient, error: insertError } = await supabase
+                        .from("clientes")
+                        .insert([{ nombre: cliente }])
+                        .select("id")
+                        .single();
+
+                    if (insertError) throw insertError;
+                    clienteId = newClient.id;
+                }
+
+                // 🔹 Verificar blacklist
+                const blacklistedIds = await getClientesBlacklisted();
+                if (blacklistedIds.includes(clienteId)) {
+                    return setError("❌ No se puede vender a este cliente porque está en la blacklist.");
+                }
+            }
+
+            // Procesar cada producto del lote
             for (const p of batchProducts) {
                 const { data: sale, error } = await supabase.rpc("confirm_sale", {
-                    p_product_id: Number(p.id),
-                    p_cantidad: Number(p.cantidadVenta),
+                    p_product_id: p.id,
+                    p_cantidad: p.cantidadVenta,
                     p_dia: null,
-                    p_cliente: cliente || null,
+                    p_cliente_id: clienteId,
                     p_precio_venta: p.precioVenta === "" ? null : Number(p.precioVenta),
                 });
                 if (error) throw new Error(error.message);
-                setSales((prev) => [sale, ...(prev || [])]);
+
+                if (sale) {
+                    setSales((prev) => [sale[0], ...(prev || [])]);
+                }
             }
 
             // Actualizar stock local
@@ -286,6 +375,7 @@ const ProductsPage = () => {
                 })
             );
 
+            // Resetear estados
             setIsBatchModalOpen(false);
             setIsSaleConfirmed(true);
             setIsLote(false);
@@ -293,10 +383,13 @@ const ProductsPage = () => {
             setBatchProducts([]);
             setCliente("");
             setPrecioTotalLote(0);
+            setError(""); // limpiar errores
         } catch (err) {
-            alert(err.message || "Error al realizar la venta del lote.");
+            setError(err.message || "Error al realizar la venta del lote.");
         }
     };
+
+
 
     return (
         <div className="flex flex-col items-center justify-center gap-4 p-6">
@@ -508,6 +601,7 @@ const ProductsPage = () => {
                                         />
                                     </div>
                                 </div>
+                                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
                                 <div className="flex justify-center text-center items-center mt-6 gap-4">
                                     <button
                                         onClick={() => setIsBatchModalOpen(false)}
