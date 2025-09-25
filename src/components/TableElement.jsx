@@ -502,6 +502,7 @@ import React, {
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Loading from "./Loading";
+import Pagination from "./Pagination";
 
 const EditableCell = ({ value, onChange }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -904,7 +905,7 @@ const TableElement = ({
       </div>
 
       {/* PAGINACIÓN */}
-      <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
+      {/* <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
         {Array.from({ length: totalPages }, (_, index) => {
           const pageNumber = index + 1;
           return (
@@ -920,7 +921,14 @@ const TableElement = ({
             </button>
           );
         })}
-      </div>
+      </div> */}
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+        delta={2}
+        jumpStep={5}
+      />
     </>
   );
 };
