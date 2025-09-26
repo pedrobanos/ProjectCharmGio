@@ -48,9 +48,9 @@ const SidebarActions = ({ user }) => {
                         to="/black-list"
                         className="w-full flex items-center gap-2 bg-black text-white px-2 py-2  rounded-lg hover:bg-gray-700 whitespace-nowrap"
                     >
-                        <i className="fa-solid fa-skull-crossbones"></i>
+                        <i className="fa-solid fa-skull-crossbones w-5"></i>
                         <span className="text-center">Black List </span>
-                        <i className="fa-solid fa-skull-crossbones"></i>
+                        <i className="fa-solid fa-skull-crossbones w-5 mx-2"></i>
                     </Link>
                     {/* <Link
             to="/promoter-profiles"

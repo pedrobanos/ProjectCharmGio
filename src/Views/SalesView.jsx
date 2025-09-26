@@ -656,7 +656,7 @@ const SalesView = ({ productId }) => {
           <option value="todos">Todos</option>
           <option value="gio">Gio</option>
           <option value="carol">Carol</option>
-          <option value="otros">Otros</option>
+          <option value="otros">Pedro</option>
         </select>
 
         {filterBy === "carol" && totalCarolImporte > 0 && (
