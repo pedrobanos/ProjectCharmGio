@@ -499,7 +499,10 @@ const ProductsPage = () => {
                                 <input
                                     type="text"
                                     value={precioVenta}
-                                    onChange={(e) => setPrecioVenta(e.target.value)}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(",", "."); // 👈 reemplaza coma por punto
+                                        setPrecioVenta(value);
+                                    }}
                                     placeholder="Precio de venta"
                                     className="border border-gray-300 rounded-md p-2 w-full mb-2"
                                 />
@@ -586,16 +589,17 @@ const ProductsPage = () => {
                                             className="border border-gray-300 rounded-md p-2 w-full"
                                         />
                                     </div>
-
                                     <div className="flex-1">
                                         <label className="block text-sm font-medium mb-1">
                                             Precio total del lote (€)
                                         </label>
                                         <input
-                                            type="number"
-                                            min="0"
+                                            type="text"
                                             value={precioTotalLote}
-                                            onChange={(e) => setPrecioTotalLote(Number(e.target.value))}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(",", "."); // 👈 reemplaza coma por punto
+                                                setPrecioTotalLote(Number(value));
+                                            }}
                                             className="border border-gray-300 rounded-md p-2 w-full"
                                             placeholder="Precio total del lote"
                                         />

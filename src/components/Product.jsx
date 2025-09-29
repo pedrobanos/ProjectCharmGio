@@ -1,8 +1,7 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getProductById } from "../services/productServices";
-import { getSalesByProduct } from "../services/salesServices"; // 👈 nuevo
+import { listSales } from "../services/salesServices"; // 👈 usamos listSales
 import { formatDateTime } from "../Constants";
 import Loading from "./Loading";
 
@@ -19,7 +18,7 @@ const Product = () => {
     const fetchData = async () => {
       try {
         const productData = await getProductById(Number(id));
-        const salesData = await getSalesByProduct(Number(id));
+        const { data: salesData } = await listSales({ productId: Number(id) }); // 👈 obtenemos ventas con clienteNombre
         setProduct(productData);
         setSales(salesData);
       } catch (err) {
@@ -59,7 +58,6 @@ const Product = () => {
               className="w-full max-w-xs mx-auto sm:w-48 sm:h-48 object-cover rounded"
             />
           )}
-
           <div className="mt-4 sm:mt-0">
             <h1 className="text-2xl text-center font-bold mb-4">{product.nombre}</h1>
             <p><strong>Cantidad:</strong> {product.cantidad} unds</p>
@@ -68,7 +66,6 @@ const Product = () => {
             <p><strong>Proveedor:</strong> {product.proveedor}</p>
             <p><strong>Código proveedor:</strong> {product.codigoProveedor}</p>
           </div>
-
           <div className="mt-4 sm:col-span-2">
             <p className="mb-2"><strong>Descripción:</strong> {product.descripcion}</p>
             <p>
@@ -84,7 +81,6 @@ const Product = () => {
             </p>
           </div>
         </div>
-
         {/* 👇 Nueva sección: Histórico de ventas */}
         <div className="mt-8">
           <h2 className="text-xl font-semibold mb-4">Histórico de ventas:</h2>
@@ -97,16 +93,16 @@ const Product = () => {
                   <th className="border px-2 py-1">Fecha de Venta</th>
                   <th className="border px-2 py-1">Cliente</th>
                   <th className="border px-2 py-1">Cantidad</th>
-                   <th className="border px-2 py-1">Precio Venta</th>
+                  <th className="border px-2 py-1">Precio Venta</th>
                 </tr>
               </thead>
               <tbody>
                 {sales.map((s) => (
                   <tr key={s.id}>
                     <td className="border px-2 py-1 text-center">{formatDateTime(s.created_at)}</td>
-                    <td className="border px-2 py-1 text-center">{s.cliente} </td>
+                    <td className="border px-2 py-1 text-center">{s.clienteNombre}</td>
                     <td className="border px-2 py-1 text-center">{s.cantidad} unds</td>
-                     <td className="border px-2 py-1 text-center">{s.precio_venta} €</td>
+                    <td className="border px-2 py-1 text-center">{s.precio_venta} €</td>
                   </tr>
                 ))}
               </tbody>
@@ -114,7 +110,6 @@ const Product = () => {
           )}
         </div>
       </div>
-
       {/* Botón volver */}
       <div className="flex justify-center mt-8">
         <button
@@ -133,5 +128,6 @@ const Product = () => {
 };
 
 export default Product;
+
 
 

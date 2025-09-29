@@ -88,6 +88,5 @@ export const getSalesByProduct = async (productId) => {
   return data;
 };
 
-// Bloquear cliente por nombre
 
 
