@@ -70,9 +70,8 @@ const SortableHeader = ({
   return (
     <th
       scope="col"
-      className={`px-4 py-3 text-center cursor-pointer select-none ${
-        hiddenOnMobile ? "hidden sm:table-cell" : ""
-      }`}
+      className={`px-4 py-3 text-center cursor-pointer select-none ${hiddenOnMobile ? "hidden sm:table-cell" : ""
+        }`}
       onClick={() => onSort?.(columnKey)}
     >
       <div className="flex items-center justify-center space-x-1">
@@ -127,6 +126,9 @@ const TableElement = ({
   const totalPages = Math.max(1, Math.ceil(products.length / itemsPerPage));
 
   const [loading, setLoading] = useState(false);
+  const [fotoSeleccionada, setFotoSeleccionada] = useState(null);
+  const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
+
 
   // Refs
   const containerRef = useRef(null);
@@ -273,6 +275,15 @@ const TableElement = ({
     estimateSize: () => 52, // altura aproximada de fila
   });
 
+  const handleClickFoto = (e, foto) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setPopupPos({
+      top: rect.top + rect.height / 2,   // centro vertical del thumbnail
+      left: rect.left + rect.width / 2, // centro horizontal
+    });
+    setFotoSeleccionada(foto);
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -311,108 +322,296 @@ const TableElement = ({
         </div>
 
         {/* TABLA PRINCIPAL */}
-        <table ref={bodyTableRef} className="min-w-[1200px] sm:min-w-full w-full table-fixed border-collapse text-[12px] sm:text-sm">
-          <colgroup>
-            {columns.map((cls, i) => (
-              <col key={`bcol-${i}`} className={cls} />
-            ))}
-          </colgroup>
-          <thead className="bg-gray-100 text-gray-700 uppercase text-[11px] sm:text-sm">
-            <tr>
-              {isLote && <th className="px-2 py-2 text-center">ID</th>}
-              <th className="px-2 py-2 text-center">Foto</th>
-              <SortableHeader label="Producto" columnKey="nombre" {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="Cantidad" columnKey="cantidad" {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="Precio(€)" columnKey="precio" {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="Lugar" columnKey="lugar" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-              <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-              {!isLote && <th className="px-2 py-2 text-center">Acciones</th>}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 text-gray-800 relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
-            {/* padding superior */}
-            <tr style={{ height: `${rowVirtualizer.getVirtualItems()[0]?.start || 0}px` }} />
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-              const product = paginatedProducts[virtualRow.index];
-              if (!product) return null;
-              return (
-                <tr key={product.id} className="text-center hover:bg-gray-50">
-                  {isLote && (
-                    <td>
-                      {product.id && (
-                        <>
-                          {product.id}
-                          <input
-                            type="checkbox"
-                            className="ml-2"
-                            value={product.id}
-                            checked={selectedIds.includes(product.id)}
-                            onChange={() => toggleCheckbox(product.id)}
+        <div className="relative">
+          <table
+            ref={bodyTableRef}
+            className="min-w-[1200px] sm:min-w-full w-full table-fixed border-collapse text-[12px] sm:text-sm"
+          >
+            <colgroup>
+              {columns.map((cls, i) => (
+                <col key={`bcol-${i}`} className={cls} />
+              ))}
+            </colgroup>
+            <thead className="bg-gray-100 text-gray-700 uppercase text-[11px] sm:text-sm">
+              <tr>
+                {isLote && <th className="px-2 py-2 text-center">ID</th>}
+                <th className="px-2 py-2 text-center">Foto</th>
+                <SortableHeader label="Producto" columnKey="nombre" {...{ orderBy, orderDirection, onSort }} />
+                <SortableHeader label="Cantidad" columnKey="cantidad" {...{ orderBy, orderDirection, onSort }} />
+                <SortableHeader label="Precio(€)" columnKey="precio" {...{ orderBy, orderDirection, onSort }} />
+                <SortableHeader label="Lugar" columnKey="lugar" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                {!isLote && <th className="px-2 py-2 text-center">Acciones</th>}
+              </tr>
+            </thead>
+            <tbody
+              className="divide-y divide-gray-200 text-gray-800 relative"
+              style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+            >
+              {/* padding superior */}
+              <tr style={{ height: `${rowVirtualizer.getVirtualItems()[0]?.start || 0}px` }} />
+
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const product = paginatedProducts[virtualRow.index];
+                if (!product) return null;
+                return (
+                  <tr key={product.id} className="text-center hover:bg-gray-50">
+                    {isLote && (
+                      <td>
+                        {product.id && (
+                          <>
+                            {product.id}
+                            <input
+                              type="checkbox"
+                              className="ml-2"
+                              value={product.id}
+                              checked={selectedIds.includes(product.id)}
+                              onChange={() => toggleCheckbox(product.id)}
+                            />
+                          </>
+                        )}
+                      </td>
+                    )}
+
+                    {/* Foto */}
+                    <td className="px-2 py-3 text-center">
+                      {product.foto ? (
+                        <button
+                          type="button"
+                          onClick={(e) => handleClickFoto(e, product.foto)}
+                          className="focus:outline-none cursor-pointer"
+                        >
+                          <img
+                            src={product.foto}
+                            alt={`Foto de ${product.nombre}`}
+                            className="h-10 w-10 object-cover rounded-full mx-auto"
                           />
-                        </>
+                        </button>
+                      ) : (
+                        <span className="text-xs">Sin foto</span>
                       )}
                     </td>
-                  )}
-                  <td className="px-2 py-3">
-                    {product.foto ? (
-                      <img
-                        src={product.foto}
-                        alt={`Foto de ${product.nombre}`}
-                        className="h-10 w-10 object-cover rounded-full mx-auto hover:scale-200 transition-transform duration-200"
-                      />
-                    ) : (
-                      <span className="text-xs">Sin foto</span>
-                    )}
-                  </td>
-                  {["nombre", "cantidad", "precio", "lugar", "proveedor", "codigoProveedor"].map((field) => {
-                    const isLowStock = field === "cantidad" && parseInt(product[field], 10) <= 5;
-                    const hasLongDescription = product.descripcion && product.descripcion.length > 10;
-                    const nameColorClass = field === "nombre" ? (hasLongDescription ? "text-gray-600" : "text-red-600") : "";
-                    return (
-                      <td
-                        key={field}
-                        className={[
-                          "px-2 py-2 whitespace-normal",
-                          isLowStock ? "text-red-600 font-semibold" : "",
-                          nameColorClass,
-                          field === "lugar" || field === "proveedor" || field === "codigoProveedor" ? "hidden sm:table-cell" : "",
-                        ].join(" ")}
-                        title={product[field]}
-                      >
-                        <EditableCell value={product[field]} onChange={(val) => onEditCell(product.id, field, val)} />
-                      </td>
-                    );
-                  })}
-                  {!isLote && (
-                    <td className="px-2 py-2 whitespace-nowrap">
-                      <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
-                        <Link to={`/products/${product.id}`} state={{ fromSearch: location.search }} className="text-green-500 hover:text-green-600" title="Detalle">
-                          <i className="fa-solid fa-circle-info"></i>
-                        </Link>
-                        <Link to={`/products/edit/${product.id}${location.search}`} className="text-blue-500 hover:text-blue-600" title="Editar">
-                          <i className="fa-solid fa-pen-to-square"></i>
-                        </Link>
-                        <button type="button" className="text-yellow-500 hover:text-yellow-600" onClick={() => onSale(product)} title="Venta">
-                          <i className="fa-solid fa-cart-plus"></i>
-                        </button>
-                        <button type="button" className="text-red-500 hover:text-red-600" onClick={() => onDelete(product)} title="Eliminar">
-                          <i className="fa-solid fa-trash"></i>
-                        </button>
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
-            {/* padding inferior */}
-            <tr style={{ height: `${rowVirtualizer.getTotalSize() - (rowVirtualizer.getVirtualItems().at(-1)?.end || 0)}px` }} />
-          </tbody>
-        </table>
-      </div>
 
-      {/* PAGINACIÓN */}
-      {/* <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
+                    {["nombre", "cantidad", "precio", "lugar", "proveedor", "codigoProveedor"].map((field) => {
+                      const isLowStock = field === "cantidad" && parseInt(product[field], 10) <= 5;
+                      const hasLongDescription = product.descripcion && product.descripcion.length > 10;
+                      const nameColorClass = field === "nombre" ? (hasLongDescription ? "text-gray-600" : "text-red-600") : "";
+                      return (
+                        <td
+                          key={field}
+                          className={[
+                            "px-2 py-2 whitespace-normal",
+                            isLowStock ? "text-red-600 font-semibold" : "",
+                            nameColorClass,
+                            field === "lugar" || field === "proveedor" || field === "codigoProveedor"
+                              ? "hidden sm:table-cell"
+                              : "",
+                          ].join(" ")}
+                          title={product[field]}
+                        >
+                          <EditableCell value={product[field]} onChange={(val) => onEditCell(product.id, field, val)} />
+                        </td>
+                      );
+                    })}
+
+                    {!isLote && (
+                      <td className="px-2 py-2 whitespace-nowrap">
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                          <Link
+                            to={`/products/${product.id}`}
+                            state={{ fromSearch: location.search }}
+                            className="text-green-500 hover:text-green-600"
+                            title="Detalle"
+                          >
+                            <i className="fa-solid fa-circle-info"></i>
+                          </Link>
+                          <Link
+                            to={`/products/edit/${product.id}${location.search}`}
+                            className="text-blue-500 hover:text-blue-600"
+                            title="Editar"
+                          >
+                            <i className="fa-solid fa-pen-to-square"></i>
+                          </Link>
+                          <button
+                            type="button"
+                            className="text-yellow-500 hover:text-yellow-600"
+                            onClick={() => onSale(product)}
+                            title="Venta"
+                          >
+                            <i className="fa-solid fa-cart-plus"></i>
+                          </button>
+                          <button
+                            type="button"
+                            className="text-red-500 hover:text-red-600"
+                            onClick={() => onDelete(product)}
+                            title="Eliminar"
+                          >
+                            <i className="fa-solid fa-trash"></i>
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+
+              {/* padding inferior */}
+              <tr
+                style={{
+                  height: `${rowVirtualizer.getTotalSize() - (rowVirtualizer.getVirtualItems().at(-1)?.end || 0)
+                    }px`,
+                }}
+              />
+            </tbody>
+          </table>
+          {/* Popup flotante en posición de la miniatura */}
+          {fotoSeleccionada && (
+            <div
+              className="fixed z-50"
+              style={{
+                top: popupPos.top,
+                left: popupPos.left,
+                transform: "translate(-50%, -50%)", // centra el popup sobre la miniatura
+              }}
+            >
+              <div className="relative bg-white border rounded-lg shadow-lg p-2">
+                <button
+                  onClick={() => setFotoSeleccionada(null)}
+                  className="absolute -top-2 -right-2 bg-white border rounded-full w-6 h-6 flex items-center justify-center shadow"
+                >
+                  ✕
+                </button>
+                <img
+                  src={fotoSeleccionada}
+                  alt="Foto ampliada"
+                  className="h-40 w-40 object-contain rounded-md"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      <Pagination
+        totalPages={totalPages}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+        delta={2}
+        jumpStep={5}
+      />
+    </>
+  );
+};
+
+export default TableElement;
+
+
+
+
+
+//  {/* TABLA PRINCIPAL */} SIN QUE SE VEA LA FOTO
+//         <table ref={bodyTableRef} className="min-w-[1200px] sm:min-w-full w-full table-fixed border-collapse text-[12px] sm:text-sm">
+//           <colgroup>
+//             {columns.map((cls, i) => (
+//               <col key={`bcol-${i}`} className={cls} />
+//             ))}
+//           </colgroup>
+//           <thead className="bg-gray-100 text-gray-700 uppercase text-[11px] sm:text-sm">
+//             <tr>
+//               {isLote && <th className="px-2 py-2 text-center">ID</th>}
+//               <th className="px-2 py-2 text-center">Foto</th>
+//               <SortableHeader label="Producto" columnKey="nombre" {...{ orderBy, orderDirection, onSort }} />
+//               <SortableHeader label="Cantidad" columnKey="cantidad" {...{ orderBy, orderDirection, onSort }} />
+//               <SortableHeader label="Precio(€)" columnKey="precio" {...{ orderBy, orderDirection, onSort }} />
+//               <SortableHeader label="Lugar" columnKey="lugar" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+//               <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+//               <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+//               {!isLote && <th className="px-2 py-2 text-center">Acciones</th>}
+//             </tr>
+//           </thead>
+//           <tbody className="divide-y divide-gray-200 text-gray-800 relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
+//             {/* padding superior */}
+//             <tr style={{ height: `${rowVirtualizer.getVirtualItems()[0]?.start || 0}px` }} />
+//             {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+//               const product = paginatedProducts[virtualRow.index];
+//               if (!product) return null;
+//               return (
+//                 <tr key={product.id} className="text-center hover:bg-gray-50">
+//                   {isLote && (
+//                     <td>
+//                       {product.id && (
+//                         <>
+//                           {product.id}
+//                           <input
+//                             type="checkbox"
+//                             className="ml-2"
+//                             value={product.id}
+//                             checked={selectedIds.includes(product.id)}
+//                             onChange={() => toggleCheckbox(product.id)}
+//                           />
+//                         </>
+//                       )}
+//                     </td>
+//                   )}
+//                   {/* <td className="px-2 py-3">
+//                     {product.foto ? (
+//                       <img
+//                         src={product.foto}
+//                         alt={`Foto de ${product.nombre}`}
+//                         className="h-10 w-10 object-cover rounded-full mx-auto hover:scale-200 transition-transform duration-200"
+//                       />
+//                     ) : (
+//                       <span className="text-xs">Sin foto</span>
+//                     )}
+//                   </td> */}
+//                   {["nombre", "cantidad", "precio", "lugar", "proveedor", "codigoProveedor"].map((field) => {
+//                     const isLowStock = field === "cantidad" && parseInt(product[field], 10) <= 5;
+//                     const hasLongDescription = product.descripcion && product.descripcion.length > 10;
+//                     const nameColorClass = field === "nombre" ? (hasLongDescription ? "text-gray-600" : "text-red-600") : "";
+//                     return (
+//                       <td
+//                         key={field}
+//                         className={[
+//                           "px-2 py-2 whitespace-normal",
+//                           isLowStock ? "text-red-600 font-semibold" : "",
+//                           nameColorClass,
+//                           field === "lugar" || field === "proveedor" || field === "codigoProveedor" ? "hidden sm:table-cell" : "",
+//                         ].join(" ")}
+//                         title={product[field]}
+//                       >
+//                         <EditableCell value={product[field]} onChange={(val) => onEditCell(product.id, field, val)} />
+//                       </td>
+//                     );
+//                   })}
+//                   {!isLote && (
+//                     <td className="px-2 py-2 whitespace-nowrap">
+//                       <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+//                         <Link to={`/products/${product.id}`} state={{ fromSearch: location.search }} className="text-green-500 hover:text-green-600" title="Detalle">
+//                           <i className="fa-solid fa-circle-info"></i>
+//                         </Link>
+//                         <Link to={`/products/edit/${product.id}${location.search}`} className="text-blue-500 hover:text-blue-600" title="Editar">
+//                           <i className="fa-solid fa-pen-to-square"></i>
+//                         </Link>
+//                         <button type="button" className="text-yellow-500 hover:text-yellow-600" onClick={() => onSale(product)} title="Venta">
+//                           <i className="fa-solid fa-cart-plus"></i>
+//                         </button>
+//                         <button type="button" className="text-red-500 hover:text-red-600" onClick={() => onDelete(product)} title="Eliminar">
+//                           <i className="fa-solid fa-trash"></i>
+//                         </button>
+//                       </div>
+//                     </td>
+//                   )}
+//                 </tr>
+//               );
+//             })}
+//             {/* padding inferior */}
+//             <tr style={{ height: `${rowVirtualizer.getTotalSize() - (rowVirtualizer.getVirtualItems().at(-1)?.end || 0)}px` }} />
+//           </tbody>
+//         </table>
+
+
+{/* PAGINACIÓN */ } // PAGINACION COMPLETA
+{/* <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
         {Array.from({ length: totalPages }, (_, index) => {
           const pageNumber = index + 1;
           return (
@@ -429,15 +628,3 @@ const TableElement = ({
           );
         })}
       </div> */}
-      <Pagination
-        totalPages={totalPages}
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-        delta={2}
-        jumpStep={5}
-      />
-    </>
-  );
-};
-
-export default TableElement;

@@ -13,6 +13,7 @@ import SalesView from "./Views/SalesView";
 import SidebarActions from "./components/SidebarActions";
 import StatsView from "./Views/StatsView";
 import BlackList from "./Views/BlackList";
+import OrderView from "./Views/OrderView";
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -60,6 +61,7 @@ function AppContent() {
             <Route path="/create-product" element={<ProtectedRoute user={user}><CreateProduct /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage /></ProtectedRoute>} />
             <Route path="/sales" element={<ProtectedRoute user={user}><SalesView /></ProtectedRoute>} />
+            <Route path="/orders" element={<ProtectedRoute user={user}><OrderView /></ProtectedRoute>} />
             <Route path="/stats" element={<ProtectedRoute user={user}><StatsView /></ProtectedRoute>} />
              <Route path="/black-list" element={<ProtectedRoute user={user}><BlackList /></ProtectedRoute>} />
             <Route path="/products/:id" element={<ProtectedRoute user={user}><Product /></ProtectedRoute>} />
