@@ -74,19 +74,24 @@ const ProductsPage = () => {
             setOrderDirection("asc");
         }
     };
-
+    //Cadena de búsqueda consecutiva 
     // const filteredProducts = useMemo(() => {
     //     const term = normalizeString(searchTerm);
-    //     const filtered = products.filter((p) =>
-    //         (p.nombreLower || "").includes(term) ||
-    //         (p.lugarLower || "").includes(term) ||
-    //         (p.codigoProveedorLower || "").includes(term) ||
-    //         (p.descripcionLower || "").includes(term)
-    //     );
+
+    //     let filtered = products;
+    //     if (term) {
+    //         filtered = products.filter(
+    //             (p) =>
+    //                 (p.nombreLower || "").includes(term) ||
+    //                 (p.lugarLower || "").includes(term) ||
+    //                 (p.codigoProveedorLower || "").includes(term) ||
+    //                 (p.descripcionLower || "").includes(term)
+    //         );
+    //     }
 
     //     if (!orderBy) return filtered;
 
-    //     return filtered.sort((a, b) => {
+    //     return [...filtered].sort((a, b) => { // 👈 importante clonar con spread
     //         let valA = a[orderBy];
     //         let valB = b[orderBy];
 
@@ -114,18 +119,24 @@ const ProductsPage = () => {
 
         let filtered = products;
         if (term) {
-            filtered = products.filter(
-                (p) =>
-                    (p.nombreLower || "").includes(term) ||
-                    (p.lugarLower || "").includes(term) ||
-                    (p.codigoProveedorLower || "").includes(term) ||
-                    (p.descripcionLower || "").includes(term)
-            );
+            const terms = term.split(" ").filter(Boolean); // 👈 divide en palabras
+
+            filtered = products.filter((p) => {
+                // concatenamos todos los campos relevantes en un solo string
+                const haystack =
+                    `${p.nombreLower || ""} ${p.lugarLower || ""} ${p.codigoProveedorLower || ""} ${p.descripcionLower || ""}`;
+
+                // normalizamos y pasamos a lowercase
+                const normalizedHaystack = normalizeString(haystack);
+
+                // verificamos que TODAS las palabras del search estén presentes
+                return terms.every((t) => normalizedHaystack.includes(t));
+            });
         }
 
         if (!orderBy) return filtered;
 
-        return [...filtered].sort((a, b) => { // 👈 importante clonar con spread
+        return [...filtered].sort((a, b) => {
             let valA = a[orderBy];
             let valB = b[orderBy];
 
@@ -355,7 +366,7 @@ const ProductsPage = () => {
             for (const p of batchProducts) {
                 const { data: sale, error } = await supabase.rpc("confirm_sale", {
                     p_product_id: p.id,
-                    p_cantidad: p.cantidadVenta,
+                    p_cantidad: Number(p.cantidadVenta),
                     p_dia: null,
                     p_cliente_id: clienteId,
                     p_precio_venta: p.precioVenta === "" ? null : Number(p.precioVenta),
@@ -598,7 +609,7 @@ const ProductsPage = () => {
                                             value={precioTotalLote}
                                             onChange={(e) => {
                                                 const value = e.target.value.replace(",", "."); // 👈 reemplaza coma por punto
-                                                setPrecioTotalLote(Number(value));
+                                                setPrecioTotalLote((value));
                                             }}
                                             className="border border-gray-300 rounded-md p-2 w-full"
                                             placeholder="Precio total del lote"
