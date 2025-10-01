@@ -131,12 +131,12 @@ export function useSalesData({ selectedMonth, year, porDinero, porCantidad }) {
     };
 }
 
-
 export function useFetchSales({ year, selectedMonth, productId }) {
     const [loading, setLoading] = useState(false);
     const [products, setProducts] = useState([]);
     const [sales, setSales] = useState([]);
-    const [totalCarolImporte, setTotalCarolImporte] = useState(0);
+    const [saldoMes, setSaldoMes] = useState(0);
+    const [saldoTotalPendiente, setSaldoTotalPendiente] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -145,55 +145,90 @@ export function useFetchSales({ year, selectedMonth, productId }) {
                 // 🔹 Productos
                 const allProducts = await getAllProducts();
                 setProducts(allProducts);
-
-                // 🔹 Rango de fechas
+                // 🔹 Rango de fechas (mes actual)
                 const from = `${year}-${String(selectedMonth + 1).padStart(2, "0")}-01T00:00:00Z`;
                 const lastDay = new Date(year, selectedMonth + 1, 0).getDate();
                 const to = `${year}-${String(selectedMonth + 1).padStart(2, "0")}-${lastDay}T23:59:59Z`;
-
-                // 🔹 Ventas
+                // 🔹 Ventas del mes actual (opcionalmente por producto)
                 const { data: salesData } = await listSales({
                     from,
                     to,
                     ...(productId && { productId }),
                 });
-
                 const salesWithName = salesData.map((s) => {
-                    const product = allProducts.find((p) => Number(p.id) === Number(s.product_id));
+                    const product = allProducts.find(
+                        (p) => Number(p.id) === Number(s.product_id)
+                    );
                     return {
                         ...s,
                         productName: product ? product.nombre : "Desconocido",
                         foto: product ? product.foto : null,
                     };
                 });
-
                 // 🔹 Evitar duplicados
                 const uniqueSalesMap = new Map();
                 salesWithName.forEach((s) => uniqueSalesMap.set(s.id, s));
                 const uniqueSales = [...uniqueSalesMap.values()];
                 setSales(uniqueSales);
-
-                // 🔹 Ventas Carol
-                const carolSales = uniqueSales.filter((s) =>
+                // Helpers fechas
+                const inRange = (date, startISO, endISO) =>
+                    date >= new Date(startISO) && date <= new Date(endISO);
+                const getRDate = (r) => new Date(r?.created_at || r?.fecha || r?.date);
+                // 🔹 Ventas Carol (solo mes actual)
+                const carolSalesMes = uniqueSales.filter((s) =>
                     (s.clienteNombre || "").toLowerCase().includes("carol")
                 );
-                const totalCarol = carolSales.reduce(
+                const totalCarolMes = carolSalesMes.reduce(
                     (acc, s) => acc + (s.precio_venta || 0) * (s.cantidad || 0),
                     0
                 );
-
-                // 🔹 Reembolsos Carol
+                // 🔹 Reembolsos Carol (filtrados por mes actual)
                 const reembolsos = await getReembolsosByCliente("carol");
-                const totalReembolsado = reembolsos.reduce((acc, r) => acc + (r.monto || 0), 0);
-
-                setTotalCarolImporte(Math.max(totalCarol - totalReembolsado, 0));
+                const reembolsosMes = reembolsos.filter((r) => {
+                    const d = getRDate(r);
+                    return !isNaN(d) && inRange(d, from, to);
+                });
+                const totalReembolsadoMes = reembolsosMes.reduce(
+                    (acc, r) => acc + (r.monto || 0),
+                    0
+                );
+                // 🔹 Saldo del mes actual (ventas del mes - reembolsos del mes)
+                const saldoMesActual = Math.max(totalCarolMes - totalReembolsadoMes, 0);
+                setSaldoMes(saldoMesActual);
+                // 🔹 Saldo acumulado hasta fin de mes seleccionado
+                const fromYear = `${year}-01-01T00:00:00Z`;
+                const { data: ventasYear } = await listSales({
+                    from: fromYear,
+                    to,
+                    ...(productId && { productId }), // si estás filtrando por producto, respétalo
+                });
+                const ventasCarolYear = ventasYear.filter((s) =>
+                    (s.clienteNombre || "").toLowerCase().includes("carol")
+                );
+                const totalCarolYear = ventasCarolYear.reduce(
+                    (acc, s) => acc + (s.precio_venta || 0) * (s.cantidad || 0),
+                    0
+                );
+                // Reembolsos acumulados desde 1/enero hasta "to"
+                const reembolsosYear = reembolsos.filter((r) => {
+                    const d = getRDate(r);
+                    return !isNaN(d) && inRange(d, fromYear, to);
+                });
+                const totalReembolsadoYear = reembolsosYear.reduce(
+                    (acc, r) => acc + (r.monto || 0),
+                    0
+                );
+                const saldoPendienteTotal = Math.max(
+                    totalCarolYear - totalReembolsadoYear,
+                    0
+                );
+                setSaldoTotalPendiente(saldoPendienteTotal);
             } catch (err) {
-                console.error("Error en useSalesCarol:", err);
+                console.error("Error en useFetchSales:", err);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchData();
     }, [year, selectedMonth, productId]);
 
@@ -201,37 +236,41 @@ export function useFetchSales({ year, selectedMonth, productId }) {
         loading,
         products,
         sales,
-        totalCarolImporte,
+        saldoMes,
+        saldoTotalPendiente,
+        setSaldoMes,
+        setSaldoTotalPendiente,
     };
 }
 
 
 
+
 export function useLowStockProducts(enabled) {
-  const [loading, setLoading] = useState(false);
-  const [lowStockProducts, setLowStockProducts] = useState([]);
-  const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [lowStockProducts, setLowStockProducts] = useState([]);
+    const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!enabled) return; // si no está activado el checkbox, no llamamos al servicio
+    useEffect(() => {
+        if (!enabled) return; // si no está activado el checkbox, no llamamos al servicio
 
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getTopLowStockProducts();
-        setLowStockProducts(data);
-      } catch (err) {
-        console.error("Error cargando productos con stock bajo:", err);
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const data = await getTopLowStockProducts();
+                setLowStockProducts(data);
+            } catch (err) {
+                console.error("Error cargando productos con stock bajo:", err);
+                setError(err);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    fetchData();
-  }, [enabled]);
+        fetchData();
+    }, [enabled]);
 
-  return { loading, lowStockProducts, error };
+    return { loading, lowStockProducts, error };
 }
 
