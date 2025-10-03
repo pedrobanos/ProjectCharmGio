@@ -1,10 +1,11 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { getFormatFromDataUrl } from "./imgToDataUrl";
+import { traducirAEspanol } from "./traslator";
 
 export async function exportPedidoPDF({
     pedido = [], // [{id, nombre, cantidad, fotoBase64}]
-    titulo = "Purchase Order",
+    titulo = "Hoja de Pedido",
     proveedor = "",
 }) {
     const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -12,16 +13,23 @@ export async function exportPedidoPDF({
     const pageH = doc.internal.pageSize.getHeight();
     const marginX = 24;
 
+    const tituloTraducido = await traducirAEspanol(titulo);
+    const pedidoTraducido = await Promise.all(
+        pedido.map(async (p) => ({
+            ...p,
+            nombre: p.nombre ? await traducirAEspanol(p.nombre) : "-"
+        }))
+    );
     // 🔹 Encabezado
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text(titulo, marginX, 40);
+    doc.text(tituloTraducido, marginX, 40);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     const subtitulo = [
         `Generated: ${new Date().toLocaleString("es-ES")}`,
-        proveedor ? `Proveedor: ${proveedor}` : null,
+        proveedor ? `Supplier: ${proveedor}` : null,
     ]
         .filter(Boolean)
         .join("  ·  ");
@@ -30,7 +38,7 @@ export async function exportPedidoPDF({
     // 🔹 Tabla
     autoTable(doc, {
         head: [["Photo", "Product", "Quantity"]],
-        body: pedido
+        body: pedidoTraducido
             .filter((p) => (p.cantidad ?? 0) > 0)
             .map((p) => [
                 p.fotoBase64 ? " " : "--", // placeholder
@@ -92,11 +100,11 @@ export async function exportPedidoPDF({
             const page = doc.internal.getNumberOfPages();
             doc.setFontSize(9);
             doc.setTextColor(130);
-            doc.text(`Página ${page}`, pageW - marginX, pageH - 12, { align: "right" });
+            doc.text(`Page ${page}`, pageW - marginX, pageH - 12, { align: "right" });
         },
     });
 
     // 🔹 Guardar PDF
-    doc.save(`pedido-${new Date().toISOString().slice(0, 10)}.pdf`);
+    doc.save(`order-${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
