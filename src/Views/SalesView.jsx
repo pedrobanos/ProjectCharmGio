@@ -138,14 +138,16 @@ const SalesView = ({ productId }) => {
           }
         />
 
-        {showLowStock && (
+        {/* {showLowStock && (
           <Link
             to="/orders"
-            className="flex items-center gap-2 bg-black text-white px-2 py-2 rounded-lg hover:bg-gray-700 whitespace-nowrap"
+            className="flex items-center gap-2 bg-blue-600 text-white font-semibold px-6 py-2 rounded-xl shadow-md 
+             hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200"
           >
-            <span className="text-center">Tramitar Pedido </span>
+            <i className="fas fa-shopping-cart"></i>
+            <span>Tramitar Pedido</span>
           </Link>
-        )}
+        )} */}
       </div>
 
       {/* Tabla */}

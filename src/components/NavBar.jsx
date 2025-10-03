@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 
 const NavBar = ({ user, onLogout }) => {
+
+    const userRole = user.email?.toLowerCase() === "test@test.com" ? "admin" : "user";
+
     return (
         <nav className="w-full h-full bg-gray-800 text-white px-4 py-3">
             <div className="flex items-center justify-between max-w-6xl mx-auto overflow-x-auto">
@@ -21,6 +24,16 @@ const NavBar = ({ user, onLogout }) => {
                             <i className="fa-solid fa-chart-simple"></i>
                         </Link>
                     </li>
+                    {userRole && (
+                        <li className="flex-shrink-0">
+                            <Link
+                                to="/orders"
+                                className="hover:text-yellow-400 rounded"
+                            >
+                                <i className="fas fa-shopping-cart"></i>
+                            </Link>
+                        </li>
+                    )}
                     <li className="flex-shrink-0">
                         <button
                             onClick={onLogout}
