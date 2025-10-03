@@ -273,7 +273,7 @@ const SalesView = ({ productId }) => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 text-gray-800">
-              {lowStockProducts.map((p) => (
+              {lowStockProducts?.data?.map((p) => (
                 <tr key={p.id} className="text-center hover:bg-gray-50">
                   <td className="px-2 py-2">
                     {p.foto ? (
