@@ -961,6 +961,68 @@ const ProductsPage = () => {
                         setCurrentPage={setCurrentPage}
                         searchTerm={searchTerm}
                     />
+                    {/* Modal de venta individual */}
+//                     {isModalOpen && selectedProduct && (
+                        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                            <div className="bg-white p-6 rounded-lg shadow-lg w-80">
+                                <h2 className="text-lg font-semibold">
+                                    Charm: {selectedProduct.nombre}
+                                </h2>
+                                <span className="text-xs text-gray-500 mb-4">Lugar: {selectedProduct.lugar}</span>
+                                {selectedProduct.foto && (
+                                    <img
+                                        src={selectedProduct.foto}
+                                        alt={selectedProduct.nombre}
+                                        className="w-full max-w-xs rounded-full mx-auto sm:w-48 sm:h-48 object-cover"
+                                    />
+                                )}
+                                <label className="block text-sm font-medium mb-1">
+                                    Cantidad a vender (Stock: {selectedProduct.cantidad})
+                                </label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    value={cantidadVenta}
+                                    onChange={(e) => setCantidadVenta(Number(e.target.value))}
+                                    className="border border-gray-300 rounded-md p-2 w-full mb-2"
+                                />
+                                <label className="block text-sm font-medium mb-1">Nombre Cliente</label>
+                                <input
+                                    type="text"
+                                    value={cliente}
+                                    onChange={(e) => setCliente(e.target.value)}
+                                    placeholder="John Doe"
+                                    className="border border-gray-300 rounded-md p-2 w-full mb-2"
+                                />
+                                <label className="block text-sm font-medium mb-1">Precio de Venta (€)</label>
+                                <input
+                                    type="text"
+                                    value={precioVenta}
+                                    onChange={(e) => {
+                                        const value = e.target.value.replace(",", "."); // 👈 reemplaza coma por punto
+                                        setPrecioVenta(value);
+                                    }}
+                                    placeholder="Precio de venta"
+                                    className="border border-gray-300 rounded-md p-2 w-full mb-2"
+                                />
+                                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+                                <div className="flex justify-end space-x-2">
+                                    <button
+                                        onClick={() => setIsModalOpen(false)}
+                                        className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-md"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={confirmSale}
+                                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md"
+                                    >
+                                        Confirmar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* 🟢 Modal de lote */}
                     {isBatchModalOpen && (

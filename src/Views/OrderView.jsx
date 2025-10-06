@@ -68,7 +68,6 @@ const OrderView = () => {
                                 : "bg-white text-black"
                             }`}
                     >
-
                         {p.foto ? (
                             <img src={p.foto} alt={p.nombre} className="w-20 h-20 object-cover rounded mb-2" />
                         ) : (
