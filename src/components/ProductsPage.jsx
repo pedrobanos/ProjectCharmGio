@@ -962,7 +962,7 @@ const ProductsPage = () => {
                         searchTerm={searchTerm}
                     />
                     {/* Modal de venta individual */}
-//                     {isModalOpen && selectedProduct && (
+                    {isModalOpen && selectedProduct && (
                         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                             <div className="bg-white p-6 rounded-lg shadow-lg w-80">
                                 <h2 className="text-lg font-semibold">
