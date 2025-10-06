@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Loading from "../components/Loading";
-import { getAllProducts } from "../services/productServices";
 import { bloquearCliente, desbloquearCliente, getClientesBlacklisted } from "../services/clientServices";
 import { useFetchSales, useLowStockProducts } from "../hooks";
 import ReembolsoModal from "../components/ReembolsoModal";
-import { Link } from "react-router-dom";
+
 
 const MONTHS = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
@@ -30,6 +29,7 @@ const SalesView = ({ productId }) => {
   const { loading: loadingLowStock, lowStockProducts } = useLowStockProducts(showLowStock);
 
   const [blacklistedClientes, setBlacklistedClientes] = useState(new Set());
+
 
   // 🔹 Blacklist
   const fetchBlacklist = async () => {
@@ -67,7 +67,7 @@ const SalesView = ({ productId }) => {
         return acc + (s.precio_venta - (product.precio || 0)) * s.cantidad;
       return acc;
     }, 0);
-
+  console.log (filteredSales.map(s => s));
   return (
     <div className="max-w-screen-lg mx-auto p-4 space-y-6">
       <h1 className="text-5xl text-center font-bold mb-8 text-blue-500">

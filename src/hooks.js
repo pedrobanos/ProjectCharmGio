@@ -178,6 +178,7 @@ export function useFetchSales({ year, selectedMonth, productId }) {
                 const carolSalesMes = uniqueSales.filter((s) =>
                     (s.clienteNombre || "").toLowerCase().includes("carol")
                 );
+                //cambiar
                 const totalCarolMes = carolSalesMes.reduce(
                     (acc, s) => acc + (s.precio_venta || 0) * (s.cantidad || 0),
                     0
@@ -202,6 +203,7 @@ export function useFetchSales({ year, selectedMonth, productId }) {
                     to,
                     ...(productId && { productId }), // si estás filtrando por producto, respétalo
                 });
+                //cambiar
                 const ventasCarolYear = ventasYear.filter((s) =>
                     (s.clienteNombre || "").toLowerCase().includes("carol")
                 );
