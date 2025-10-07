@@ -657,12 +657,11 @@ import {
     updateProduct,
     deleteProduct,
 } from "../services/productServices";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import Loading from "./Loading";
 import { normalizeString } from "../Constants";
 import { SaleConfirmedModal } from "./SaleConfirmedModal";
-import { getClientesBlacklisted } from "../services/clientServices";
 
 const ProductsPage = () => {
     const [products, setProducts] = useState([]);
@@ -687,15 +686,19 @@ const ProductsPage = () => {
     const [precioTotalLote, setPrecioTotalLote] = useState(0);
     const [precioUnitarioLote, setPrecioUnitarioLote] = useState(null);
 
-    const [currentPage, setCurrentPage] = useState(1);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const pageParam = Number(searchParams.get("page")) || 1;
+    const [currentPage, setCurrentPage] = useState(pageParam);
+
 
     useEffect(() => {
         fetchProducts();
     }, []);
 
     useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm]);
+        setSearchParams({ page: currentPage });
+    }, [currentPage, setSearchParams]);
+
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -715,6 +718,7 @@ const ProductsPage = () => {
             setLoading(false);
         }
     };
+
 
     const handleSort = (columnKey) => {
         if (orderBy === columnKey) {
@@ -792,6 +796,46 @@ const ProductsPage = () => {
         setIsModalOpen(true);
     };
 
+    // const confirmSale = async () => {
+    //     if (cantidadVenta < 1)
+    //         return setError("La cantidad debe ser mayor o igual a 1.");
+    //     if (cantidadVenta > selectedProduct.cantidad)
+    //         return setError("No hay suficiente stock.");
+
+    //     try {
+    //         let clienteId = null;
+    //         if (cliente) {
+    //             const { data: existingClient } = await supabase
+    //                 .from("clientes")
+    //                 .select("id")
+    //                 .eq("nombre", cliente)
+    //                 .single();
+    //             if (existingClient) clienteId = existingClient.id;
+    //         }
+
+    //         const { data: sale, error } = await supabase.rpc("confirm_sale", {
+    //             p_product_id: selectedProduct.id,
+    //             p_cantidad: cantidadVenta,
+    //             p_cliente_id: clienteId,
+    //             p_precio_venta: precioVenta,
+    //         });
+    //         if (error) throw error;
+
+    //         setProducts((prev) =>
+    //             prev.map((p) =>
+    //                 p.id === selectedProduct.id
+    //                     ? { ...p, cantidad: p.cantidad - cantidadVenta }
+    //                     : p
+    //             )
+    //         );
+    //         if (sale) setSales((prev) => [sale[0], ...(prev || [])]);
+    //         setIsModalOpen(false);
+    //         setIsSaleConfirmed(true);
+    //     } catch (err) {
+    //         setError(err.message);
+    //     }
+    // };
+
     const confirmSale = async () => {
         if (cantidadVenta < 1)
             return setError("La cantidad debe ser mayor o igual a 1.");
@@ -800,13 +844,29 @@ const ProductsPage = () => {
 
         try {
             let clienteId = null;
+
             if (cliente) {
-                const { data: existingClient } = await supabase
+                const { data: existingClient, error: findError } = await supabase
                     .from("clientes")
                     .select("id")
                     .eq("nombre", cliente)
-                    .single();
-                if (existingClient) clienteId = existingClient.id;
+                    .maybeSingle();
+
+                if (findError) throw findError;
+
+                if (existingClient) {
+                    clienteId = existingClient.id;
+                } else {
+                    // 👇 crear cliente nuevo
+                    const { data: newClient, error: insertError } = await supabase
+                        .from("clientes")
+                        .insert([{ nombre: cliente }])
+                        .select("id")
+                        .single();
+
+                    if (insertError) throw insertError;
+                    clienteId = newClient.id;
+                }
             }
 
             const { data: sale, error } = await supabase.rpc("confirm_sale", {
@@ -815,6 +875,7 @@ const ProductsPage = () => {
                 p_cliente_id: clienteId,
                 p_precio_venta: precioVenta,
             });
+
             if (error) throw error;
 
             setProducts((prev) =>
@@ -824,10 +885,13 @@ const ProductsPage = () => {
                         : p
                 )
             );
+
             if (sale) setSales((prev) => [sale[0], ...(prev || [])]);
+
             setIsModalOpen(false);
             setIsSaleConfirmed(true);
         } catch (err) {
+            console.error(err);
             setError(err.message);
         }
     };
@@ -862,6 +926,7 @@ const ProductsPage = () => {
 
     const confirmBatchSale = async () => {
         try {
+            // ✅ Validar productos antes de registrar la venta
             for (const p of batchProducts) {
                 if (p.cantidadVenta <= 0)
                     return setError(`Cantidad inválida para ${p.nombre}`);
@@ -869,26 +934,47 @@ const ProductsPage = () => {
                     return setError(`No hay stock suficiente para ${p.nombre}`);
             }
 
+            // ✅ Verificar o crear cliente
             let clienteId = null;
+
             if (cliente) {
-                const { data: existingClient } = await supabase
+                const { data: existingClient, error: findError } = await supabase
                     .from("clientes")
                     .select("id")
                     .eq("nombre", cliente)
-                    .single();
-                if (existingClient) clienteId = existingClient.id;
+                    .maybeSingle(); // evita error si no hay coincidencias
+
+                if (findError) throw findError;
+
+                if (existingClient) {
+                    clienteId = existingClient.id;
+                } else {
+                    // 👇 crea nuevo cliente si no existe
+                    const { data: newClient, error: insertError } = await supabase
+                        .from("clientes")
+                        .insert([{ nombre: cliente }])
+                        .select("id")
+                        .single();
+
+                    if (insertError) throw insertError;
+                    clienteId = newClient.id;
+                }
             }
 
+            // ✅ Registrar ventas de cada producto en el lote
             for (const p of batchProducts) {
                 await supabase.rpc("confirm_sale", {
                     p_product_id: p.id,
                     p_cantidad: p.cantidadVenta,
                     p_cliente_id: clienteId,
-                    //p_precio_venta: p.precioVenta,
-                    p_precio_venta: (p.cantidadVenta > 0 ? p.precioVenta / p.cantidadVenta : p.precioVenta),
+                    p_precio_venta:
+                        p.cantidadVenta > 0
+                            ? p.precioVenta / p.cantidadVenta
+                            : p.precioVenta,
                 });
             }
 
+            // ✅ Limpiar estados y mostrar modal de confirmación
             setIsBatchModalOpen(false);
             setIsSaleConfirmed(true);
             setIsLote(false);
@@ -896,9 +982,11 @@ const ProductsPage = () => {
             setPrecioUnitarioLote(null);
             setCliente("");
         } catch (err) {
+            console.error(err);
             setError(err.message);
         }
     };
+
 
     return (
         <div className="flex flex-col items-center justify-center gap-4 p-6">
@@ -1225,7 +1313,7 @@ const ProductsPage = () => {
                         isOpen={isSaleConfirmed}
                         onClose={() => {
                             setIsSaleConfirmed(false)
-                            fetchProducts();
+                            fetchProducts(true);
                         }}
                     />
                 </>
