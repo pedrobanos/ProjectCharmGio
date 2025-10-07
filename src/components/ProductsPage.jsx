@@ -700,8 +700,25 @@ const ProductsPage = () => {
     }, [currentPage, setSearchParams]);
 
 
-    const fetchProducts = async () => {
-        setLoading(true);
+    // const fetchProducts = async () => {
+    //     setLoading(true);
+    //     try {
+    //         const data = await getAllProducts();
+    //         const normalized = data.map((p) => ({
+    //             ...p,
+    //             nombreLower: normalizeString(p.nombre),
+    //             lugarLower: normalizeString(p.lugar),
+    //             codigoProveedorLower: normalizeString(p.codigoProveedor),
+    //             descripcionLower: normalizeString(p.descripcion),
+    //         }));
+    //         setProducts(normalized);
+    //     } catch (err) {
+    //         console.error("Error al cargar productos:", err);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+    const fetchProducts = async (keepSearch = false) => {
         try {
             const data = await getAllProducts();
             const normalized = data.map((p) => ({
@@ -714,10 +731,11 @@ const ProductsPage = () => {
             setProducts(normalized);
         } catch (err) {
             console.error("Error al cargar productos:", err);
-        } finally {
+        }finally {
             setLoading(false);
         }
     };
+
 
 
     const handleSort = (columnKey) => {
