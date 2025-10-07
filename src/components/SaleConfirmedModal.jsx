@@ -1,8 +1,6 @@
 
 
 
-import React, { useEffect } from "react";
-
 export const SaleConfirmedModal = ({ isOpen, onClose }) => {
     // useEffect(() => {
     //     if (!isOpen) return;

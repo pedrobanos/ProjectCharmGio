@@ -907,39 +907,49 @@ const ProductsPage = () => {
             ) : (
                 <>
                     <h1 className="text-5xl text-center font-bold mb-4 text-blue-500">
-                        Productos de la tienda 💍
+                        Productos de la tienda <span className="mx-4">💍</span>
                     </h1>
-
-                    {/* 🔍 Buscador y botones */}
                     <div className="w-full max-w-xl mx-auto mb-4 flex flex-col gap-2">
                         <div className="flex items-center gap-3 w-full">
                             <SearchBar
                                 onSearch={setSearchTerm}
-                                placeholder="Buscar por nombre, lugar o código..."
+                                placeholder="Buscar por nombre, lugar o código de proveedor..."
                                 className="w-3/5"
                             />
+
                             {isLote ? (
                                 <>
                                     <button
+                                        className="w-1/7 hidden sm:flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-600 justify-center whitespace-nowrap"
                                         onClick={createBatch}
-                                        className="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
                                     >
-                                        Crear lote
+                                        <i className="fa-solid fa-layer-group w-5 text-white" aria-hidden="true"></i>
+                                        Lote
                                     </button>
                                     <button
+                                        className="w-2/7 hidden sm:flex items-center gap-2 bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-600 justify-center whitespace-nowrap"
                                         onClick={handleCreateBatch}
-                                        className="bg-red-700 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
                                     >
+                                        <i className="fa-solid fa-xmark w-5 text-white" aria-hidden="true"></i>
                                         Cancelar lote
                                     </button>
                                 </>
                             ) : (
-                                <button
-                                    onClick={handleCreateBatch}
-                                    className="bg-blue-700 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
-                                >
-                                    Seleccionar lote
-                                </button>
+                                <>
+                                    <Link
+                                        to="/create-product"
+                                        className="sm:hidden flex items-center justify-center whitespace-nowrap bg-blue-600 hover:bg-blue-700 rounded-full p-3"
+                                    >
+                                        <i className="fa-solid fa-plus text-white"></i>
+                                    </Link>
+                                    <button
+                                        className="hidden sm:inline-flex w-1/5 items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 justify-center whitespace-nowrap"
+                                        onClick={handleCreateBatch}
+                                    >
+                                        <i className="fa-solid fa-plus w-5 text-white" aria-hidden="true"></i>
+                                        Crear lote
+                                    </button>
+                                </>
                             )}
                         </div>
                     </div>
@@ -1023,12 +1033,11 @@ const ProductsPage = () => {
                             </div>
                         </div>
                     )}
-
                     {/* 🟢 Modal de lote */}
                     {isBatchModalOpen && (
                         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                             <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[95vh] overflow-y-auto">
-                                <h2 className="text-2xl text-center font-semibold mb-4">
+                                <h2 className="text-4xl text-center font-semibold mb-4">
                                     Lote de Productos
                                 </h2>
 
@@ -1051,6 +1060,7 @@ const ProductsPage = () => {
                                                     {p.nombre} (Stock: {p.cantidad})
                                                 </span>
                                             </div>
+                                            <span className="text-xs text-gray-500"> {p.lugar}</span>
                                             <div className="flex gap-2 mt-2">
                                                 <input
                                                     type="number"
@@ -1104,7 +1114,6 @@ const ProductsPage = () => {
                                         </li>
                                     ))}
                                 </ul>
-
                                 <div className="flex flex-col sm:flex-row gap-4 mb-4 mt-4 items-end">
                                     <div className="flex-1">
                                         <label className="block text-sm font-medium mb-1">
@@ -1120,7 +1129,7 @@ const ProductsPage = () => {
                                     </div>
                                     <div className="flex-1">
                                         <label className="block text-sm font-medium mb-1">
-                                            Precio total del lote (€)
+                                            Total Lote (€)
                                         </label>
                                         <input
                                             type="text"
@@ -1214,7 +1223,10 @@ const ProductsPage = () => {
 
                     <SaleConfirmedModal
                         isOpen={isSaleConfirmed}
-                        onClose={() => setIsSaleConfirmed(false)}
+                        onClose={() => {
+                            setIsSaleConfirmed(false)
+                            fetchProducts();
+                        }}
                     />
                 </>
             )}
