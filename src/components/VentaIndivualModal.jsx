@@ -150,7 +150,10 @@
 //   );
 // }
 
+
 import React, { useState, useEffect } from "react";
+import { getBlacklist } from "../services/clientServices";
+
 
 export default function VentaIndividualModal({
   isOpen,
@@ -165,10 +168,34 @@ export default function VentaIndividualModal({
   confirmSale,
   setIsModalOpen,
 }) {
-  const [selectedPerson, setSelectedPerson] = useState(""); // "carol", "gio", "otros"
-  const [previousPrice, setPreviousPrice] = useState(null); // guarda el precio anterior si pasa por Gio
+  const [selectedPerson, setSelectedPerson] = useState("");
+  const [previousPrice, setPreviousPrice] = useState(null);
+  const [stockError, setStockError] = useState("");
+  const [precioBase, setPrecioBase] = useState(selectedProduct?.precio ?? 0);
+  const [blacklist, setBlacklist] = useState([]);
+  const [isBlacklisted, setIsBlacklisted] = useState(false);
 
+  // 🧩 Obtener blacklist al abrir modal
   useEffect(() => {
+    if (isOpen) {
+      getBlacklist()
+        .then((data) => setBlacklist(data.map((b) => b.cliente.toLowerCase())))
+        .catch((err) => console.error("Error cargando blacklist:", err));
+    }
+  }, [isOpen]);
+
+  // 🧩 Verificar si el cliente actual está bloqueado
+  useEffect(() => {
+    if (!cliente) return;
+    const nombre = cliente.trim().toLowerCase();
+    const bloqueado = blacklist.some((b) => nombre.includes(b));
+    setIsBlacklisted(bloqueado);
+  }, [cliente, blacklist]);
+
+  // --- Lógica del selector (Carol, Gio, Otros)
+  useEffect(() => {
+    if (!selectedProduct) return;
+
     if (selectedPerson === "carol") {
       setCliente("vinted (carol)");
       if (previousPrice !== null) {
@@ -190,6 +217,28 @@ export default function VentaIndividualModal({
     }
   }, [selectedPerson]);
 
+  // --- Multiplica cantidad * precio unitario ---
+  useEffect(() => {
+    if (!selectedProduct || selectedPerson === "gio") return;
+    const base = selectedProduct.precio ?? precioBase;
+    const total = (cantidadVenta || 0) * base;
+    setPrecioVenta(Number(total.toFixed(2)));
+  }, [cantidadVenta, selectedProduct, selectedPerson]);
+
+  // --- Validar stock ---
+  const handleCantidadChange = (e) => {
+    const value = Number(e.target.value);
+    if (value > selectedProduct.cantidad) {
+      setStockError(
+        `No puedes vender más de ${selectedProduct.cantidad} unidades disponibles.`
+      );
+      setCantidadVenta(selectedProduct.cantidad);
+    } else {
+      setStockError("");
+      setCantidadVenta(value);
+    }
+  };
+
   if (!isOpen || !selectedProduct) return null;
 
   return (
@@ -198,13 +247,14 @@ export default function VentaIndividualModal({
         <h2 className="text-4xl text-center font-semibold mb-4">
           Venta Individual
         </h2>
-        {/* Información del producto */}
+
+        {/* Info producto */}
         <div className="flex items-center gap-3 mb-4">
           {selectedProduct.foto ? (
             <img
               src={selectedProduct.foto}
               alt={selectedProduct.nombre}
-              className="w-20 h-20 rounded-full object-cover"
+              className="w-16 h-16 rounded-full object-cover"
             />
           ) : (
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-xs">
@@ -212,10 +262,14 @@ export default function VentaIndividualModal({
             </div>
           )}
           <div>
-            <p className="font-medium">{selectedProduct.nombre} <span className="text-yellow-600">(Stock: {selectedProduct.cantidad})</span></p>
+            <p className="font-medium">{selectedProduct.nombre}</p>
             <p className="text-xs text-gray-500">{selectedProduct.lugar}</p>
+            <p className="text-xs text-gray-500">
+              Stock: {selectedProduct.cantidad}
+            </p>
           </div>
         </div>
+
         {/* Cantidad */}
         <label className="block text-sm font-medium mb-1">
           Cantidad a vender
@@ -224,9 +278,15 @@ export default function VentaIndividualModal({
           type="number"
           min="1"
           value={cantidadVenta}
-          onChange={(e) => setCantidadVenta(Number(e.target.value))}
-          className="border border-gray-300 rounded-md p-2 w-full mb-4"
+          onChange={handleCantidadChange}
+          className={`border rounded-md p-2 w-full mb-1 ${
+            stockError ? "border-red-500" : "border-gray-300"
+          }`}
         />
+        {stockError && (
+          <p className="text-red-500 text-xs mb-3">{stockError}</p>
+        )}
+
         {/* Selector de cliente */}
         <label className="block text-sm font-medium mb-1">Cliente</label>
         <select
@@ -239,7 +299,8 @@ export default function VentaIndividualModal({
           <option value="gio">Gio</option>
           <option value="otros">Otros</option>
         </select>
-        {/* Campo cliente (solo aparece si se selecciona) */}
+
+        {/* Nombre cliente */}
         {selectedPerson && (
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">
@@ -251,16 +312,25 @@ export default function VentaIndividualModal({
               onChange={(e) => setCliente(e.target.value)}
               placeholder="John Doe"
               readOnly={selectedPerson !== "otros"}
-              className={`border border-gray-300 rounded-md p-2 w-full ${selectedPerson !== "otros"
-                ? "bg-gray-100 text-gray-600 cursor-not-allowed"
-                : ""
-                }`}
+              className={`border border-gray-300 rounded-md p-2 w-full ${
+                selectedPerson !== "otros"
+                  ? "bg-gray-100 text-gray-600 cursor-not-allowed"
+                  : ""
+              }`}
             />
           </div>
         )}
+
+        {/* ⚠️ Cliente bloqueado */}
+        {isBlacklisted && (
+          <p className="text-red-500 text-sm mb-3 text-center font-medium">
+            ⚠️ Este cliente está en la blacklist y no puede realizar compras.
+          </p>
+        )}
+
         {/* Precio */}
         <label className="block text-sm font-medium mb-1">
-          Precio de Venta (€)
+          Precio Total (€)
         </label>
         <input
           type="text"
@@ -269,19 +339,20 @@ export default function VentaIndividualModal({
             const value = e.target.value.replace(",", ".");
             setPrecioVenta(value);
           }}
-          placeholder="Precio de venta"
+          placeholder="Precio total"
           readOnly={selectedPerson === "gio"}
-          className={`border border-gray-300 rounded-md p-2 w-full mb-4 ${selectedPerson === "gio"
-            ? "bg-gray-100 text-gray-600 cursor-not-allowed"
-            : ""
-            }`}
+          className={`border border-gray-300 rounded-md p-2 w-full mb-4 ${
+            selectedPerson === "gio"
+              ? "bg-gray-100 text-gray-600 cursor-not-allowed"
+              : ""
+          }`}
         />
 
         {error && (
           <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
         )}
 
-        {/* Botones (mismo diseño que lote) */}
+        {/* Botones */}
         <div className="flex justify-center text-center items-center mt-6 gap-4">
           <button
             onClick={() => setIsModalOpen(false)}
@@ -293,11 +364,12 @@ export default function VentaIndividualModal({
 
           <button
             onClick={confirmSale}
-            disabled={!selectedPerson}
-            className={`px-2 py-2 rounded-md text-white ${!selectedPerson
-              ? "bg-green-300 cursor-not-allowed"
-              : "bg-green-500 hover:bg-green-600"
-              }`}
+            disabled={!selectedPerson || !!stockError || isBlacklisted}
+            className={`px-2 py-2 rounded-md text-white ${
+              !selectedPerson || stockError || isBlacklisted
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
           >
             <i className="fa-solid fa-cart-shopping mx-2"></i>
             Confirmar
@@ -307,4 +379,3 @@ export default function VentaIndividualModal({
     </div>
   );
 }
-
