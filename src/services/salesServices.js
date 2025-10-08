@@ -152,7 +152,7 @@ export const getTopLowStockProducts = async (page = 1, pageSize = 20) => {
 
   // 5. Filtrar stock bajo (<5) y ordenar
   const lowStock = enriched
-    .filter((p) => p.cantidad <= 5)
+    .filter((p) => p.cantidad < 5)
     .sort((a, b) => b.total_vendido - a.total_vendido);
 
   // 6. Paginación

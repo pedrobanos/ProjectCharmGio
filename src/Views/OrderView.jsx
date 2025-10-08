@@ -64,27 +64,33 @@ const OrderView = () => {
                     <div
                         key={p.id}
                         className={`border rounded p-3 flex flex-col items-center shadow-sm transition ${(pedido.find((i) => i.id === p.id)?.cantidad ?? 0) > 0
-                                ? "bg-black text-white"
-                                : "bg-white text-black"
+                            ? "bg-black text-white"
+                            : "bg-white text-black"
                             }`}
                     >
                         {p.foto ? (
-                            <img src={p.foto} alt={p.nombre} className="w-20 h-20 object-cover rounded mb-2" />
+                            <img src={p.foto} alt={p.nombre} className="w-24 h-24 object-cover rounded mb-2" />
                         ) : (
                             <div className="w-20 h-20 bg-gray-100 flex items-center justify-center text-xs text-gray-500 mb-2">
                                 Sin foto
                             </div>
                         )}
                         <div className="flex flex-col flex-1 items-center w-full">
-                            <p className="font-semibold text-center mb-2">{p.nombre}</p>
-                            <input
-                                type="number"
-                                min="0"
-                                value={pedido.find((i) => i.id === p.id)?.cantidad ?? ""}
-                                onChange={(e) => handleCantidadChange(p, Number(e.target.value))}
-                                className="border rounded px-2 py-1 w-20 mt-auto text-center"
-                            />
+                            <p className="font-semibold text-md text-center mb-2">{p.nombre}</p>
+                            <div className="flex flex-col items-center mt-auto">
+                                <p className="text-sm text-gray-500 mb-1">
+                                    Stock: <span className="text-red-600 font-bold">{p.cantidad}</span>
+                                </p>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={pedido.find((i) => i.id === p.id)?.cantidad ?? ""}
+                                    onChange={(e) => handleCantidadChange(p, Number(e.target.value))}
+                                    className="border rounded px-2 py-1 w-20 text-center"
+                                />
+                            </div>
                         </div>
+
                     </div>
                 ))}
             </div>
