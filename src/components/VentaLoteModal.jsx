@@ -338,22 +338,27 @@ export default function VentaLoteModal({
           ))}
         </ul>
         {/* Cliente + Total */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-4 mt-6 items-end">
-          <div className="flex-1 w-full">
+        <div className="flex flex-col gap-4 mb-4 mt-6">
+          {/* Select Cliente */}
+          <div className="w-full">
             <label className="block text-sm font-medium mb-1">Cliente</label>
             <select
               value={selectedPerson}
               onChange={(e) => setSelectedPerson(e.target.value)}
-              className="border border-gray-300 rounded-md p-2 w-full"
+              className="block w-full border border-gray-300 rounded-md p-2"
             >
               <option value="">Seleccionar cliente...</option>
               <option value="carol">Carol</option>
               <option value="gio">Gio</option>
               <option value="otros">Otros</option>
             </select>
-            {/* Input cliente */}
-            {selectedPerson && (
-              <div className="mt-3">
+          </div>
+
+          {/* Solo aparece cuando se selecciona un cliente */}
+          {selectedPerson && (
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* Nombre del cliente */}
+              <div className="flex-1">
                 <label className="block text-sm font-medium mb-1">
                   Nombre Cliente
                 </label>
@@ -364,44 +369,46 @@ export default function VentaLoteModal({
                   placeholder="John Doe"
                   readOnly={selectedPerson !== "otros"}
                   className={`border border-gray-300 rounded-md p-2 w-full ${selectedPerson !== "otros"
-                    ? "bg-gray-100 text-gray-600 cursor-not-allowed"
-                    : ""
+                      ? "bg-gray-100 text-gray-600 cursor-not-allowed"
+                      : ""
                     }`}
                 />
               </div>
-            )}
-            {/* Cliente en blacklist */}
-            {isBlacklisted && (
-              <p className="text-red-500 text-sm text-center mt-2 font-medium">
-                ⚠️ Este cliente está en la blacklist y no puede realizar compras.
-              </p>
-            )}
-          </div>
-          {/* Total del lote */}
-          <div className="flex-1 mt-4 sm:mt-0">
-            <label className="block text-sm font-medium mb-1">
-              Total Lote (€)
-            </label>
-            <input
-              type="text"
-              inputMode="decimal"
-              value={precioTotalLote?.toString() || ""}
-              readOnly={selectedPerson === "gio"}
-              onChange={(e) => {
-                let value = e.target.value
-                  .replace(",", ".")
-                  .replace(/[^0-9.]/g, "");
-                const totalNum = parseFloat(value);
-                if (isNaN(totalNum)) return;
-                setPrecioTotalLote(totalNum);
-              }}
-              className={`border border-gray-300 rounded-md p-2 w-full ${selectedPerson === "gio"
-                ? "bg-gray-100 text-gray-600 cursor-not-allowed"
-                : ""
-                }`}
-            />
-          </div>
+
+              {/* Total del lote */}
+              <div className="w-full sm:w-1/3">
+                <label className="block text-sm font-medium mb-1">
+                  Total Lote (€)
+                </label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={precioTotalLote?.toString() || ""}
+                  readOnly={selectedPerson === "gio"}
+                  onChange={(e) => {
+                    let value = e.target.value
+                      .replace(",", ".")
+                      .replace(/[^0-9.]/g, "");
+                    const totalNum = parseFloat(value);
+                    if (isNaN(totalNum)) return;
+                    setPrecioTotalLote(totalNum);
+                  }}
+                  className={`border border-gray-300 rounded-md p-2 w-full ${selectedPerson === "gio"
+                      ? "bg-gray-100 text-gray-600 cursor-not-allowed"
+                      : ""
+                    }`}
+                />
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Cliente en blacklist */}
+        {isBlacklisted && (
+          <p className="text-red-500 text-sm text-center mt-2 font-medium">
+            ⚠️ Este cliente está en la blacklist y no puede realizar compras.
+          </p>
+        )}
         {/* Error general */}
         {error && (
           <p className="text-red-500 text-sm mb-2 text-center">{error}</p>
