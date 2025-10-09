@@ -8,6 +8,7 @@ import EditProduct from "./Views/EditProduct";
 import CreateProduct from "./components/CreateProduct";
 import NavBar from "./components/NavBar";
 import LoginFixed from "./Views/LoginFixed"; // Importa el componente LoginFixed
+import Register from "./Views/Register";
 import Footer from "./components/Footer";
 import SalesView from "./Views/SalesView";
 import SidebarActions from "./components/SidebarActions";
@@ -38,7 +39,12 @@ function AppContent() {
   };
 
   const hideNavBar = location.pathname === "/login" || location.pathname === "/register";
-  
+
+  const adminEmails = ["test@test.com", "giovanapilagatto@gmail.com"];
+  const userEmail = user?.email?.toLowerCase();
+  const userRole = adminEmails.includes(userEmail) ? "admin" : "user";
+
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -50,7 +56,7 @@ function AppContent() {
       {/* Main layout con sidebar + contenido */}
       <div className="flex flex-1">
         {!hideNavBar && user && (
-          <SidebarActions user={user} />
+          <SidebarActions userRole={userRole} />
         )}
 
         {/* Contenido principal */}
@@ -58,12 +64,13 @@ function AppContent() {
           <Routes>
             <Route path="/" element={user ? <Navigate to="/products" replace /> : <Navigate to="/login" replace />} />
             <Route path="/login" element={user ? <Navigate to="/products" replace /> : <LoginFixed onLoginSuccess={handleLogin} />} />
+            {/* <Route path="/register" element={<Register />} /> */}
             <Route path="/create-product" element={<ProtectedRoute user={user}><CreateProduct /></ProtectedRoute>} />
-            <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage /></ProtectedRoute>} />
-            <Route path="/sales" element={<ProtectedRoute user={user}><SalesView /></ProtectedRoute>} />
+            <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage userRole={userRole} /></ProtectedRoute>} />
+            <Route path="/sales" element={<ProtectedRoute user={user}><SalesView userRole={userRole} /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute user={user}><OrderView /></ProtectedRoute>} />
             <Route path="/stats" element={<ProtectedRoute user={user}><StatsView /></ProtectedRoute>} />
-             <Route path="/black-list" element={<ProtectedRoute user={user}><BlackList /></ProtectedRoute>} />
+            <Route path="/black-list" element={<ProtectedRoute user={user}><BlackList /></ProtectedRoute>} />
             <Route path="/products/:id" element={<ProtectedRoute user={user}><Product /></ProtectedRoute>} />
             <Route path="/products/edit/:id" element={<ProtectedRoute user={user}><EditProduct /></ProtectedRoute>} />
           </Routes>

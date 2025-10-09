@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 
-const SidebarActions = ({ user }) => {
+const SidebarActions = ({ userRole }) => {
 
-    const userRole = user.email?.toLowerCase() === "test@test.com" ? "admin" : "user";
 
 
     return (
@@ -26,7 +25,7 @@ const SidebarActions = ({ user }) => {
                         <i className="fa-solid fa-table-list w-5"></i>
                         <span>Productos</span>
                     </Link>
-                    {userRole === "admin" && (
+                    {/* {userRole === "admin" && ( */}
                         <Link
                             to="/sales"
                             className="w-full flex items-center gap-2 bg-yellow-800 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-yellow-700 whitespace-nowrap"
@@ -35,8 +34,7 @@ const SidebarActions = ({ user }) => {
                             <span>Ventas</span>
                         </Link>
 
-                    )
-                    }
+                    {/* )} */}
                     <Link
                         to="/stats"
                         className="w-full flex items-center gap-2 bg-pink-800 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-pink-700 whitespace-nowrap"
@@ -49,7 +47,7 @@ const SidebarActions = ({ user }) => {
                         className="w-full flex items-center gap-2 bg-black text-white px-2 py-2  rounded-lg hover:bg-gray-700 whitespace-nowrap"
                     >
                         <i className="fa-solid fa-skull-crossbones w-5"></i>
-                        <span className="text-center">Black List </span>
+                        <span className="text-center">BlackList </span>
                         <i className="fa-solid fa-skull-crossbones w-5 mx-2"></i>
                     </Link>
                     {/* <Link

@@ -14,7 +14,7 @@ import { SaleConfirmedModal } from "./SaleConfirmedModal";
 import VentaIndividualModal from "./VentaIndivualModal";
 import VentaLoteModal from "./VentaLoteModal";
 
-const ProductsPage = () => {
+const ProductsPage = ({ userRole }) => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
@@ -40,6 +40,8 @@ const ProductsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const pageParam = Number(searchParams.get("page")) || 1;
     const [currentPage, setCurrentPage] = useState(pageParam);
+
+
 
 
     useEffect(() => {
@@ -329,42 +331,52 @@ const ProductsPage = () => {
                                 className="w-3/5"
                             />
 
-                            {isLote ? (
-                                <>
-                                    <button
-                                        className="w-1/7 hidden sm:flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-600 justify-center whitespace-nowrap"
-                                        onClick={createBatch}
-                                    >
-                                        <i className="fa-solid fa-layer-group w-5 text-white" aria-hidden="true"></i>
-                                        Lote
-                                    </button>
-                                    <button
-                                        className="w-2/7 hidden sm:flex items-center gap-2 bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-600 justify-center whitespace-nowrap"
-                                        onClick={handleCreateBatch}
-                                    >
-                                        <i className="fa-solid fa-xmark w-5 text-white" aria-hidden="true"></i>
-                                        Cancelar lote
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <Link
-                                        to="/create-product"
-                                        className="sm:hidden flex items-center justify-center whitespace-nowrap bg-blue-600 hover:bg-blue-700 rounded-full p-3"
-                                    >
-                                        <i className="fa-solid fa-plus text-white"></i>
-                                    </Link>
-                                    <button
-                                        className="hidden sm:inline-flex w-1/5 items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 justify-center whitespace-nowrap"
-                                        onClick={handleCreateBatch}
-                                    >
-                                        <i className="fa-solid fa-plus w-5 text-white" aria-hidden="true"></i>
-                                        Crear lote
-                                    </button>
-                                </>
-                            )}
+                            {/* === SOLO ADMIN VE LOS BOTONES === */}
+                            {userRole === "admin" ? (
+                                isLote ? (
+                                    <>
+                                        {/* Botón "Lote" */}
+                                        <button
+                                            className="w-1/7 hidden sm:flex items-center gap-2 bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-600 justify-center whitespace-nowrap"
+                                            onClick={createBatch}
+                                        >
+                                            <i className="fa-solid fa-layer-group w-5 text-white" aria-hidden="true"></i>
+                                            Lote
+                                        </button>
+
+                                        {/* Botón "Cancelar lote" */}
+                                        <button
+                                            className="w-2/7 hidden sm:flex items-center gap-2 bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-600 justify-center whitespace-nowrap"
+                                            onClick={handleCreateBatch}
+                                        >
+                                            <i className="fa-solid fa-xmark w-5 text-white" aria-hidden="true"></i>
+                                            Cancelar lote
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        {/* Botón móvil */}
+                                        <Link
+                                            to="/create-product"
+                                            className="sm:hidden flex items-center justify-center whitespace-nowrap bg-blue-600 hover:bg-blue-700 rounded-full p-3"
+                                        >
+                                            <i className="fa-solid fa-plus text-white"></i>
+                                        </Link>
+
+                                        {/* Botón escritorio */}
+                                        <button
+                                            className="hidden sm:inline-flex w-1/5 items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 justify-center whitespace-nowrap"
+                                            onClick={handleCreateBatch}
+                                        >
+                                            <i className="fa-solid fa-plus w-5 text-white" aria-hidden="true"></i>
+                                            Crear lote
+                                        </button>
+                                    </>
+                                )
+                            ) : null}
                         </div>
                     </div>
+
                     {/* 📋 Tabla */}
                     <TableElement
                         products={filteredProducts}
@@ -381,6 +393,7 @@ const ProductsPage = () => {
                         currentPage={currentPage}
                         setCurrentPage={setCurrentPage}
                         searchTerm={searchTerm}
+                        userRole={userRole}
                     />
                     {/* Modal de venta individual */}
                     {isModalOpen && selectedProduct && (

@@ -10,7 +10,7 @@ const MONTHS = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 
-const SalesView = ({ productId }) => {
+const SalesView = ({ productId, userRole }) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [filterBy, setFilterBy] = useState("todos");
   const [showLowStock, setShowLowStock] = useState(false);
@@ -30,7 +30,6 @@ const SalesView = ({ productId }) => {
 
   const [blacklistedClientes, setBlacklistedClientes] = useState(new Set());
 
-
   // 🔹 Blacklist
   const fetchBlacklist = async () => {
     try {
@@ -44,6 +43,12 @@ const SalesView = ({ productId }) => {
   useEffect(() => {
     fetchBlacklist();
   }, []);
+
+  useEffect(() => {
+    if (userRole === "user") {
+      setFilterBy("carol");
+    }
+  }, [userRole]);
 
   if (loading || (showLowStock && loadingLowStock)) return <Loading />;
 
@@ -67,7 +72,6 @@ const SalesView = ({ productId }) => {
         return acc + (s.precio_venta - (product.precio || 0)) * s.cantidad;
       return acc;
     }, 0);
-  console.log (filteredSales.map(s => s));
   return (
     <div className="max-w-screen-lg mx-auto p-4 space-y-6">
       <h1 className="text-5xl text-center font-bold mb-8 text-blue-500">
@@ -96,18 +100,32 @@ const SalesView = ({ productId }) => {
           <label htmlFor="filtroCliente" className="font-semibold text-gray-700" hidden={showLowStock}>
             Vendido por:
           </label>
-          <select
-            id="filtroCliente"
-            value={filterBy}
-            onChange={(e) => setFilterBy(e.target.value)}
-            className="border pl-3 pr-3 py-2 w-48 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
-            hidden={showLowStock}
-          >
-            <option value="todos">Todos</option>
-            <option value="gio">Gio</option>
-            <option value="carol">Carol</option>
-            <option value="otros">Pedro</option>
-          </select>
+          {userRole === "admin" ? (
+            // 🔹 Admin puede seleccionar cualquier cliente
+            <select
+              id="filtroCliente"
+              value={filterBy}
+              onChange={(e) => setFilterBy(e.target.value)}
+              className="border pl-3 pr-3 py-2 w-48 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
+              hidden={showLowStock}
+            >
+              <option value="todos">Todos</option>
+              <option value="gio">Gio</option>
+              <option value="carol">Carol</option>
+              <option value="otros">Pedro</option>
+            </select>
+          ) : (
+            // 🔒 User normal solo puede ver la vista de Carol, sin opción a cambiar
+            <select
+              id="filtroCliente"
+              value="carol"
+              disabled
+              className="border pl-3 pr-3 py-2 w-48 rounded bg-gray-100 text-gray-600 cursor-not-allowed font-bold"
+            >
+              <option value="carol">Carol</option>
+            </select>
+          )}
+
         </div>
 
         <label className="flex items-center gap-2">
@@ -120,16 +138,26 @@ const SalesView = ({ productId }) => {
         </label>
 
         {filterBy === "carol" && saldoTotalPendiente > 0 && !showLowStock && (
-          <button
+          userRole === "admin" ? (
+            <button
+              type="button"
+              onClick={() => setIsReembolsoOpen(true)}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer font-semibold hover:bg-green-700 transition"
+            >
+              Iniciar reembolso
+            </button>
+          ) : (<button
             type="button"
             onClick={() => setIsReembolsoOpen(true)}
             className="px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer font-semibold hover:bg-green-700 transition"
           >
-            Iniciar reembolso
+            Ver Reembolsos
           </button>
+          )
         )}
 
         <ReembolsoModal
+          userRole={userRole}
           isOpen={isReembolsoOpen}
           saldoInicial={saldoTotalPendiente}
           onClose={() => setIsReembolsoOpen(false)}

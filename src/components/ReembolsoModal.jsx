@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Reembolso from "./Reembolso";
 
 
-const ReembolsoModal = ({ isOpen, onClose, saldoInicial, onReembolso }) => {
+const ReembolsoModal = ({  userRole, isOpen, onClose, saldoInicial, onReembolso }) => {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -33,7 +33,7 @@ const ReembolsoModal = ({ isOpen, onClose, saldoInicial, onReembolso }) => {
                         </button>
 
                         {/* Contenido que ocupa todo el modal */}
-                        <Reembolso saldoInicial={saldoInicial} onReembolso={onReembolso} />
+                        <Reembolso saldoInicial={saldoInicial} onReembolso={onReembolso}  userRole={userRole}/>
                     </motion.div>
                 </motion.div>
             )}

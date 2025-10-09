@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { registrarReembolso, getReembolsosByCliente } from "../services/reembolsoService";
 
-const Reembolso = ({ saldoInicial = 0, onReembolso }) => {
+const Reembolso = ({ saldoInicial = 0, onReembolso, userRole }) => {
     const [tipoReembolso, setTipoReembolso] = useState("");
     const [reembolsoParcial, setReembolsoParcial] = useState("");
     const [saldoPendiente, setSaldoPendiente] = useState(saldoInicial || 0);
@@ -84,60 +84,59 @@ const Reembolso = ({ saldoInicial = 0, onReembolso }) => {
             <p className="text-yellow-700 text-sm text-center">
                 Control de los reembolsos realizados por Carol.
             </p>
-
             <p className="font-semibold text-yellow-900 text-center">
                 Saldo pendiente:{" "}
                 <span className="text-blue-600">{saldoPendiente.toFixed(2)} €</span>
             </p>
-
-            <div className="space-y-3">
-                <label className="block font-semibold text-yellow-800">
-                    Tipo de reembolso:
-                </label>
-                <select
-                    value={tipoReembolso}
-                    onChange={(e) => setTipoReembolso(e.target.value)}
-                    className="border pl-3 pr-3 py-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
-                >
-                    <option value="">Seleccione una opción</option>
-                    <option value="parcial">Reembolso parcial</option>
-                    <option value="total">Reembolso total</option>
-                </select>
-
-                {tipoReembolso && (
-                    <div>
+            {userRole !== "user" && (
+                <>
+                    <div className="space-y-3">
                         <label className="block font-semibold text-yellow-800">
-                            Cantidad a reembolsar
+                            Tipo de reembolso:
                         </label>
-                        <div className="flex items-center gap-2 mt-1">
-                            <input
-                                type="number"
-                                value={
-                                    tipoReembolso === "total"
-                                        ? saldoPendiente.toFixed(2)
-                                        : reembolsoParcial
-                                }
-                                onChange={(e) =>
-                                    tipoReembolso === "parcial" && setReembolsoParcial(e.target.value)
-                                }
-                                readOnly={tipoReembolso === "total"}
-                                className="border pl-3 pr-3 py-2 w-2/3 rounded focus:outline-none focus:ring-2 
+                        <select
+                            value={tipoReembolso}
+                            onChange={(e) => setTipoReembolso(e.target.value)}
+                            className="border pl-3 pr-3 py-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
+                        >
+                            <option value="">Seleccione una opción</option>
+                            <option value="parcial">Reembolso parcial</option>
+                            <option value="total">Reembolso total</option>
+                        </select>
+                        {tipoReembolso && (
+                            <div>
+                                <label className="block font-semibold text-yellow-800">
+                                    Cantidad a reembolsar
+                                </label>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <input
+                                        type="number"
+                                        value={
+                                            tipoReembolso === "total"
+                                                ? saldoPendiente.toFixed(2)
+                                                : reembolsoParcial
+                                        }
+                                        onChange={(e) =>
+                                            tipoReembolso === "parcial" && setReembolsoParcial(e.target.value)
+                                        }
+                                        readOnly={tipoReembolso === "total"}
+                                        className="border pl-3 pr-3 py-2 w-2/3 rounded focus:outline-none focus:ring-2 
                   focus:ring-yellow-500 font-bold text-yellow-900 bg-yellow-100 text-right"
-                            />
-                            <span className="font-bold text-2xl text-yellow-800">€</span>
-                        </div>
+                                    />
+                                    <span className="font-bold text-2xl text-yellow-800">€</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
-
-            <button
-                type="button"
-                onClick={manejarReembolso}
-                className="w-1/2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition mx-auto"
-            >
-                Reembolsar
-            </button>
-
+                    <button
+                        type="button"
+                        onClick={manejarReembolso}
+                        className="w-1/2 px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition mx-auto"
+                    >
+                        Reembolsar
+                    </button>
+                </>
+            )}
             {historial.length > 0 && (
                 <div className="mt-4 bg-yellow-100 p-4 rounded-lg max-h-48 overflow-y-auto border border-yellow-200">
                     <h3 className="font-bold text-yellow-900 mb-4 text-center">

@@ -30,14 +30,14 @@ const Register = () => {
 
   return (
     <div
-      className="min-h-screen w-full flex items-center justify-start bg-no-repeat  bg-cover"
+      className=" min-h-screen w-full flex items-center justify-start bg-no-repeat  bg-cover"
       style={{
         backgroundImage: `url(${bgImage})`,
         backgroundSize: "80%",
         backgroundColor: "#beedff",
       }}
     >
-      <form onSubmit={handleRegister} className="bg-white p-8 shadow-md rounded w-96">
+      <form onSubmit={handleRegister} className="bg-white p-8 shadow-md rounded w-96 mx-10">
         <h2 className="text-2xl font-bold mb-6">Registrarse</h2>
         <input
           type="email"
