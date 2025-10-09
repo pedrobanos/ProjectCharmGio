@@ -232,7 +232,7 @@ export default function VentaLoteModal({
       }
     } else {
       setCliente("");
-      setError("");
+      error && setError("");
     }
   }, [selectedPerson]);
 
