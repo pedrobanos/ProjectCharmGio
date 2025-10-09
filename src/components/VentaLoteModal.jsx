@@ -232,7 +232,7 @@ export default function VentaLoteModal({
       }
     } else {
       setCliente("");
-      error && setError("");
+      setError("");
     }
   }, [selectedPerson]);
 
@@ -244,7 +244,6 @@ export default function VentaLoteModal({
         <h2 className="text-4xl text-center font-semibold mb-4">
           Lote de Productos
         </h2>
-
         {/* Lista de productos */}
         <ul className="divide-y divide-gray-200">
           {batchProducts.map((p, index) => (
@@ -266,7 +265,6 @@ export default function VentaLoteModal({
                 </span>
               </div>
               <span className="text-xs text-gray-500">{p.lugar}</span>
-
               {/* Cantidad + Precio */}
               <div className="flex flex-col gap-1 mt-2">
                 <div className="flex gap-2">
@@ -279,9 +277,7 @@ export default function VentaLoteModal({
                       const cantidad = parseFloat(
                         e.target.value.replace(",", ".")
                       );
-
                       if (isNaN(cantidad) || cantidad < 0) return;
-
                       // Validación de stock
                       if (cantidad > p.cantidad) {
                         setStockErrors((prev) => ({
@@ -296,7 +292,6 @@ export default function VentaLoteModal({
                           return newErrors;
                         });
                       }
-
                       setBatchProducts((prev) => {
                         const updated = prev.map((prod, i) => {
                           if (i === index) {
@@ -342,7 +337,6 @@ export default function VentaLoteModal({
             </li>
           ))}
         </ul>
-
         {/* Cliente + Total */}
         <div className="flex flex-col sm:flex-row gap-4 mb-4 mt-6 items-end">
           <div className="flex-1 w-full">
@@ -357,7 +351,6 @@ export default function VentaLoteModal({
               <option value="gio">Gio</option>
               <option value="otros">Otros</option>
             </select>
-
             {/* Input cliente */}
             {selectedPerson && (
               <div className="mt-3">
@@ -377,7 +370,6 @@ export default function VentaLoteModal({
                 />
               </div>
             )}
-
             {/* Cliente en blacklist */}
             {isBlacklisted && (
               <p className="text-red-500 text-sm text-center mt-2 font-medium">
@@ -385,7 +377,6 @@ export default function VentaLoteModal({
               </p>
             )}
           </div>
-
           {/* Total del lote */}
           <div className="flex-1 mt-4 sm:mt-0">
             <label className="block text-sm font-medium mb-1">

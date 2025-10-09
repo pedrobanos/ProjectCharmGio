@@ -29,11 +29,27 @@ export const formatCurrency = (value) => {
 }
 
 export const normalizeString = (str) => {
-    if (!str) return "";
-    return str
-        .normalize("NFD")                // separa letra + diacrítico
-        .replace(/[\u0300-\u036f]/g, "") // quita tildes, diéresis...
-        .toLowerCase();
-    // Si quieres tratar ñ == n, descomenta la siguiente línea:
-    // .replace(/ñ/g, "n").replace(/Ñ/g, "N")
+  if (!str) return "";
+  return str
+    .normalize("NFD")                // separa letra + diacrítico
+    .replace(/[\u0300-\u036f]/g, "") // quita tildes, diéresis...
+    .toLowerCase();
+  // Si quieres tratar ñ == n, descomenta la siguiente línea:
+  // .replace(/ñ/g, "n").replace(/Ñ/g, "N")
 };
+
+
+export const LugaresDisponibles = [
+  "Caja Beige",
+  "Caja Marvel Blanca",
+  "Caja Rosa Pandora",
+  "Expositor Blanco",
+  "Felpudo Grande",
+  "Felpudo Negro",
+  "Negro Alfa",
+  "Negro Beta",
+  "Rosa Grande",
+  "Transparente 1",
+  "Transparente 2",
+  "Transparente 3",
+];

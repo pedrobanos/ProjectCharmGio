@@ -10,52 +10,204 @@ import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Loading from "./Loading";
 import Pagination from "./Pagination";
+import { LugaresDisponibles } from "../Constants";
 
-const EditableCell = ({ value, onChange }) => {
+// const EditableCell = ({ value, onChange }) => {
+//   const [isEditing, setIsEditing] = useState(false);
+//   const [tempValue, setTempValue] = useState(value);
+
+//   useEffect(() => {
+//     if (!isEditing) setTempValue(value);
+//   }, [value, isEditing]);
+
+//   const handleDoubleClick = () => setIsEditing(true);
+
+//   const handleBlur = () => {
+//     setIsEditing(false);
+//     onChange(tempValue);
+//   };
+
+//   const handleKeyDown = (e) => {
+//     if (e.key === "Enter") {
+//       setIsEditing(false);
+//       onChange(tempValue);
+//     } else if (e.key === "Escape") {
+//       setIsEditing(false);
+//       setTempValue(value);
+//     }
+//   };
+
+//   return isEditing ? (
+//     <input
+//       type="text"
+//       className="border rounded px-2 py-1 w-full"
+//       value={tempValue}
+//       onChange={(e) => setTempValue(e.target.value)}
+//       onBlur={handleBlur}
+//       onKeyDown={handleKeyDown}
+//       autoFocus
+//     />
+//   ) : (
+//     <span
+//       onDoubleClick={handleDoubleClick}
+//       className="cursor-pointer block"
+//       title={value}
+//     >
+//       {value}
+//     </span>
+//   );
+// };
+
+const EditableCell = ({ value, onChange, field }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
+
+  const [lugarBase, setLugarBase] = useState("");
+  const [posicion, setPosicion] = useState("");
+  const [originalValue, setOriginalValue] = useState("");
 
   useEffect(() => {
     if (!isEditing) setTempValue(value);
   }, [value, isEditing]);
 
-  const handleDoubleClick = () => setIsEditing(true);
+  // Entrar en modo edición
+  const handleDoubleClick = () => {
+    if (field === "lugar") {
+      const texto = value ? String(value) : "";
+      setOriginalValue(texto);
+      if (texto.includes(" ")) {
+        const partes = texto.split(" ");
+        setLugarBase(partes.slice(0, -1).join(" "));
+        setPosicion(partes.slice(-1)[0]);
+      } else {
+        setLugarBase(texto || "");
+        setPosicion("");
+      }
+    }
+    setIsEditing(true);
+  };
 
-  const handleBlur = () => {
+  const handleSave = () => {
+    if (field === "lugar") {
+      const nuevoLugar = lugarBase
+        ? posicion
+          ? `${lugarBase} ${posicion}`
+          : lugarBase
+        : originalValue;
+      setIsEditing(false);
+      onChange(nuevoLugar.trim());
+      return;
+    }
+
     setIsEditing(false);
     onChange(tempValue);
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      setIsEditing(false);
-      onChange(tempValue);
-    } else if (e.key === "Escape") {
-      setIsEditing(false);
+  const handleCancel = () => {
+    setIsEditing(false);
+    if (field === "lugar") {
+      setLugarBase("");
+      setPosicion("");
+    } else {
       setTempValue(value);
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleSave();
+    else if (e.key === "Escape") handleCancel();
+  };
+
+  // 🔹 medidas fijas solo para "lugar"
+  const WRAP_W = "w-[130px]";
+  const CTRL_H = "h-[28px] leading-[28px] py-0 box-border";
+
+  // 🔸 1️⃣ — Comportamiento estándar (todas las columnas)
+  if (field !== "lugar") {
+    return isEditing ? (
+      <input
+        type="text"
+        className="border rounded px-2 py-1 w-full"
+        value={tempValue}
+        onChange={(e) => setTempValue(e.target.value)}
+        onBlur={handleSave}
+        onKeyDown={handleKeyDown}
+        autoFocus
+      />
+    ) : (
+      <span
+        onDoubleClick={handleDoubleClick}
+        className="cursor-pointer block"
+        title={value}
+      >
+        {value}
+      </span>
+    );
+  }
+
+  // 🔸 2️⃣ — Versión especial solo para columna "lugar"
   return isEditing ? (
-    <input
-      type="text"
-      className="border rounded px-2 py-1 w-full"
-      value={tempValue}
-      onChange={(e) => setTempValue(e.target.value)}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-      autoFocus
-    />
+    <div className="flex flex-col items-center gap-1 text-left">
+      {/* Fila 1: selector */}
+      <div className={`${WRAP_W} mx-auto`}>
+        <select
+          value={lugarBase}
+          onChange={(e) => setLugarBase(e.target.value)}
+          className={`border rounded text-xs text-center ${CTRL_H} px-1 w-full`}
+          autoFocus
+        >
+          <option value="">Lugar</option>
+          {LugaresDisponibles.map((lugar) => (
+            <option key={lugar} value={lugar}>
+              {lugar}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Fila 2: input + botones */}
+      <div
+        className={`${WRAP_W} mx-auto flex items-center justify-between gap-1`}
+      >
+        <input
+          type="text"
+          placeholder="2C"
+          value={posicion}
+          onChange={(e) => setPosicion(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className={`border rounded text-center text-xs ${CTRL_H} px-1 w-[65px]`}
+        />
+
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleSave}
+            className="text-green-500 cursor-pointer text-sm hover:text-green-700 transition flex items-center justify-center w-[27px] h-[27px] rounded-full"
+            title="Guardar"
+          >
+            <i className="fa-solid fa-floppy-disk"></i>
+          </button>
+
+          <button
+            onClick={handleCancel}
+            className="text-red-500 text-sm hover:text-red-700 cursor-pointer transition flex items-center justify-center w-[26px] h-[26px] rounded-full"
+            title="Cancelar"
+          >
+            <i className="fa-solid fa-ban"></i>
+          </button>
+        </div>
+      </div>
+    </div>
   ) : (
     <span
       onDoubleClick={handleDoubleClick}
       className="cursor-pointer block"
       title={value}
     >
-      {value}
+      {value || "—"}
     </span>
   );
 };
+
 
 const SortableHeader = ({
   label,
@@ -410,7 +562,11 @@ const TableElement = ({
                           ].join(" ")}
                           title={product[field]}
                         >
-                          <EditableCell value={product[field]} onChange={(val) => onEditCell(product.id, field, val)} />
+                          <EditableCell
+                            value={product[field]}
+                            field={field}
+                            onChange={(val) => onEditCell(product.id, field, val)}
+                          />
                         </td>
                       );
                     })}
