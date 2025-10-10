@@ -58,7 +58,7 @@ import { LugaresDisponibles } from "../Constants";
 //   );
 // };
 
-const EditableCell = ({ value, onChange, field }) => {
+const EditableCell = ({ value, onChange, field, userRole }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
 
@@ -122,8 +122,19 @@ const EditableCell = ({ value, onChange, field }) => {
   const WRAP_W = "w-[130px]";
   const CTRL_H = "h-[28px] leading-[28px] py-0 box-border";
 
+
   // 🔸 1️⃣ — Comportamiento estándar (todas las columnas)
   if (field !== "lugar") {
+    if (userRole !== "admin" && field === "cantidad"|| field === "precio") {
+      return (
+        <span
+          className="block text-gray-700 cursor-default select-none"
+          title={value}
+        >
+          {value}
+        </span>
+      );
+    }
     return isEditing ? (
       <input
         type="text"
@@ -143,6 +154,7 @@ const EditableCell = ({ value, onChange, field }) => {
         {value}
       </span>
     );
+
   }
 
   // 🔸 2️⃣ — Versión especial solo para columna "lugar"
@@ -436,7 +448,7 @@ const TableElement = ({
     });
     setFotoSeleccionada(foto);
   };
-  
+
 
   if (loading) return <Loading />;
 
@@ -568,6 +580,7 @@ const TableElement = ({
                             value={product[field]}
                             field={field}
                             onChange={(val) => onEditCell(product.id, field, val)}
+                            userRole={userRole}
                           />
                         </td>
                       );
