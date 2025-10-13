@@ -53,3 +53,9 @@ export const LugaresDisponibles = [
   "Transparente 2",
   "Transparente 3",
 ];
+
+export const MONTHS = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
+
