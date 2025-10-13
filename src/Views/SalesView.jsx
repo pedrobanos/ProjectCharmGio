@@ -16,14 +16,6 @@ const SalesView = ({ productId, userRole }) => {
   const year = new Date().getFullYear();
   const [refreshKey, setRefreshKey] = useState(0); // 👈 Nuevo estado para forzar refresco
 
-  // const {
-  //   loading,
-  //   sales,
-  //   products,
-  //   saldoMes,
-  //   saldoTotalPendiente,
-  //   setSaldoMes,
-  // } = useFetchSales({ year, selectedMonth, productId });
   const {
     loading,
     sales,
@@ -169,8 +161,7 @@ const SalesView = ({ productId, userRole }) => {
               )
           )
         }
-
-        {/* <ReembolsoModal
+        <ReembolsoModal
           userRole={userRole}
           isOpen={isReembolsoOpen}
           saldoInicial={saldoTotalPendiente}
@@ -178,19 +169,8 @@ const SalesView = ({ productId, userRole }) => {
           onReembolso={(importe) =>
             setSaldoMes((prev) => Math.max(prev - importe, 0))
           }
-        /> */
-          <ReembolsoModal
-            userRole={userRole}
-            isOpen={isReembolsoOpen}
-            saldoInicial={saldoTotalPendiente}
-            onClose={() => setIsReembolsoOpen(false)}
-            onReembolso={(importe) =>
-              setSaldoMes((prev) => Math.max(prev - importe, 0))
-            }
-            onRefresh={() => setRefreshKey((prev) => prev + 1)} // 👈 esto refresca los datos sin reload
-          />
-
-        }
+          onRefresh={() => setRefreshKey((prev) => prev + 1)} // 👈 esto refresca los datos sin reload
+        />
 
         {/* {showLowStock && (
           <Link
@@ -291,27 +271,6 @@ const SalesView = ({ productId, userRole }) => {
                   </td>
                 </tr>
               )}
-
-              {/* {filteredSales.some((s) => (s.clienteNombre || "").toLowerCase().includes("carol")) && (
-                <>
-                  <tr className="border-t border-gray-300">
-                    <td colSpan={5} className="px-4 py-2 text-start">
-                      Saldo del mes (Carol):
-                    </td>
-                    <td colSpan={2} className="px-4 py-2 text-center text-blue-600">
-                      {saldoMes.toFixed(2)} €
-                    </td>
-                  </tr>
-                  <tr className="border-t border-gray-300">
-                    <td colSpan={5} className="px-4 py-2 text-start">
-                      Saldo total pendiente (Carol):
-                    </td>
-                    <td colSpan={2} className="px-4 py-2 text-center text-red-600">
-                      {saldoTotalPendiente.toFixed(2)} €
-                    </td>
-                  </tr>
-                </>
-              )} */}
               {filteredSales.some((s) => (s.clienteNombre || "").toLowerCase().includes("carol")) && (
                 <>
                   <tr className="border-t border-gray-300">
