@@ -152,9 +152,34 @@ export async function exportPedidoPDF({
         p.nombre || "-",
         String(p.cantidad ?? 0),
       ]),
-    margin: { top: 80, left: marginX, right: marginX }, // 🔹 top margin consistente
+    foot: [
+      [
+        {
+          content: "Total:",
+          colSpan: 2,
+          styles: {
+            halign: "right",
+            fontStyle: "bold",
+            fillColor: [255, 255, 255], // 🔹 fondo blanco en el pie
+            cellPadding: { top: 6, right: 10, bottom: 6, left: 0 }, // 🔹 añade espacio a la derecha
+          },
+        },
+        {
+          content: String(
+            pedidoTraducido.reduce((sum, p) => sum + (p.cantidad ?? 0), 0)
+          ),
+          styles: {
+            halign: "center",
+            fontStyle: "bold",
+            fillColor: [255, 255, 255], // 🔹 blanco también
+          },
+        },
+      ],
+    ],
+
+    margin: { top: 80, left: marginX, right: marginX },
     styles: {
-      font: "helvetica",   // fuerza helvetica en toda la tabla
+      font: "helvetica",
       fontSize: 11,
       halign: "center",
       valign: "middle",
@@ -163,7 +188,14 @@ export async function exportPedidoPDF({
       minCellHeight: 60,
     },
     headStyles: {
-      fillColor: [245, 246, 247],
+      fillColor: [245, 246, 247], // gris claro
+      textColor: [0, 0, 0],
+      fontStyle: "bold",
+      halign: "center",
+      valign: "middle",
+    },
+    footStyles: {
+      fillColor: [255, 255, 255], // 🔹 forzamos fondo blanco en todo el pie
       textColor: [0, 0, 0],
       fontStyle: "bold",
       halign: "center",
@@ -174,23 +206,19 @@ export async function exportPedidoPDF({
       1: { cellWidth: "auto", halign: "center" }, // Producto
       2: { cellWidth: 60, halign: "center" }, // Cantidad
     },
+
     didDrawCell: (data) => {
       if (data.section === "body" && data.column.index === 0) {
         const row = pedido[data.row.index];
         if (row?.fotoBase64) {
           try {
             const fmt = getFormatFromDataUrl(row.fotoBase64);
-
-            // Tamaño máximo disponible en la celda
             const maxW = data.cell.width - 10;
             const maxH = data.cell.height - 10;
-
-            let drawW = maxW;
-            let drawH = maxH;
-
+            const drawW = maxW;
+            const drawH = maxH;
             const x = data.cell.x + (data.cell.width - drawW) / 2;
             const y = data.cell.y + (data.cell.height - drawH) / 2;
-
             doc.addImage(row.fotoBase64, fmt, x, y, drawW, drawH);
           } catch (e) {
             console.warn("Error pintando imagen:", e);
@@ -198,15 +226,16 @@ export async function exportPedidoPDF({
         }
       }
     },
+
     didDrawPage: () => {
-      // Footer con numeración
       const page = doc.internal.getNumberOfPages();
-      doc.setFont("helvetica", "normal"); // reafirma fuente
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(130);
       doc.text(`Page ${page}`, pageW - marginX, pageH - 12, { align: "right" });
     },
   });
+
 
   // 🔹 Guardar PDF
   doc.save(`order-${new Date().toISOString().slice(0, 10)}.pdf`);

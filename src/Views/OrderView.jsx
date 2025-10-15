@@ -1,7 +1,6 @@
 
 // OrderView.jsx
 import React, { useEffect, useState } from "react";
-import { getAllProducts } from "../services/productServices";
 import { withFotosBase64 } from "../utils/imgToDataUrl";
 import { exportPedidoPDF } from "../utils/exportPedidoPDF";
 import { getTopLowStockProducts } from "../services/salesServices";
@@ -16,11 +15,14 @@ const OrderView = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
 
+    const stockThreshold = 1; // Definir el umbral de stock
+    const totalProductsToShow = 20; // Total de productos a mostrar
+
     useEffect(() => {
         (async () => {
             try {
                 setLoading(true);
-                const { data, totalPages } = await getTopLowStockProducts(currentPage);
+                const { data, totalPages } = await getTopLowStockProducts(currentPage, totalProductsToShow, stockThreshold);
                 setProducts(data);
                 setTotalPages(totalPages);
             } finally {
@@ -110,7 +112,7 @@ const OrderView = () => {
                 ) : (
                     <table className="table-auto w-full border text-sm">
                         <thead className="bg-gray-100">
-                            <tr>
+                            <tr className="h-14">
                                 <th className="px-4 py-2">Foto</th>
                                 <th className="px-4 py-2">Producto</th>
                                 <th className="px-4 py-2">Cantidad</th>
@@ -120,10 +122,14 @@ const OrderView = () => {
                             {pedido
                                 .filter((p) => (p.cantidad ?? 0) > 0)
                                 .map((p) => (
-                                    <tr key={p.id} className="border-t text-center">
+                                    <tr key={p.id} className="border-t text-center h-14 align-middle">
                                         <td className="py-2">
                                             {p.foto ? (
-                                                <img src={p.foto} alt={p.nombre} className="w-12 h-12 object-cover mx-auto" />
+                                                <img
+                                                    src={p.foto}
+                                                    alt={p.nombre}
+                                                    className="w-12 h-12 object-cover mx-auto"
+                                                />
                                             ) : (
                                                 <span className="text-xs text-gray-500">--</span>
                                             )}
@@ -133,6 +139,16 @@ const OrderView = () => {
                                     </tr>
                                 ))}
                         </tbody>
+                        <tfoot className="bg-gray-100 font-bold">
+                            <tr className="h-14 align-middle">
+                                <td colSpan="2" className="px-4 py-2 text-right">
+                                    Total:
+                                </td>
+                                <td className="px-4 py-2 text-center">
+                                    {pedido.reduce((sum, p) => sum + (p.cantidad ?? 0), 0)}
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 )}
             </div>

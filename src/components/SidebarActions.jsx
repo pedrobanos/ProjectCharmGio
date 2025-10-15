@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const SidebarActions = ({ userRole }) => {
+const SidebarActions = () => {
 
 
 
@@ -26,15 +26,15 @@ const SidebarActions = ({ userRole }) => {
                         <span>Productos</span>
                     </Link>
                     {/* {userRole === "admin" && ( */}
-                        <Link
-                            to="/sales"
-                            className="w-full flex items-center gap-2 bg-yellow-800 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-yellow-700 whitespace-nowrap"
-                        >
-                            <i className="fa-solid fa-cart-shopping"></i>
-                            <span>Ventas</span>
-                        </Link>
-
+                    <Link
+                        to="/sales"
+                        className="w-full flex items-center gap-2 bg-yellow-800 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-yellow-700 whitespace-nowrap"
+                    >
+                        <i className="fa-solid fa-cart-shopping"></i>
+                        <span>Ventas</span>
+                    </Link>
                     {/* )} */}
+
                     <Link
                         to="/stats"
                         className="w-full flex items-center gap-2 bg-pink-800 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-pink-700 whitespace-nowrap"
@@ -51,12 +51,19 @@ const SidebarActions = ({ userRole }) => {
                         <i className="fa-solid fa-skull-crossbones w-5 mx-2"></i>
                     </Link>
                     {/* <Link
-            to="/promoter-profiles"
-            className="w-full flex items-center gap-2 bg-pink-800 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-pink-700 whitespace-nowrap"
-          >
-            <i className="fa-solid fa-magnifying-glass w-5"></i>
-            <span>Buscar</span>
-          </Link> */}
+                        to="/purchases"
+                        className="w-full flex items-center gap-2 bg-green-600 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-green-700 whitespace-nowrap"
+                    >
+                        <i className="fa-solid fa-bag-shopping"></i>
+                        <span>Pedidos</span>
+                    </Link> */}
+                    <Link
+                        to="/returns"
+                        className="w-full flex items-center gap-2 bg-gray-600 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-gray-700 whitespace-nowrap"
+                    >
+                        <i className="fa-solid fa-arrow-rotate-left"></i>
+                        <span>Devoluciones</span>
+                    </Link>
                 </div>
             </div>
         </aside>

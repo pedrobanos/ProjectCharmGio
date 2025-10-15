@@ -5,7 +5,7 @@ import { bloquearCliente, desbloquearCliente, getClientesBlacklisted } from "../
 import { useFetchSales, useLowStockProducts } from "../hooks";
 import ReembolsoModal from "../components/ReembolsoModal";
 import { MONTHS } from "../Constants";
-
+import { processReturn } from "../services/salesServices";
 
 
 const SalesView = ({ productId, userRole }) => {
@@ -16,6 +16,11 @@ const SalesView = ({ productId, userRole }) => {
   const year = new Date().getFullYear();
   const [refreshKey, setRefreshKey] = useState(0); // 👈 Nuevo estado para forzar refresco
 
+  //DEVOLUCION
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedSale, setSelectedSale] = useState(null);
+  const [loadingReturn, setLoadingReturn] = useState(false);
+
   const {
     loading,
     sales,
@@ -25,7 +30,6 @@ const SalesView = ({ productId, userRole }) => {
     saldoTotalPendiente,
     setSaldoMes,
   } = useFetchSales({ year, selectedMonth, productId, refreshKey });
-
 
 
   const { loading: loadingLowStock, lowStockProducts } = useLowStockProducts(showLowStock);
@@ -64,9 +68,12 @@ const SalesView = ({ productId, userRole }) => {
     return true;
   });
 
-  const totalVentas = filteredSales.reduce((acc, s) => acc + (s.cantidad || 0), 0);
 
-  const beneficioTotal = filteredSales
+  const activeSales = filteredSales.filter((s) => s.estado !== "devuelta");
+  // Total de unidades vendidas (solo activas)
+  const totalVentas = activeSales.reduce((acc, s) => acc + (s.cantidad || 0), 0);
+  // Beneficio total (sin Carol y sin devueltas)
+  const beneficioTotal = activeSales
     .filter((s) => !(s.clienteNombre || "").toLowerCase().includes("carol"))
     .reduce((acc, s) => {
       const product = products.find((p) => Number(p.id) === Number(s.product_id));
@@ -74,6 +81,8 @@ const SalesView = ({ productId, userRole }) => {
         return acc + (s.precio_venta - (product.precio || 0)) * s.cantidad;
       return acc;
     }, 0);
+
+
   return (
     <div className="max-w-screen-lg mx-auto p-4 space-y-6">
       <h1 className="text-5xl text-center font-bold mb-8 text-blue-500">
@@ -127,7 +136,6 @@ const SalesView = ({ productId, userRole }) => {
               <option value="carol">Carol</option>
             </select>
           )}
-
         </div>
 
         <label className="flex items-center gap-2">
@@ -183,7 +191,6 @@ const SalesView = ({ productId, userRole }) => {
           </Link>
         )} */}
       </div>
-
       {/* Tabla */}
       <div className="max-h-[600px] overflow-y-auto border border-gray-200 rounded-md">
         {!showLowStock ? (
@@ -197,13 +204,20 @@ const SalesView = ({ productId, userRole }) => {
                 <th className="w-28 px-2 py-2 text-center">Fecha</th>
                 <th className="w-28 px-2 py-2 text-center">Cliente</th>
                 <th className="w-20 px-2 py-2 text-center">Blacklist</th>
+                <th className="w-20 px-2 py-2 text-center">Devolución</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 text-gray-800">
               {filteredSales.map((s) => {
                 const isBlacklisted = blacklistedClientes.has(s.cliente_id);
                 return (
-                  <tr key={s.id} className="text-center hover:bg-gray-50">
+                  <tr
+                    key={s.id}
+                    className={`text-center transition-colors duration-200 ${s.estado === "devuelta"
+                      ? "bg-red-100 text-red-400 line-through bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)]"
+                      : "hover:bg-gray-50"
+                      }`}
+                  >
                     <td className="px-2 py-3">
                       {s.foto ? (
                         <img
@@ -248,24 +262,42 @@ const SalesView = ({ productId, userRole }) => {
                         <i className="fa-solid fa-skull-crossbones"></i>
                       </button>
                     </td>
+                    <td className="px-2 py-2">
+                      <button
+                        disabled={s.estado === "devuelta"}
+                        onClick={() => {
+                          if (s.estado !== "devuelta") {
+                            setSelectedSale(s);
+                            setShowConfirmModal(true);
+                          }
+                        }}
+                        className={`p-2 rounded-full w-10 h-10  transition-colors ${s.estado === "devuelta"
+                          ? " text-gray-400 cursor-not-allowed"
+                          : "bg-gray-200 text-gray-600 hover:bg-blue-100 cursor-pointer hover:text-blue-700"
+                          }`}
+                        title={s.estado === "devuelta" ? "Venta devuelta" : "Procesar devolución"}
+                      >
+                        <i className="fa-solid fa-arrow-rotate-left"></i>
+                      </button>
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
             <tfoot className="bg-gray-50 font-bold text-gray-800 sticky bottom-0">
               <tr className="border-t border-gray-300">
-                <td colSpan={5} className="px-4 py-2 text-start">
+                <td colSpan={5} className="px-4 py-2 text-right">
                   Total de ventas:
                 </td>
-                <td colSpan={2} className="px-4 py-2 text-center text-blue-600">
+                <td colSpan={3} className="px-4 py-2 text-end text-blue-600">
                   {totalVentas} unds
                 </td>
               </tr>
 
               {filteredSales.some((s) => !(s.clienteNombre || "").toLowerCase().includes("carol")) && (
                 <tr className="border-t border-gray-300">
-                  <td colSpan={5} className="px-4 py-2 text-start">Beneficio:</td>
-                  <td colSpan={2} className={`px-4 py-2 text-center ${beneficioTotal >= 0 ? "text-green-600" : "text-red-600"
+                  <td colSpan={5} className="px-4 py-2 text-right">Beneficio:</td>
+                  <td colSpan={3} className={`px-4 py-2 text-end ${beneficioTotal >= 0 ? "text-green-600" : "text-red-600"
                     }`}>
                     {beneficioTotal.toFixed(2)} €
                   </td>
@@ -274,26 +306,26 @@ const SalesView = ({ productId, userRole }) => {
               {filteredSales.some((s) => (s.clienteNombre || "").toLowerCase().includes("carol")) && (
                 <>
                   <tr className="border-t border-gray-300">
-                    <td colSpan={5} className="px-4 py-2 text-start">
+                    <td colSpan={5} className="px-4 py-2 text-right">
                       Saldo mes anterior (Carol):
                     </td>
-                    <td colSpan={2} className="px-4 py-2 text-center text-yellow-600">
+                    <td colSpan={3} className="px-4 py-2 text-end text-yellow-600">
                       {saldoMesAnterior.toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="border-t border-gray-300">
-                    <td colSpan={5} className="px-4 py-2 text-start">
+                    <td colSpan={5} className="px-4 py-2 text-right">
                       Saldo del mes actual (Carol):
                     </td>
-                    <td colSpan={2} className="px-4 py-2 text-center text-blue-600">
+                    <td colSpan={3} className="px-4 py-2 text-end text-blue-600">
                       {saldoMes.toFixed(2)} €
                     </td>
                   </tr>
                   <tr className="border-t border-gray-300">
-                    <td colSpan={5} className="px-4 py-2 text-start">
+                    <td colSpan={5} className="px-4 py-2 text-right">
                       Saldo total pendiente (Carol):
                     </td>
-                    <td colSpan={2} className="px-4 py-2 text-center text-red-600">
+                    <td colSpan={3} className="px-4 py-2 text-end text-red-600">
                       {saldoTotalPendiente.toFixed(2)} €
                     </td>
                   </tr>
@@ -338,6 +370,50 @@ const SalesView = ({ productId, userRole }) => {
           </table>
         )}
       </div>
+      {showConfirmModal && selectedSale && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-96 text-center space-y-4">
+            <h2 className="text-lg font-bold text-gray-800">
+              ¿Está seguro de devolver este producto?
+            </h2>
+            <p className="text-gray-600 text-sm">
+              Producto: <span className="font-semibold">{selectedSale.productName}</span><br />
+              Cantidad: {selectedSale.cantidad} unidad(es)
+            </p>
+
+            <div className="flex justify-center gap-4 mt-4">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                disabled={loadingReturn}
+                onClick={async () => {
+                  try {
+                    setLoadingReturn(true);
+                    await processReturn(selectedSale.id);
+                    setShowConfirmModal(false);
+                    setSelectedSale(null);
+                    setRefreshKey((prev) => prev + 1); // refresca ventas
+                    alert("✅ Devolución procesada correctamente");
+                  } catch (err) {
+                    console.error("Error al procesar devolución:", err);
+                    alert("❌ Error al procesar la devolución");
+                  } finally {
+                    setLoadingReturn(false);
+                  }
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                {loadingReturn ? "Procesando..." : "Sí, devolver"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

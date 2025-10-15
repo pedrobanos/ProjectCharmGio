@@ -28,6 +28,7 @@ export async function listSales({ from, to, productId } = {}) {
       precio_venta,
       dia,
       cliente_id,
+      estado,
       created_at,
       clientes ( nombre )
     `, { count: "exact" }) // 👈 join con la tabla clientes
@@ -88,42 +89,8 @@ export const getSalesByProduct = async (productId) => {
   return data;
 };
 
-// Top 10 productos más vendidos con stock < 5
-// export const getTopLowStockProducts = async () => {
-//   // 1. Traer productos
-//   const { data: products, error: prodError } = await supabase
-//     .from("products")
-//     .select("id, nombre, cantidad, foto, lugar");
 
-//   if (prodError) throw prodError;
-
-//   // 2. Traer ventas
-//   const { data: sales, error: salesError } = await supabase
-//     .from("sales")
-//     .select("product_id, cantidad");
-
-//   if (salesError) throw salesError;
-
-//   // 3. Calcular total vendido por producto
-//   const ventasPorProducto = sales.reduce((acc, sale) => {
-//     acc[sale.product_id] = (acc[sale.product_id] || 0) + sale.cantidad;
-//     return acc;
-//   }, {});
-
-//   // 4. Enriquecer productos con total vendido
-//   const enriched = products.map((p) => ({
-//     ...p,
-//     total_vendido: ventasPorProducto[p.id] || 0,
-//   }));
-
-//   // 5. Filtrar stock bajo (<5) y ordenar por más vendidos
-//   return enriched
-//     .filter((p) => p.cantidad <= 5)
-//     .sort((a, b) => b.total_vendido - a.total_vendido)
-//     .slice(0, 20); //filtrar por numero
-// };
-
-export const getTopLowStockProducts = async (page = 1, pageSize = 20) => {
+export const getTopLowStockProducts = async (page, pageSize, stockMin) => {
   // 1. Traer productos
   const { data: products, error: prodError } = await supabase
     .from("products")
@@ -152,7 +119,7 @@ export const getTopLowStockProducts = async (page = 1, pageSize = 20) => {
 
   // 5. Filtrar stock bajo (<5) y ordenar
   const lowStock = enriched
-    .filter((p) => p.cantidad < 5)
+    .filter((p) => p.cantidad < stockMin)
     .sort((a, b) => b.total_vendido - a.total_vendido);
 
   // 6. Paginación
@@ -168,4 +135,13 @@ export const getTopLowStockProducts = async (page = 1, pageSize = 20) => {
   };
 };
 
+
+export async function processReturn(saleId, motivo = "Devolución automática") {
+  const { data, error } = await supabase.rpc("reverse_sale", {
+    p_sale_id: Number(saleId),
+    p_motivo: motivo,
+  });
+  if (error) throw error;
+  return data;
+}
 
