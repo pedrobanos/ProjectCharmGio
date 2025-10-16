@@ -84,7 +84,7 @@ const SalesView = ({ productId, userRole }) => {
 
 
   return (
-    <div className="max-w-screen-lg mx-auto p-4 space-y-6">
+    <div className="w-full mx-auto p-4 space-y-6">
       <h1 className="text-5xl text-center font-bold mb-8 text-blue-500">
         Ventas de {MONTHS[selectedMonth]} - {year}
       </h1>
@@ -200,7 +200,7 @@ const SalesView = ({ productId, userRole }) => {
                 <th className="w-16 px-2 py-2 text-center">Foto</th>
                 <th className="w-40 px-2 py-2 text-center">Producto</th>
                 <th className="w-12 px-2 py-2 text-center">Cantidad</th>
-                <th className="w-24 px-2 py-2 text-center">Precio Venta</th>
+                <th className="w-24 px-2 py-2 text-center">Precio</th>
                 <th className="w-28 px-2 py-2 text-center">Fecha</th>
                 <th className="w-28 px-2 py-2 text-center">Cliente</th>
                 <th className="w-20 px-2 py-2 text-center">Blacklist</th>

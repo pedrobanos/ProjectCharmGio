@@ -3,17 +3,18 @@ import { Link } from "react-router-dom";
 const NavBar = ({ user, onLogout }) => {
 
     const userRole = user.email?.toLowerCase() === "test@test.com" ? "admin" : "user";
+    const admin = user.email?.toLowerCase() === "test@test.com" ? "Pedro Baños" : user.email;
 
     return (
         <nav className="w-full h-full bg-gray-800 text-white px-4 py-3">
-            <div className="flex items-center justify-between max-w-6xl mx-auto overflow-x-auto">
+            <div className="flex items-center justify-between max-w-8xl ">
                 <div className="text-xl font-bold flex-shrink-0">
                     <Link to="/products"><span className="mx-2">💍</span> Charm Gio <span className="mx-2">💍</span></Link>
                 </div>
 
                 <ul className="flex space-x-4 whitespace-nowrap">
                     <li className="flex items-center flex-shrink-0">
-                        <span className="mr-2">Hola, {user.email}</span>
+                        <span className="mr-2">Hola, {admin}</span>
                     </li>
                     <li className="flex-shrink-0">
                         <Link

@@ -315,7 +315,7 @@ const ProductsPage = ({ userRole }) => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center gap-4 p-6">
+        <div className="flex flex-col items-center justify-center gap-4 p-6 w-full">
             {loading ? (
                 <Loading />
             ) : (
@@ -323,14 +323,12 @@ const ProductsPage = ({ userRole }) => {
                     <h1 className="text-5xl text-center font-bold mb-4 text-blue-500">
                         Productos de la tienda <span className="mx-4">💍</span>
                     </h1>
-                    <div className="w-full max-w-xl mx-auto mb-4 flex flex-col gap-2">
+                    <div className="w-3/4  mx-auto mb-4 flex flex-col gap-2">
                         <div className="flex items-center gap-3 w-full">
                             <SearchBar
                                 onSearch={setSearchTerm}
-                                placeholder="Buscar por nombre, lugar o código de proveedor..."
-                                className="w-3/5"
+                                placeholder="Buscar por nombre, lugar o código de proveedor..."     
                             />
-
                             {/* === SOLO ADMIN VE LOS BOTONES === */}
                             {userRole === "admin" ? (
                                 isLote ? (
@@ -346,7 +344,7 @@ const ProductsPage = ({ userRole }) => {
 
                                         {/* Botón "Cancelar lote" */}
                                         <button
-                                            className="w-2/7 hidden sm:flex items-center gap-2 bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-600 justify-center whitespace-nowrap"
+                                            className="w-1/6 hidden sm:flex items-center gap-2 bg-red-700 text-white px-4 py-2 rounded-lg hover:bg-red-600 justify-center whitespace-nowrap"
                                             onClick={handleCreateBatch}
                                         >
                                             <i className="fa-solid fa-xmark w-5 text-white" aria-hidden="true"></i>
@@ -365,7 +363,7 @@ const ProductsPage = ({ userRole }) => {
 
                                         {/* Botón escritorio */}
                                         <button
-                                            className="hidden sm:inline-flex w-1/5 items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 justify-center whitespace-nowrap"
+                                            className="hidden sm:inline-flex w-1/7 items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-600 justify-center whitespace-nowrap"
                                             onClick={handleCreateBatch}
                                         >
                                             <i className="fa-solid fa-plus w-5 text-white" aria-hidden="true"></i>

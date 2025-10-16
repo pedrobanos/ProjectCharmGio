@@ -74,7 +74,7 @@ const BlackList = () => {
                     placeholder="Añadir cliente a blacklist..."
                     value={newCliente}
                     onChange={(e) => setNewCliente(e.target.value)}
-                    className="border px-3 py-2 rounded w-64 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="border px-3 py-2 rounded w-96 focus:outline-none focus:ring-2 focus:ring-red-500"
                 />
                 <button
                     onClick={addCliente}
@@ -83,7 +83,6 @@ const BlackList = () => {
                     <i className="fa-solid fa-skull-crossbones"></i>
                 </button>
             </div>
-
             {blacklist.length === 0 ? (
                 <p className="text-gray-500">No hay clientes en la blacklist.</p>
             ) : (
@@ -113,7 +112,6 @@ const BlackList = () => {
                     </tbody>
                 </table>
             )}
-
             {/* Modal de confirmación */}
             {mostrarModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

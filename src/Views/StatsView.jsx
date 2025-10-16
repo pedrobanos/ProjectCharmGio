@@ -65,10 +65,9 @@ const StatsView = () => {
 
     return (
         <div className="p-4 space-y-6">
-            <h1 className="text-2xl font-bold">📊 Estadísticas</h1>
-
+            <h1 className="text-5xl font-bold mb-8 text-center text-blue-500">📊 Estadísticas</h1>
             {/* Selector mes/año */}
-            <div className="flex gap-4 items-center">
+            <div className="flex gap-4 items-center justify-center">
                 <label className="flex items-center gap-2">
                     <span className="text-sm">Mes:</span>
                     <select

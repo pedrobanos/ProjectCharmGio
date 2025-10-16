@@ -37,7 +37,7 @@ const ReturnsView = () => {
 
     return (
         <div className="max-w-6xl mx-auto p-6">
-            <h1 className="text-4xl font-bold text-center text-red-600 mb-6">
+            <h1 className="text-5xl mb-8 font-bold text-center text-red-600 ">
                 Productos devueltos
             </h1>
 
