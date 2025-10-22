@@ -17,6 +17,7 @@ import BlackList from "./Views/BlackList";
 import OrderView from "./Views/OrderView";
 import PurchaseView from "./Views/PurchaseView";
 import ReturnsView from "./Views/ReturnsView";
+import PurchaseDetailView from "./Views/PurchaseDetailView";
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -74,6 +75,7 @@ function AppContent() {
             <Route path="/stats" element={<ProtectedRoute user={user}><StatsView /></ProtectedRoute>} />
              <Route path="/returns" element={<ProtectedRoute user={user}><ReturnsView /></ProtectedRoute>} />
             <Route path="/purchases" element={<ProtectedRoute user={user}><PurchaseView /></ProtectedRoute>} />
+            <Route path="/purchases/:id" element={<ProtectedRoute user={user}><PurchaseDetailView /></ProtectedRoute>} />
             <Route path="/black-list" element={<ProtectedRoute user={user}><BlackList /></ProtectedRoute>} />
             <Route path="/products/:id" element={<ProtectedRoute user={user}><Product /></ProtectedRoute>} />
             <Route path="/products/edit/:id" element={<ProtectedRoute user={user}><EditProduct /></ProtectedRoute>} />

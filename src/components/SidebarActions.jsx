@@ -6,9 +6,9 @@ const SidebarActions = () => {
 
     return (
         // w-56 ancho fijo + flex-shrink-0 para que no se encoja
-        <aside className="w-44 flex-shrink-0 bg-gray-100 shadow-md hidden md:block box-border">
+        <aside className="w-44 flex-shrink-0 bg-gray-200 shadow-md hidden md:block box-border">
             {/* sticky: se pega debajo del NavBar. Ajusta top-16 según la altura real de tu NavBar */}
-            <div className="sticky top-16 z-10 bg-gray-100 rounded-md p-2">
+            <div className="sticky top-16 z-10 bg-gray-200 rounded-md p-2">
                 {/* botones alineados al inicio (arriba) */}
                 <div className="flex flex-col gap-4">
                     <Link
@@ -50,16 +50,16 @@ const SidebarActions = () => {
                         <span className="text-center">BlackList </span>
                         <i className="fa-solid fa-skull-crossbones w-5 mx-2"></i>
                     </Link>
-                    {/* <Link
+                    <Link
                         to="/purchases"
                         className="w-full flex items-center gap-2 bg-green-600 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-green-700 whitespace-nowrap"
                     >
                         <i className="fa-solid fa-bag-shopping"></i>
-                        <span>Pedidos</span>
-                    </Link> */}
+                        <span>Mis Pedidos</span>
+                    </Link>
                     <Link
                         to="/returns"
-                        className="w-full flex items-center gap-2 bg-gray-600 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-gray-700 whitespace-nowrap"
+                        className="w-full flex items-center gap-2 bg-gray-700 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-gray-800 whitespace-nowrap"
                     >
                         <i className="fa-solid fa-arrow-rotate-left"></i>
                         <span>Devoluciones</span>
