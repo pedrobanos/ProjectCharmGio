@@ -176,7 +176,7 @@ export async function exportPedidoPDF({
         },
       ],
     ],
-
+    showFoot: "lastPage",
     margin: { top: 80, left: marginX, right: marginX },
     styles: {
       font: "helvetica",
