@@ -327,7 +327,7 @@ const ProductsPage = ({ userRole }) => {
                         <div className="flex items-center gap-3 w-full">
                             <SearchBar
                                 onSearch={setSearchTerm}
-                                placeholder="Buscar por nombre, lugar o código de proveedor..."     
+                                placeholder="Buscar por nombre, lugar o código de proveedor..."
                             />
                             {/* === SOLO ADMIN VE LOS BOTONES === */}
                             {userRole === "admin" ? (
@@ -371,7 +371,12 @@ const ProductsPage = ({ userRole }) => {
                                         </button>
                                     </>
                                 )
-                            ) : null}
+                            ) : <Link
+                                to="/create-product"
+                                className=" flex items-center justify-center whitespace-nowrap bg-blue-600 hover:bg-blue-700 rounded-full p-3"
+                            >
+                                <i className="fa-solid fa-plus text-white"></i>
+                            </Link>}
                         </div>
                     </div>
                     {/* 📋 Tabla */}
