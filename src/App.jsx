@@ -59,7 +59,7 @@ function AppContent() {
       {/* Main layout con sidebar + contenido */}
       <div className="flex flex-1">
         {!hideNavBar && user && (
-          <SidebarActions />
+          <SidebarActions userRole={userRole} />
         )}
 
         {/* Contenido principal */}
@@ -73,7 +73,7 @@ function AppContent() {
             <Route path="/sales" element={<ProtectedRoute user={user}><SalesView userRole={userRole} /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute user={user}><OrderView /></ProtectedRoute>} />
             <Route path="/stats" element={<ProtectedRoute user={user}><StatsView /></ProtectedRoute>} />
-             <Route path="/returns" element={<ProtectedRoute user={user}><ReturnsView /></ProtectedRoute>} />
+            <Route path="/returns" element={<ProtectedRoute user={user}><ReturnsView /></ProtectedRoute>} />
             <Route path="/purchases" element={<ProtectedRoute user={user}><PurchaseView /></ProtectedRoute>} />
             <Route path="/purchases/:id" element={<ProtectedRoute user={user}><PurchaseDetailView /></ProtectedRoute>} />
             <Route path="/black-list" element={<ProtectedRoute user={user}><BlackList /></ProtectedRoute>} />

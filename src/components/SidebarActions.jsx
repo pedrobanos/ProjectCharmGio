@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const SidebarActions = () => {
+const SidebarActions = ({ userRole }) => {
 
 
 
@@ -50,13 +50,15 @@ const SidebarActions = () => {
                         <span className="text-center">BlackList </span>
                         <i className="fa-solid fa-skull-crossbones w-5 mx-2"></i>
                     </Link>
-                    <Link
-                        to="/purchases"
-                        className="w-full flex items-center gap-2 bg-green-600 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-green-700 whitespace-nowrap"
-                    >
-                        <i className="fa-solid fa-bag-shopping"></i>
-                        <span>Mis Pedidos</span>
-                    </Link>
+                    {userRole === "admin" && (
+                        <Link
+                            to="/purchases"
+                            className="w-full flex items-center gap-2 bg-green-600 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-green-700 whitespace-nowrap"
+                        >
+                            <i className="fa-solid fa-bag-shopping"></i>
+                            <span>Mis Pedidos</span>
+                        </Link>
+                    )}
                     <Link
                         to="/returns"
                         className="w-full flex items-center gap-2 bg-gray-700 opacity-80 text-white px-2 py-2 rounded-lg hover:bg-gray-800 whitespace-nowrap"
