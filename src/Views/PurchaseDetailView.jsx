@@ -312,7 +312,6 @@ const PurchaseDetailView = () => {
                         )}
                     </tr>
                 </thead>
-
                 <tbody>
                     {items.map((i) => {
                         const restanteCalc = Math.max(
@@ -327,6 +326,7 @@ const PurchaseDetailView = () => {
                             <tr key={i.id} className="border-t text-center">
                                 <td className="px-2 py-3">
                                     {i.products?.foto ? (
+                                        console.log(i.products),
                                         <img
                                             src={i.products.foto}
                                             alt={i.products.nombre}
@@ -337,8 +337,14 @@ const PurchaseDetailView = () => {
                                     )}
                                 </td>
                                 <td className="px-2 py-2 break-words whitespace-normal text-left">
-                                    {i.products?.nombre}
+                                    <div>
+                                        <p className="font-medium text-gray-900">{i.products?.nombre}</p>
+                                        {i.products?.lugar && (
+                                            <p className="text-sm text-gray-500 mt-1">{i.products.lugar}</p>
+                                        )}
+                                    </div>
                                 </td>
+
                                 <td>{i.cantidad}</td>
                                 <td>
                                     {editable ? (

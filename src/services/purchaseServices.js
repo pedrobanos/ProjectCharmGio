@@ -70,7 +70,7 @@ export const getPurchaseOrderById = async (id) => {
 
     const { data: items, error: itemsError } = await supabase
         .from("purchase_order_items")
-        .select("*, products(nombre, foto)")
+        .select("*, products(nombre, foto, lugar)")
         .eq("purchase_order_id", id);
 
     if (itemsError) throw new Error(itemsError.message);
