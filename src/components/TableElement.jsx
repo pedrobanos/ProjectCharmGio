@@ -12,51 +12,7 @@ import Loading from "./Loading";
 import Pagination from "./Pagination";
 import { LugaresDisponibles } from "../Constants";
 
-// const EditableCell = ({ value, onChange }) => {
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [tempValue, setTempValue] = useState(value);
 
-//   useEffect(() => {
-//     if (!isEditing) setTempValue(value);
-//   }, [value, isEditing]);
-
-//   const handleDoubleClick = () => setIsEditing(true);
-
-//   const handleBlur = () => {
-//     setIsEditing(false);
-//     onChange(tempValue);
-//   };
-
-//   const handleKeyDown = (e) => {
-//     if (e.key === "Enter") {
-//       setIsEditing(false);
-//       onChange(tempValue);
-//     } else if (e.key === "Escape") {
-//       setIsEditing(false);
-//       setTempValue(value);
-//     }
-//   };
-
-//   return isEditing ? (
-//     <input
-//       type="text"
-//       className="border rounded px-2 py-1 w-full"
-//       value={tempValue}
-//       onChange={(e) => setTempValue(e.target.value)}
-//       onBlur={handleBlur}
-//       onKeyDown={handleKeyDown}
-//       autoFocus
-//     />
-//   ) : (
-//     <span
-//       onDoubleClick={handleDoubleClick}
-//       className="cursor-pointer block"
-//       title={value}
-//     >
-//       {value}
-//     </span>
-//   );
-// };
 
 const EditableCell = ({ value, onChange, field, userRole }) => {
   const [isEditing, setIsEditing] = useState(false);

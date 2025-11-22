@@ -145,3 +145,54 @@ export async function processReturn(saleId, motivo = "Devolución automática") 
   return data;
 }
 
+export const getFilteredProducts = async ({
+  page = 1,
+  pageSize = 20,
+  search = "",
+  maxStock = null,
+}) => {
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  let query = supabase
+    .from("products")
+    .select(
+      `
+        id,
+        nombre,
+        cantidad,
+        foto,
+        lugar,
+        sales: sales(product_id, cantidad)
+      `,
+      { count: "exact" }
+    )
+    .order("id");
+
+  // 🔍 Filtro por nombre
+  if (search.trim() !== "") {
+    query = query.ilike("nombre", `%${search}%`);
+  }
+
+  // 📦 Filtro por stock
+  if (maxStock !== null) {
+    query = query.lte("cantidad", maxStock);
+  }
+
+  // 📄 Paginación
+  const { data, error, count } = await query.range(from, to); //muy importante esta linea
+
+  if (error) throw error;
+
+  // 🎯 Calcular total vendido por producto
+  const processed = data.map((p) => ({
+    ...p,
+    total_vendido: p.sales?.reduce((sum, s) => sum + s.cantidad, 0) ?? 0,
+  }));
+
+  return {
+    data: processed,
+    total: count,
+    totalPages: Math.ceil(count / pageSize),
+  };
+};
