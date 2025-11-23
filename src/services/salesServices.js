@@ -162,6 +162,7 @@ export const getFilteredProducts = async ({
         nombre,
         cantidad,
         foto,
+        precio,
         lugar,
         sales: sales(product_id, cantidad)
       `,
