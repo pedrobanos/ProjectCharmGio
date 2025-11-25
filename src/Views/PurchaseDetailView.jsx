@@ -267,7 +267,7 @@ const PurchaseDetailView = () => {
 
     return (
         <div className="max-w-screen-lg mx-auto p-6">
-            <h1 className="text-4xl font-bold mb-4">Pedido #{order.id} - {order.proveedor}</h1>
+            <h1 className="text-4xl font-bold mt-9 mb-8">Pedido #{order.id} - {order.proveedor}</h1>
 
             <div className="flex justify-between items-center mb-4">
                 <p className="text-gray-600">

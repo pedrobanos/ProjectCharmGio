@@ -304,7 +304,7 @@ const CreateProduct = () => {
 
     return (
         <div className="max-w-md mx-auto p-6 bg-white rounded mt-6">
-            <h1 className="text-5xl text-center font-bold mb-4 text-blue-500">Crear Producto</h1>
+            <h1 className="text-5xl text-center font-bold mb-4 mt-8 text-blue-500">Crear Producto</h1>
             {error && <p className="text-red-500 mb-2">{error}</p>}
             {success && <p className="text-green-500 mb-2">{success}</p>}
 

@@ -258,7 +258,8 @@ const TableElement = ({
   const fixedScrollRef = useRef(null);
   const fixedTableRef = useRef(null);
 
-  const HEADER_OFFSET = 0;
+  const HEADER_OFFSET = 45;
+
 
   const getPadding = (el) => {
     const cs = getComputedStyle(el);

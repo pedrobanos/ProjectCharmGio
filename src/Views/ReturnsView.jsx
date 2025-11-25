@@ -36,8 +36,8 @@ const ReturnsView = () => {
     if (loading) return <Loading />;
 
     return (
-        <div className="max-w-6xl mx-auto p-6">
-            <h1 className="text-5xl mb-8 font-bold text-center text-red-600 ">
+        <div className="max-w-6xl mx-22 space-y-6 p-6" >
+            <h1 className="text-5xl mb-8 mt-9 font-bold text-center text-red-600 ">
                 Productos devueltos
             </h1>
 

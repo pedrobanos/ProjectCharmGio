@@ -163,7 +163,7 @@ const EditProduct = () => {
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded mt-6">
-      <h2 className="text-3xl font-bold mb-4">Editar producto</h2>
+     <h1 className="text-5xl text-center font-bold mb-4 mt-8 text-blue-500">Editar producto</h1>
 
       {error && <p className="text-red-500 mb-2">{error}</p>}
       {success && <p className="text-green-500 mb-2">{success}</p>}

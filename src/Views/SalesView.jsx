@@ -84,8 +84,8 @@ const SalesView = ({ productId, userRole }) => {
 
 
   return (
-    <div className="w-full mx-auto p-4 space-y-6">
-      <h1 className="text-5xl text-center font-bold mb-8 text-blue-500">
+    <div className="w-11/12 mx-20 p-8 space-y-6 ">
+      <h1 className="text-5xl text-center font-bold mb-8 mt-8 text-blue-500">
         Ventas de {MONTHS[selectedMonth]} - {year}
       </h1>
 
@@ -192,7 +192,7 @@ const SalesView = ({ productId, userRole }) => {
         )} */}
       </div>
       {/* Tabla */}
-      <div className="max-h-[600px] overflow-y-auto border border-gray-200 rounded-md">
+      <div className="max-h-[700px] overflow-y-auto border border-gray-200 rounded-md">
         {!showLowStock ? (
           <table className="table-fixed w-full border-collapse text-sm sm:text-base">
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm sticky top-0 z-10">

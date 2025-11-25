@@ -52,25 +52,6 @@ const ProductsPage = ({ userRole }) => {
         setSearchParams({ page: currentPage });
     }, [currentPage, setSearchParams]);
 
-
-    // const fetchProducts = async () => {
-    //     setLoading(true);
-    //     try {
-    //         const data = await getAllProducts();
-    //         const normalized = data.map((p) => ({
-    //             ...p,
-    //             nombreLower: normalizeString(p.nombre),
-    //             lugarLower: normalizeString(p.lugar),
-    //             codigoProveedorLower: normalizeString(p.codigoProveedor),
-    //             descripcionLower: normalizeString(p.descripcion),
-    //         }));
-    //         setProducts(normalized);
-    //     } catch (err) {
-    //         console.error("Error al cargar productos:", err);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
     const fetchProducts = async (keepSearch = false) => {
         try {
             const data = await getAllProducts();
@@ -315,12 +296,12 @@ const ProductsPage = ({ userRole }) => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center gap-4 p-6 w-full">
+        <div className="flex flex-col items-center justify-center gap-4 mx-6 px-6 w-full mt-10">
             {loading ? (
                 <Loading />
             ) : (
                 <>
-                    <h1 className="text-5xl text-center font-bold mb-4 text-blue-500">
+                    <h1 className="text-5xl text-center font-bold mb-4 mt-8 text-blue-500">
                         Productos de la tienda <span className="mx-4">💍</span>
                     </h1>
                     <div className="w-3/4  mx-auto mb-4 flex flex-col gap-2">

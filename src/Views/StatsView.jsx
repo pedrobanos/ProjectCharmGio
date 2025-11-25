@@ -64,8 +64,8 @@ const StatsView = () => {
         .reduce((acc, s) => acc + (s.cantidad || 0), 0);
 
     return (
-        <div className="p-4 space-y-6">
-            <h1 className="text-5xl font-bold mb-8 text-center text-blue-500">📊 Estadísticas</h1>
+        <div className="p-8 space-y-6 mx-22">
+            <h1 className="text-5xl font-bold mb-8 mt-10 text-center text-blue-500">📊 Estadísticas</h1>
             {/* Selector mes/año */}
             <div className="flex gap-4 items-center justify-center">
                 <label className="flex items-center gap-2">

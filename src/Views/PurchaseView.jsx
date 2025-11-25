@@ -33,7 +33,7 @@ const PurchaseView = () => {
 
     return (
         <div className="max-w-screen-lg mx-auto p-6">
-            <h1 className="text-5xl font-bold text-center text-blue-600 mb-10">
+            <h1 className="text-5xl font-bold text-center text-blue-600 mt-9 mb-8">
                 Historial de Pedidos
             </h1>
             {

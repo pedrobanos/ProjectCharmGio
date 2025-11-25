@@ -61,8 +61,8 @@ const BlackList = () => {
     };
 
     return (
-        <div className="p-6">
-            <h1 className="text-5xl text-center font-bold mb-8">☠️ Lista Negra ☠️</h1>
+        <div className=" p-8 space-y-6 mx-22">
+            <h1 className="text-5xl text-center font-bold mt-9 mb-8">☠️ Lista Negra ☠️</h1>
             <p className="text-gray-600 mb-6">
                 Aquí puedes gestionar los clientes bloqueados y añadir nuevos manualmente.
             </p>

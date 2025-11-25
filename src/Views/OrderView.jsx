@@ -148,7 +148,9 @@ const OrderView = () => {
   );
 
 
-    return (<div className="max-w-screen-lg mx-auto p-6 space-y-6"> <h1 className="text-5xl font-bold text-center text-blue-600 mb-10">
+    return (
+    <div className="max-w-screen-lg mx-auto p-8 space-y-6"> 
+    <h1 className="text-5xl font-bold text-center text-blue-600 mt-9 mb-8">
         Hacer Pedido 🛒💨 </h1>
         {/* 🔍 Barra de búsqueda + Filtro */}
         <div className="flex gap-4 items-center">
