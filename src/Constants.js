@@ -51,6 +51,7 @@ export const LugaresDisponibles = [
   "Felpudo Negro",
   "Negro Alfa",
   "Negro Beta",
+  "Rincón mágico Disney 🐭",
   "Rosa Grande",
   "Transparente 1",
   "Transparente 2",
