@@ -40,6 +40,7 @@ export const normalizeString = (str) => {
 
 
 export const LugaresDisponibles = [
+  "Ubicación Producto Nuevo (CAMBIAR)",
   "Caja Beige",
   "Caja Marvel Blanca",
   "Caja Rosa Pandora",

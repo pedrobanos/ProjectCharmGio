@@ -6,14 +6,16 @@ import { useFetchSales, useLowStockProducts } from "../hooks";
 import ReembolsoModal from "../components/ReembolsoModal";
 import { MONTHS } from "../Constants";
 import { processReturn } from "../services/salesServices";
+import { Link } from "react-router-dom";
 
 
 const SalesView = ({ productId, userRole }) => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  //NEW FEATURE: Filtrado por año
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); 
   const [filterBy, setFilterBy] = useState("todos");
   const [showLowStock, setShowLowStock] = useState(false);
   const [isReembolsoOpen, setIsReembolsoOpen] = useState(false);
-  const year = new Date().getFullYear();
   const [refreshKey, setRefreshKey] = useState(0); // 👈 Nuevo estado para forzar refresco
 
   //DEVOLUCION
@@ -29,7 +31,7 @@ const SalesView = ({ productId, userRole }) => {
     saldoMes,
     saldoTotalPendiente,
     setSaldoMes,
-  } = useFetchSales({ year, selectedMonth, productId, refreshKey });
+  } = useFetchSales({ selectedMonth, selectedYear, productId, refreshKey });
 
 
   const { loading: loadingLowStock, lowStockProducts } = useLowStockProducts(showLowStock);
@@ -86,7 +88,7 @@ const SalesView = ({ productId, userRole }) => {
   return (
     <div className="w-11/12 mx-20 p-8 space-y-6 ">
       <h1 className="text-5xl text-center font-bold mb-8 mt-8 text-blue-500">
-        Ventas de {MONTHS[selectedMonth]} - {year}
+        Ventas de {MONTHS[selectedMonth]} - {selectedYear}
       </h1>
 
       {/* Botones meses */}
@@ -137,6 +139,19 @@ const SalesView = ({ productId, userRole }) => {
             </select>
           )}
         </div>
+     <label htmlFor="filtroAno" className="font-semibold text-gray-700" hidden={showLowStock}/>
+            Seleccionar Año:
+       <select
+              id="filtroAno"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="border pl-3 pr-3 py-2 w-48 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold"
+            >
+              <option value={new Date().getFullYear()}>{new Date().getFullYear()}</option>
+              <option value={new Date().getFullYear() - 1}>{new Date().getFullYear() - 1}</option>
+              <option value={new Date().getFullYear() - 2}>{new Date().getFullYear() - 2}</option>
+      </select>
+
 
         <label className="flex items-center gap-2">
           <input
@@ -180,7 +195,7 @@ const SalesView = ({ productId, userRole }) => {
           onRefresh={() => setRefreshKey((prev) => prev + 1)} // 👈 esto refresca los datos sin reload
         />
 
-        {/* {showLowStock && (
+        {showLowStock && (
           <Link
             to="/orders"
             className="flex items-center gap-2 bg-blue-600 text-white font-semibold px-6 py-2 rounded-xl shadow-md 
@@ -189,7 +204,7 @@ const SalesView = ({ productId, userRole }) => {
             <i className="fas fa-shopping-cart"></i>
             <span>Tramitar Pedido</span>
           </Link>
-        )} */}
+        )}
       </div>
       {/* Tabla */}
       <div className="max-h-[700px] overflow-y-auto border border-gray-200 rounded-md">

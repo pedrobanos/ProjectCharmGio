@@ -282,7 +282,7 @@ export function useSalesData({ selectedMonth, year, porDinero, porCantidad }) {
 }
 
 
-export function useFetchSales({ year, selectedMonth, productId, refreshKey }) {
+export function useFetchSales({selectedMonth, selectedYear,productId, refreshKey }) {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
   const [sales, setSales] = useState([]);
@@ -300,9 +300,9 @@ export function useFetchSales({ year, selectedMonth, productId, refreshKey }) {
         setProducts(allProducts);
 
         // 🔹 2. Rango de fechas del mes seleccionado
-        const from = `${year}-${String(selectedMonth + 1).padStart(2, "0")}-01T00:00:00Z`;
-        const lastDay = new Date(year, selectedMonth + 1, 0).getDate();
-        const to = `${year}-${String(selectedMonth + 1).padStart(2, "0")}-${lastDay}T23:59:59Z`;
+        const from = `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-01T00:00:00Z`;
+        const lastDay = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+        const to = `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-${lastDay}T23:59:59Z`;
 
         // 🔹 3. Ventas (incluyendo campo estado)
         const { data: salesData } = await listSales({
@@ -347,7 +347,7 @@ export function useFetchSales({ year, selectedMonth, productId, refreshKey }) {
         const reembolsosMesActual = reembolsos.filter(
           (r) =>
             r.mes_aplicado ===
-            `${year}-${String(selectedMonth + 1).padStart(2, "0")}`
+            `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}`
         );
 
         const totalReembolsadoMes = reembolsosMesActual.reduce(
@@ -358,7 +358,7 @@ export function useFetchSales({ year, selectedMonth, productId, refreshKey }) {
         // 🔹 8. Saldo del mes anterior
         const pendienteAnterior = await getPendienteMesAnterior(
           "carol",
-          year,
+          selectedYear,
           selectedMonth,
           listSales
         );
@@ -380,7 +380,7 @@ export function useFetchSales({ year, selectedMonth, productId, refreshKey }) {
     };
 
     fetchData();
-  }, [year, selectedMonth, productId, refreshKey]);
+  }, [selectedYear, selectedMonth, productId, refreshKey]);
 
   return {
     loading,
