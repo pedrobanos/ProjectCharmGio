@@ -544,17 +544,16 @@ const TableElement = ({
                         </td>
                       );
                     })}
-
                     {!isLote && (
                       <td className="px-2 py-2 whitespace-nowrap">
-                        <div className="flex flex-col sm:flex-row justify-center items-center gap-2">
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
                           <Link
                             to={`/products/${product.id}`}
                             state={{ fromSearch: location.search }}
                             className="text-green-500 hover:text-green-600"
                             title="Detalle"
                           >
-                            <i className="fa-solid fa-circle-info"></i>
+                            <i className="fa-solid fa-circle-info text-lg"></i>
                           </Link>
                           {userRole === "admin" && (
                             <>
@@ -563,34 +562,32 @@ const TableElement = ({
                                 className="text-blue-500 hover:text-blue-600"
                                 title="Editar"
                               >
-                                <i className="fa-solid fa-pen-to-square"></i>
+                                <i className="fa-solid fa-pen-to-square text-lg"></i>
                               </Link>
                               <button
                                 type="button"
-                                className="text-yellow-500 hover:text-yellow-600"
+                                className="text-yellow-500 cursor-pointer hover:text-yellow-600"
                                 onClick={() => onSale(product)}
                                 title="Venta"
                               >
-                                <i className="fa-solid fa-cart-plus"></i>
+                                <i className="fa-solid fa-cart-plus text-lg"></i>
                               </button>
                               <button
                                 type="button"
-                                className="text-red-500 hover:text-red-600"
+                                className="text-red-500 cursor-pointer hover:text-red-600"
                                 onClick={() => onDelete(product)}
                                 title="Eliminar"
                               >
-                                <i className="fa-solid fa-trash"></i>
+                                <i className="fa-solid fa-trash text-lg"></i>
                               </button>
                             </>
                           )}
-
                         </div>
                       </td>
                     )}
                   </tr>
                 );
               })}
-
               {/* padding inferior */}
               <tr
                 style={{
