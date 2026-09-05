@@ -205,23 +205,23 @@ const SortableHeader = ({
 // Column configs
 const COLS_WITH_LOTE = [
   "w-[7%]", // ID
-  "w-16", // Foto
-  "w-[26%]", // Producto
+  "w-32", // Foto
+  "w-[32%]", // Producto
   "w-[12%]", // Cantidad
   "w-[12%]", // Precio
-  "w-[14%] hidden sm:table-cell", // Lugar
-  "w-[14%] hidden sm:table-cell", // Proveedor
-  "w-[15%] hidden sm:table-cell", // Cod. Proveedor
+  "w-[21%] hidden sm:table-cell", // Lugar
+  // "w-[14%] hidden sm:table-cell", // Proveedor
+  // "w-[15%] hidden sm:table-cell", // Cod. Proveedor
 ];
 
 const COLS_WITH_ACCIONES = [
-  "w-16", // Foto
-  "w-[24%]", // Producto
+  "w-32", // Foto
+  "w-[32%]", // Producto
   "w-[12%]", // Cantidad
   "w-[12%]", // Precio
-  "w-[14%] hidden sm:table-cell", // Lugar
-  "w-[14%] hidden sm:table-cell", // Proveedor
-  "w-[15%] hidden sm:table-cell", // Cod. Proveedor
+  "w-[21%] hidden sm:table-cell", // Lugar
+  // "w-[14%] hidden sm:table-cell", // Proveedor
+  // "w-[15%] hidden sm:table-cell", // Cod. Proveedor
   "w-[15%]", // Acciones
 ];
 
@@ -435,8 +435,8 @@ const TableElement = ({
                   <SortableHeader label="Cantidad" columnKey="cantidad" {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Precio(€)" columnKey="precio" {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Lugar" columnKey="lugar" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-                  <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-                  <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                  {/* <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                  <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} /> */}
                   {!isLote && userRole === "admin" && <th className="px-2 py-2 text-center bg-gray-100">Acciones</th>}
                 </tr>
               </thead>
@@ -463,8 +463,8 @@ const TableElement = ({
                 <SortableHeader label="Cantidad" columnKey="cantidad" {...{ orderBy, orderDirection, onSort }} />
                 <SortableHeader label="Precio(€)" columnKey="precio" {...{ orderBy, orderDirection, onSort }} />
                 <SortableHeader label="Lugar" columnKey="lugar" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-                <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-                <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                {/* <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} /> */}
                 {!isLote && <th className="px-2 py-2 text-center">Acciones</th>}
               </tr>
             </thead>
@@ -508,7 +508,7 @@ const TableElement = ({
                           <img
                             src={product.foto}
                             alt={`Foto de ${product.nombre}`}
-                            className="h-10 w-10 object-cover rounded-full mx-auto"
+                            className="h-16 w-16 object-cover rounded-full mx-auto"
                           />
                         </button>
                       ) : (
@@ -516,7 +516,9 @@ const TableElement = ({
                       )}
                     </td>
 
-                    {["nombre", "cantidad", "precio", "lugar", "proveedor", "codigoProveedor"].map((field) => {
+                    {["nombre", "cantidad", "precio", "lugar",
+                    //  "proveedor", "codigoProveedor" la clienta no le gusta esos campos
+                    ].map((field) => {
                       const isLowStock = field === "cantidad" && parseInt(product[field], 10) <= 5;
                       const hasLongDescription = product.descripcion && product.descripcion.length > 10;
                       const nameColorClass = field === "nombre" ? (hasLongDescription ? "text-gray-600" : "text-red-600") : "";
