@@ -64,3 +64,63 @@ export const MONTHS = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 
+
+export const MARCAS_MOVIL = [
+  "iPhone",
+  "iPad",
+  "Samsung",
+  "Xiaomi",
+  "Google Pixel",
+  "Huawei",
+  "Honor",
+  "OPPO",
+  "OnePlus",
+  "Motorola",
+  "realme",
+  "Nothing",
+  "Sony",
+  "TCL",
+];
+
+export const OPERADORAS = [
+  "Movistar",
+  "Vodafone",
+  "Orange",
+  "Yoigo",
+  "MásMóvil",
+  "O2",
+  "Simyo",
+  "Pepephone",
+  "Digi",
+  "Lowi",
+  "Finetwork",
+  "Jazztel",
+  "SUOP",
+  "Lycamobile",
+  "Lebara",
+  "Amena",
+];
+
+export const PLATAFORMAS = ["Vinted", "Wallapop"];
+
+export const BANCOS = [
+  // Banca tradicional
+  "Santander",
+  "BBVA",
+  "CaixaBank",
+  "Banco Sabadell",
+  "Bankinter",
+  "Unicaja",
+  "Ibercaja",
+  "Kutxabank",
+  "ING",
+  // Neobancos / digitales
+  "Revolut",
+  "N26",
+  "Wise",
+  "bunq",
+  "Openbank",
+  "Imagin",
+  "Trade Republic",
+  "Vivid",
+];

@@ -18,6 +18,7 @@ import OrderView from "./Views/OrderView";
 import PurchaseView from "./Views/PurchaseView";
 import ReturnsView from "./Views/ReturnsView";
 import PurchaseDetailView from "./Views/PurchaseDetailView";
+import AccountsView from "./Views/AccountsView";
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -70,6 +71,7 @@ function AppContent() {
             {/* <Route path="/register" element={<Register />} /> */}
             <Route path="/create-product" element={<ProtectedRoute user={user}><CreateProduct /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage userRole={userRole} /></ProtectedRoute>} />
+            <Route path="/accounts" element={<ProtectedRoute user={user}><AccountsView /></ProtectedRoute>} />
             <Route path="/sales" element={<ProtectedRoute user={user}><SalesView userRole={userRole} /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute user={user}><OrderView /></ProtectedRoute>} />
             <Route path="/stats" element={<ProtectedRoute user={user}><StatsView /></ProtectedRoute>} />
