@@ -405,6 +405,9 @@ const TableElement = ({
     count: paginatedProducts.length,
     getScrollElement: () => bodyTableRef.current?.parentElement,
     estimateSize: () => 52, // altura aproximada de fila
+    // Cada página tiene como mucho 15 filas: se pintan siempre todas para que no
+    // falte ninguna si la tabla se mide antes de tiempo (al cargar o al girar la tablet)
+    overscan: itemsPerPage,
   });
 
   const handleClickFoto = (e, foto) => {
