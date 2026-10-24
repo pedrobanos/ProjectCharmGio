@@ -11,6 +11,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import Loading from "./Loading";
 import Pagination from "./Pagination";
 import { LugaresDisponibles } from "../Constants";
+import VintedCopyModal from "./VintedCopyModal";
 
 
 
@@ -249,6 +250,8 @@ const TableElement = ({
   const [loading, setLoading] = useState(false);
   const [fotoSeleccionada, setFotoSeleccionada] = useState(null);
   const [popupPos, setPopupPos] = useState({ top: 0, left: 0 });
+  const [vintedProduct, setVintedProduct] = useState(null);
+  const closeVintedModal = useCallback(() => setVintedProduct(null), []);
 
 
   // Refs
@@ -574,6 +577,14 @@ const TableElement = ({
                               </button>
                               <button
                                 type="button"
+                                className="text-[#007782] cursor-pointer hover:text-[#00646d]"
+                                onClick={() => setVintedProduct(product)}
+                                title="Copiar para Vinted"
+                              >
+                                <i className="fa-regular fa-copy text-lg"></i>
+                              </button>
+                              <button
+                                type="button"
                                 className="text-red-500 cursor-pointer hover:text-red-600"
                                 onClick={() => onDelete(product)}
                                 title="Eliminar"
@@ -624,6 +635,9 @@ const TableElement = ({
           )}
         </div>
       </div>
+      {vintedProduct && (
+        <VintedCopyModal product={vintedProduct} onClose={closeVintedModal} />
+      )}
       <Pagination
         totalPages={totalPages}
         currentPage={currentPage}
