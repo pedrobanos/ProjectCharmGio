@@ -19,6 +19,7 @@ import PurchaseView from "./Views/PurchaseView";
 import ReturnsView from "./Views/ReturnsView";
 import PurchaseDetailView from "./Views/PurchaseDetailView";
 import AccountsView from "./Views/AccountsView";
+import NextListingView from "./Views/NextListingView";
 
 function AppContent() {
   const [user, setUser] = useState(() => {
@@ -72,6 +73,7 @@ function AppContent() {
             <Route path="/create-product" element={<ProtectedRoute user={user}><CreateProduct /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute user={user}><ProductsPage userRole={userRole} /></ProtectedRoute>} />
             <Route path="/accounts" element={<ProtectedRoute user={user}><AccountsView /></ProtectedRoute>} />
+            <Route path="/anuncios" element={<ProtectedRoute user={user}><NextListingView /></ProtectedRoute>} />
             <Route path="/sales" element={<ProtectedRoute user={user}><SalesView userRole={userRole} /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute user={user}><OrderView /></ProtectedRoute>} />
             <Route path="/stats" element={<ProtectedRoute user={user}><StatsView /></ProtectedRoute>} />

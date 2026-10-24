@@ -86,8 +86,17 @@ const NavBar = ({ user, onLogout }) => {
                 </div>
 
                 <ul className="flex space-x-4 whitespace-nowrap">
-                    <li className="flex items-center flex-shrink-0">
+                    <li className="hidden sm:flex items-center flex-shrink-0">
                         <span className="mr-2">Hola, {admin}</span>
+                    </li>
+                    <li className="flex-shrink-0">
+                        <Link
+                            to="/anuncios"
+                            className="hover:text-yellow-400 rounded"
+                            title="Siguiente anuncio"
+                        >
+                            <i className="fa-solid fa-bullhorn"></i>
+                        </Link>
                     </li>
                     <li className="flex-shrink-0">
                         <Link

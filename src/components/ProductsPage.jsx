@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import TableElement from "./TableElement";
 import SearchBar from "./SearchBar";
 import {
@@ -13,6 +13,13 @@ import { normalizeString } from "../Constants";
 import { SaleConfirmedModal } from "./SaleConfirmedModal";
 import VentaIndividualModal from "./VentaIndivualModal";
 import VentaLoteModal from "./VentaLoteModal";
+import {
+    getListingAccounts,
+    getActiveListings,
+    groupListingsByProduct,
+    updateListingStatus,
+    listingsToRemoveAfterSale,
+} from "../services/listingsServices";
 
 const ProductsPage = ({ userRole }) => {
     const [products, setProducts] = useState([]);
@@ -40,6 +47,73 @@ const ProductsPage = ({ userRole }) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const pageParam = Number(searchParams.get("page")) || 1;
     const [currentPage, setCurrentPage] = useState(pageParam);
+
+    // 📣 Anuncios (Vinted / Wallapop)
+    const [listingAccounts, setListingAccounts] = useState([]);
+    const [activeListings, setActiveListings] = useState([]);
+    const [selectedListingId, setSelectedListingId] = useState("");
+    const [soldListing, setSoldListing] = useState(null);
+    const [listingsToReview, setListingsToReview] = useState([]);
+
+    const listingsByProduct = useMemo(
+        () => groupListingsByProduct(activeListings, listingAccounts),
+        [activeListings, listingAccounts]
+    );
+
+    const fetchListings = useCallback(async () => {
+        try {
+            const [accounts, listings] = await Promise.all([
+                getListingAccounts(),
+                getActiveListings(),
+            ]);
+            setListingAccounts(accounts);
+            setActiveListings(listings);
+        } catch (err) {
+            // Si aún no existe la tabla "listings", la app sigue funcionando sin anuncios
+            console.warn("No se pudieron cargar los anuncios:", err?.message || err);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchListings();
+    }, [fetchListings]);
+
+    // Tras una venta: marca el anuncio vendido y calcula qué anuncios hay que borrar
+    const reviewListingsAfterSale = async (items) => {
+        const toReview = [];
+        let sold = null;
+        for (const { product, cantidadVendida, saleId, listingId } of items) {
+            const prodListings = listingsByProduct[String(product.id)] || [];
+            if (listingId) {
+                const listing = prodListings.find((l) => String(l.id) === String(listingId));
+                try {
+                    await updateListingStatus(listingId, "vendido", saleId ?? null);
+                    if (listing) sold = { ...listing, product };
+                } catch (err) {
+                    console.error("No se pudo marcar el anuncio como vendido:", err);
+                }
+            }
+            const others = prodListings.filter((l) => String(l.id) !== String(listingId));
+            const remaining = Number(product.cantidad) - Number(cantidadVendida);
+            listingsToRemoveAfterSale(remaining, others).forEach((l) =>
+                toReview.push({ ...l, product })
+            );
+        }
+        setSoldListing(sold);
+        setListingsToReview(toReview);
+        fetchListings();
+    };
+
+    const handleRetireListing = async (listing) => {
+        try {
+            await updateListingStatus(listing.id, "retirado");
+            setListingsToReview((prev) => prev.filter((l) => l.id !== listing.id));
+            fetchListings();
+        } catch (err) {
+            console.error("No se pudo retirar el anuncio:", err);
+            alert("No se pudo actualizar el anuncio. Inténtalo de nuevo.");
+        }
+    };
 
 
 
@@ -145,6 +219,9 @@ const ProductsPage = ({ userRole }) => {
         setPrecioVenta(product.precio || 0);
         setCliente("");
         setError("");
+        // Si solo está publicado en una cuenta, se preselecciona ese anuncio
+        const prodListings = listingsByProduct[String(product.id)] || [];
+        setSelectedListingId(prodListings.length === 1 ? String(prodListings[0].id) : "");
         setIsModalOpen(true);
     };
 
@@ -198,7 +275,17 @@ const ProductsPage = ({ userRole }) => {
                 )
             );
 
-            if (sale) setSales((prev) => [sale[0], ...(prev || [])]);
+            const saleRow = Array.isArray(sale) ? sale[0] : sale;
+            if (saleRow) setSales((prev) => [saleRow, ...(prev || [])]);
+
+            await reviewListingsAfterSale([
+                {
+                    product: selectedProduct,
+                    cantidadVendida: cantidadVenta,
+                    saleId: saleRow?.id,
+                    listingId: selectedListingId || null,
+                },
+            ]);
 
             setIsModalOpen(false);
             setIsSaleConfirmed(true);
@@ -282,6 +369,15 @@ const ProductsPage = ({ userRole }) => {
                             : p.precioVenta,
                 });
             }
+            // 📣 Avisar de anuncios que hay que borrar
+            await reviewListingsAfterSale(
+                batchProducts.map((p) => ({
+                    product: p,
+                    cantidadVendida: p.cantidadVenta,
+                    saleId: null,
+                    listingId: null,
+                }))
+            );
             // ✅ Limpiar estados y mostrar modal de confirmación
             setIsBatchModalOpen(false);
             setIsSaleConfirmed(true);
@@ -377,6 +473,9 @@ const ProductsPage = ({ userRole }) => {
                         setCurrentPage={setCurrentPage}
                         searchTerm={searchTerm}
                         userRole={userRole}
+                        listingsByProduct={listingsByProduct}
+                        listingAccounts={listingAccounts}
+                        onListingsChanged={fetchListings}
                     />
                     {/* Modal de venta individual */}
                     {isModalOpen && selectedProduct && (
@@ -392,6 +491,9 @@ const ProductsPage = ({ userRole }) => {
                             error={error}
                             confirmSale={confirmSale}
                             setIsModalOpen={setIsModalOpen}
+                            productListings={listingsByProduct[String(selectedProduct.id)] || []}
+                            selectedListingId={selectedListingId}
+                            setSelectedListingId={setSelectedListingId}
                         />
                     )}
                     {/* 🟢 Modal de lote */}
@@ -414,8 +516,13 @@ const ProductsPage = ({ userRole }) => {
 
                     <SaleConfirmedModal
                         isOpen={isSaleConfirmed}
+                        soldListing={soldListing}
+                        listingsToReview={listingsToReview}
+                        onRetireListing={handleRetireListing}
                         onClose={() => {
                             setIsSaleConfirmed(false)
+                            setSoldListing(null);
+                            setListingsToReview([]);
                             fetchProducts(true);
                         }}
                     />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getBlacklist } from "../services/clientServices";
+import { AccountBadge } from "./PlatformIcon";
 
 
 export default function VentaIndividualModal({
@@ -14,6 +15,9 @@ export default function VentaIndividualModal({
   error,
   confirmSale,
   setIsModalOpen,
+  productListings = [],
+  selectedListingId = "",
+  setSelectedListingId = () => {},
 }) {
   const [selectedPerson, setSelectedPerson] = useState("");
   const [previousPrice, setPreviousPrice] = useState(null);
@@ -116,6 +120,48 @@ export default function VentaIndividualModal({
             </p>
           </div>
         </div>
+
+        {/* 📣 Anuncio desde el que se ha vendido */}
+        {productListings.length > 0 && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1">
+              ¿Desde qué anuncio se ha vendido?
+            </label>
+            <div className="flex flex-col gap-1.5">
+              {productListings.map((l) => (
+                <label
+                  key={l.id}
+                  className={`flex items-center gap-2 border rounded-md px-2 py-1.5 cursor-pointer ${
+                    String(selectedListingId) === String(l.id)
+                      ? "border-green-500 bg-green-50"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="anuncio-vendido"
+                    checked={String(selectedListingId) === String(l.id)}
+                    onChange={() => setSelectedListingId(String(l.id))}
+                  />
+                  <AccountBadge account={l.account} />
+                </label>
+              ))}
+              <label
+                className={`flex items-center gap-2 border rounded-md px-2 py-1.5 cursor-pointer text-sm ${
+                  !selectedListingId ? "border-green-500 bg-green-50" : "border-gray-300"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="anuncio-vendido"
+                  checked={!selectedListingId}
+                  onChange={() => setSelectedListingId("")}
+                />
+                Ninguno (venta directa)
+              </label>
+            </div>
+          </div>
+        )}
 
         {/* Cantidad */}
         <label className="block text-sm font-medium mb-1">

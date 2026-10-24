@@ -204,6 +204,22 @@ const SidebarActions = ({ userRole }) => {
             </div>
           </div>
         </div>
+        {/* Anuncios */}
+        <div className="relative group">
+          <Link
+            to="/anuncios"
+            className="flex items-center gap-2 px-2 py-2 rounded-lg bg-teal-700 text-white"
+          >
+            <i className="fa-solid fa-bullhorn w-5 text-white"></i>
+          </Link>
+          <div className="absolute left-full top-0 ml-2 opacity-0 group-hover:opacity-100 
+            transition-all duration-300 z-30 whitespace-nowrap pointer-events-none">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-700 text-white shadow-lg">
+              <i className="fa-solid fa-bullhorn w-5 text-white"></i>
+              <span>Siguiente anuncio</span>
+            </div>
+          </div>
+        </div>
         {/* Ventas */}
         <div className="relative group">
           <Link

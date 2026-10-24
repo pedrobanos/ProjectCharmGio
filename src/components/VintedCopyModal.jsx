@@ -1,96 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import ListingCopyFields from "./ListingCopyFields";
+import PlatformIcon, { AccountBadge } from "./PlatformIcon";
+import { PLATFORM_STYLES } from "../utils/listingUtils";
+import {
+  accountLabel,
+  createListing,
+  updateListingStatus,
+} from "../services/listingsServices";
 
-// Copia texto al portapapeles. Usa la API moderna y, si no está disponible
-// (p. ej. abriendo la app por http en la red local), un textarea oculto.
-const copyToClipboard = async (text) => {
-  try {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-  } catch {
-    // seguimos con el método alternativo
-  }
-  try {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.setAttribute("readonly", "");
-    ta.style.position = "fixed";
-    ta.style.top = "-1000px";
-    ta.style.fontSize = "16px"; // evita el zoom automático en iOS
-    document.body.appendChild(ta);
-    ta.select();
-    ta.setSelectionRange(0, text.length);
-    const ok = document.execCommand("copy");
-    document.body.removeChild(ta);
-    return ok;
-  } catch {
-    return false;
-  }
-};
+const formatFecha = (iso) =>
+  iso
+    ? new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "2-digit" })
+    : "";
 
-// Precio en formato español sin símbolo: 3 -> "3", 3.5 -> "3,5", 3.25 -> "3,25"
-const formatPrecioVinted = (precio) => {
-  const n = Number(precio);
-  if (precio == null || isNaN(n)) return "";
-  return n.toLocaleString("es-ES", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-};
-
-const CopyRow = ({ label, value, multiline, copiedKey, setCopiedKey, fieldKey }) => {
-  const isCopied = copiedKey === fieldKey;
-  const isEmpty = !value;
-
-  const handleCopy = async () => {
-    if (isEmpty) return;
-    const ok = await copyToClipboard(value);
-    setCopiedKey(ok ? fieldKey : `error-${fieldKey}`);
-  };
-
-  return (
-    <div className="mb-4">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-semibold text-gray-700">{label}</span>
-        <button
-          type="button"
-          onClick={handleCopy}
-          disabled={isEmpty}
-          className={`min-w-[110px] px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-            isEmpty
-              ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-              : isCopied
-              ? "bg-green-600 text-white"
-              : "bg-[#007782] text-white hover:bg-[#00646d] cursor-pointer"
-          }`}
-        >
-          {isCopied ? (
-            <>
-              <i className="fa-solid fa-check mr-1"></i>Copiado
-            </>
-          ) : (
-            <>
-              <i className="fa-regular fa-copy mr-1"></i>Copiar
-            </>
-          )}
-        </button>
-      </div>
-      <div
-        className={`w-full border rounded-md px-3 py-2 text-sm text-gray-800 bg-gray-50 break-words ${
-          multiline ? "whitespace-pre-wrap max-h-40 overflow-y-auto" : ""
-        }`}
-      >
-        {isEmpty ? <span className="text-gray-400 italic">Sin datos</span> : value}
-      </div>
-      {copiedKey === `error-${fieldKey}` && (
-        <p className="text-xs text-red-600 mt-1">
-          No se pudo copiar. Mantén pulsado el texto para copiarlo a mano.
-        </p>
-      )}
-    </div>
-  );
-};
-
-const VintedCopyModal = ({ product, onClose }) => {
-  const [copiedKey, setCopiedKey] = useState(null);
+/**
+ * Ventana "Copiar para anuncio" (Vinted / Wallapop)
+ * - Muestra dónde está publicado el producto
+ * - Copia título, descripción y precio
+ * - Marca el producto como publicado en una cuenta
+ */
+const VintedCopyModal = ({ product, accounts = [], activeListings = [], onClose, onChanged }) => {
+  const [accountId, setAccountId] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
   // Cerrar con Escape
   useEffect(() => {
@@ -99,11 +31,50 @@ const VintedCopyModal = ({ product, onClose }) => {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
+  // Cuentas donde todavía no está publicado
+  const availableAccounts = useMemo(() => {
+    const used = new Set(activeListings.map((l) => String(l.account_id)));
+    return accounts.filter((a) => !used.has(String(a.id)));
+  }, [accounts, activeListings]);
+
+  const selectedAccount = availableAccounts.find((a) => String(a.id) === String(accountId));
+  const stock = Number(product?.cantidad ?? 0);
+  const overListed = activeListings.length >= stock;
+
   if (!product) return null;
 
-  const titulo = product.nombre?.trim() || "";
-  const descripcion = product.descripcion?.trim() || "";
-  const precio = formatPrecioVinted(product.precio);
+  const handlePublish = async () => {
+    if (!selectedAccount) return;
+    setSaving(true);
+    setError("");
+    try {
+      await createListing(product.id, selectedAccount.id);
+      setAccountId("");
+      await onChanged?.();
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "No se pudo guardar.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRetire = async (listing) => {
+    if (!window.confirm(`¿Marcar como retirado el anuncio de ${accountLabel(listing.account)}?`)) return;
+    setSaving(true);
+    setError("");
+    try {
+      await updateListingStatus(listing.id, "retirado");
+      await onChanged?.();
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "No se pudo actualizar.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const publishColor = PLATFORM_STYLES[selectedAccount?.platform]?.bg || "#9ca3af";
 
   return (
     <div
@@ -123,44 +94,103 @@ const VintedCopyModal = ({ product, onClose }) => {
           ✕
         </button>
 
+        {/* Cabecera */}
         <div className="flex items-center gap-3 mb-4 pr-8">
           {product.foto && (
             <img
               src={product.foto}
-              alt={`Foto de ${titulo}`}
-              className="w-14 h-14 object-cover rounded-md border"
+              alt={`Foto de ${product.nombre}`}
+              className="w-14 h-14 object-cover rounded-md border border-gray-200"
             />
           )}
-          <div>
-            <h2 className="text-lg font-bold text-gray-800">Copiar para Vinted</h2>
-            <p className="text-xs text-gray-500">
-              Copia un campo, pégalo en Vinted y vuelve a por el siguiente.
-            </p>
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold text-gray-800 flex items-center gap-1.5">
+              Copiar para anuncio
+              <PlatformIcon platform="Vinted" size={18} />
+              <PlatformIcon platform="Wallapop" size={18} />
+            </h2>
+            <p className="text-xs text-gray-500">Stock: {stock}</p>
           </div>
         </div>
 
-        <CopyRow
-          label="Título"
-          fieldKey="titulo"
-          value={titulo}
-          copiedKey={copiedKey}
-          setCopiedKey={setCopiedKey}
-        />
-        <CopyRow
-          label="Descripción"
-          fieldKey="descripcion"
-          value={descripcion}
-          multiline
-          copiedKey={copiedKey}
-          setCopiedKey={setCopiedKey}
-        />
-        <CopyRow
-          label="Precio (€)"
-          fieldKey="precio"
-          value={precio}
-          copiedKey={copiedKey}
-          setCopiedKey={setCopiedKey}
-        />
+        {/* Dónde está publicado */}
+        <div className="mb-4">
+          <p className="text-sm font-semibold text-gray-700 mb-1">Publicado en</p>
+          {activeListings.length === 0 ? (
+            <p className="text-sm text-gray-400 italic">Todavía en ninguna cuenta</p>
+          ) : (
+            <ul className="flex flex-col gap-1.5">
+              {activeListings.map((l) => (
+                <li key={l.id} className="flex items-center justify-between gap-2">
+                  <AccountBadge account={l.account}>
+                    <span className="opacity-70 font-normal">· {formatFecha(l.publicado_at)}</span>
+                  </AccountBadge>
+                  <button
+                    type="button"
+                    onClick={() => handleRetire(l)}
+                    disabled={saving}
+                    className="text-xs text-red-600 hover:underline cursor-pointer disabled:opacity-50"
+                  >
+                    Retirar
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {overListed && (
+            <p className="text-xs text-amber-700 bg-amber-50 rounded-md px-2 py-1 mt-2">
+              ⚠️ Tienes {activeListings.length} anuncio(s) activo(s) y {stock} unidad(es). Si publicas
+              en otra cuenta podrías vender más de lo que tienes.
+            </p>
+          )}
+        </div>
+
+        {/* Campos a copiar */}
+        <ListingCopyFields product={product} />
+
+        {/* Marcar como publicado */}
+        <div className="border-t border-gray-200 pt-4 mt-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            ¿En qué cuenta lo has subido?
+          </label>
+          {availableAccounts.length === 0 ? (
+            <p className="text-sm text-gray-400 italic">
+              {accounts.length === 0
+                ? "No hay cuentas de Vinted o Wallapop activas en Cuentas."
+                : "Ya está publicado en todas tus cuentas."}
+            </p>
+          ) : (
+            <>
+              <select
+                value={accountId}
+                onChange={(e) => setAccountId(e.target.value)}
+                className="border border-gray-300 rounded-md p-2 w-full mb-3 text-base"
+              >
+                <option value="">Elegir cuenta...</option>
+                {availableAccounts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.platform} · {accountLabel(a)}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={handlePublish}
+                disabled={!selectedAccount || saving}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-md text-white font-medium disabled:opacity-50 cursor-pointer"
+                style={{ backgroundColor: publishColor }}
+              >
+                {selectedAccount && <PlatformIcon platform={selectedAccount.platform} size={18} />}
+                {saving
+                  ? "Guardando..."
+                  : selectedAccount
+                  ? `Marcar publicado en ${accountLabel(selectedAccount)}`
+                  : "Marcar publicado"}
+              </button>
+            </>
+          )}
+          {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+        </div>
       </div>
     </div>
   );

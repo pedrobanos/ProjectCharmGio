@@ -12,6 +12,8 @@ import Loading from "./Loading";
 import Pagination from "./Pagination";
 import { LugaresDisponibles } from "../Constants";
 import VintedCopyModal from "./VintedCopyModal";
+import PlatformIcon, { AccountBadge } from "./PlatformIcon";
+import RowActionsMenu from "./RowActionsMenu";
 
 
 
@@ -205,25 +207,27 @@ const SortableHeader = ({
 
 // Column configs
 const COLS_WITH_LOTE = [
-  "w-[7%]", // ID
+  "w-[6%]", // ID
   "w-32", // Foto
-  "w-[32%]", // Producto
-  "w-[12%]", // Cantidad
-  "w-[12%]", // Precio
-  "w-[21%] hidden sm:table-cell", // Lugar
-  // "w-[14%] hidden sm:table-cell", // Proveedor
-  // "w-[15%] hidden sm:table-cell", // Cod. Proveedor
+  "w-[20%]", // Producto
+  "w-[8%]", // Cantidad
+  "w-[8%]", // Precio
+  "w-[14%] hidden sm:table-cell", // Lugar
+  "w-[11%] hidden sm:table-cell", // Proveedor
+  "w-[10%] hidden sm:table-cell", // Cod. Proveedor
+  "w-[14%]", // Plataforma anuncio
 ];
 
 const COLS_WITH_ACCIONES = [
   "w-32", // Foto
-  "w-[32%]", // Producto
-  "w-[12%]", // Cantidad
-  "w-[12%]", // Precio
-  "w-[21%] hidden sm:table-cell", // Lugar
-  // "w-[14%] hidden sm:table-cell", // Proveedor
-  // "w-[15%] hidden sm:table-cell", // Cod. Proveedor
-  "w-[15%]", // Acciones
+  "w-[20%]", // Producto
+  "w-[8%]", // Cantidad
+  "w-[8%]", // Precio
+  "w-[14%] hidden sm:table-cell", // Lugar
+  "w-[11%] hidden sm:table-cell", // Proveedor
+  "w-[10%] hidden sm:table-cell", // Cod. Proveedor
+  "w-[14%]", // Plataforma anuncio
+  "w-[7%]", // Acciones
 ];
 
 const TableElement = ({
@@ -240,7 +244,10 @@ const TableElement = ({
   currentPage,
   setCurrentPage,
   searchTerm,
-  userRole
+  userRole,
+  listingsByProduct = {},
+  listingAccounts = [],
+  onListingsChanged,
 }) => {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -438,8 +445,9 @@ const TableElement = ({
                   <SortableHeader label="Cantidad" columnKey="cantidad" {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Precio(€)" columnKey="precio" {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Lugar" columnKey="lugar" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-                  {/* <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-                  <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} /> */}
+                  <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                  <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                  <th className="px-2 py-2 text-center bg-gray-100">Plataforma anuncio</th>
                   {!isLote && userRole === "admin" && <th className="px-2 py-2 text-center bg-gray-100">Acciones</th>}
                 </tr>
               </thead>
@@ -466,8 +474,9 @@ const TableElement = ({
                 <SortableHeader label="Cantidad" columnKey="cantidad" {...{ orderBy, orderDirection, onSort }} />
                 <SortableHeader label="Precio(€)" columnKey="precio" {...{ orderBy, orderDirection, onSort }} />
                 <SortableHeader label="Lugar" columnKey="lugar" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-                {/* <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-                <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} /> */}
+                <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
+                <th className="px-2 py-2 text-center">Plataforma anuncio</th>
                 {!isLote && <th className="px-2 py-2 text-center">Acciones</th>}
               </tr>
             </thead>
@@ -519,9 +528,7 @@ const TableElement = ({
                       )}
                     </td>
 
-                    {["nombre", "cantidad", "precio", "lugar",
-                    //  "proveedor", "codigoProveedor" la clienta no le gusta esos campos
-                    ].map((field) => {
+                    {["nombre", "cantidad", "precio", "lugar", "proveedor", "codigoProveedor"].map((field) => {
                       const isLowStock = field === "cantidad" && parseInt(product[field], 10) <= 5;
                       const hasLongDescription = product.descripcion && product.descripcion.length > 10;
                       const nameColorClass = field === "nombre" ? (hasLongDescription ? "text-gray-600" : "text-red-600") : "";
@@ -547,51 +554,89 @@ const TableElement = ({
                         </td>
                       );
                     })}
+                    {/* Plataforma anuncio */}
+                    <td className="px-2 py-2">
+                      {(() => {
+                        const prodListings = listingsByProduct[String(product.id)] || [];
+                        if (!prodListings.length) {
+                          return <span className="text-xs text-gray-400">—</span>;
+                        }
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => setVintedProduct(product)}
+                            className="flex flex-col items-center gap-1 w-full cursor-pointer"
+                            title="Ver anuncios"
+                          >
+                            {prodListings.map((l) => (
+                              <AccountBadge key={l.id} account={l.account} size={16} />
+                            ))}
+                          </button>
+                        );
+                      })()}
+                    </td>
+
                     {!isLote && (
                       <td className="px-2 py-2 whitespace-nowrap">
-                        <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
-                          <Link
-                            to={`/products/${product.id}`}
-                            state={{ fromSearch: location.search }}
-                            className="text-green-500 hover:text-green-600"
-                            title="Detalle"
-                          >
-                            <i className="fa-solid fa-circle-info text-lg"></i>
-                          </Link>
-                          {userRole === "admin" && (
+                        <div className="flex justify-center items-center gap-1">
+                          {userRole === "admin" ? (
                             <>
-                              <Link
-                                to={`/products/edit/${product.id}${location.search}`}
-                                className="text-blue-500 hover:text-blue-600"
-                                title="Editar"
-                              >
-                                <i className="fa-solid fa-pen-to-square text-lg"></i>
-                              </Link>
                               <button
                                 type="button"
-                                className="text-yellow-500 cursor-pointer hover:text-yellow-600"
+                                className="w-8 h-8 inline-flex items-center justify-center rounded-full text-yellow-500 cursor-pointer hover:bg-yellow-50 hover:text-yellow-600"
                                 onClick={() => onSale(product)}
                                 title="Venta"
                               >
                                 <i className="fa-solid fa-cart-plus text-lg"></i>
                               </button>
-                              <button
-                                type="button"
-                                className="text-[#007782] cursor-pointer hover:text-[#00646d]"
-                                onClick={() => setVintedProduct(product)}
-                                title="Copiar para Vinted"
-                              >
-                                <i className="fa-regular fa-copy text-lg"></i>
-                              </button>
-                              <button
-                                type="button"
-                                className="text-red-500 cursor-pointer hover:text-red-600"
-                                onClick={() => onDelete(product)}
-                                title="Eliminar"
-                              >
-                                <i className="fa-solid fa-trash text-lg"></i>
-                              </button>
+                              <RowActionsMenu
+                                items={[
+                                  {
+                                    key: "detalle",
+                                    label: "Detalle",
+                                    color: "#22c55e",
+                                    icon: <i className="fa-solid fa-circle-info"></i>,
+                                    to: `/products/${product.id}`,
+                                    state: { fromSearch: location.search },
+                                  },
+                                  {
+                                    key: "editar",
+                                    label: "Editar",
+                                    color: "#3b82f6",
+                                    icon: <i className="fa-solid fa-pen-to-square"></i>,
+                                    to: `/products/edit/${product.id}${location.search}`,
+                                  },
+                                  {
+                                    key: "anuncio",
+                                    label: "Copiar para anuncio",
+                                    icon: (
+                                      <span className="inline-flex -space-x-1">
+                                        <PlatformIcon platform="Vinted" size={14} />
+                                        <PlatformIcon platform="Wallapop" size={14} />
+                                      </span>
+                                    ),
+                                    onClick: () => setVintedProduct(product),
+                                  },
+                                  {
+                                    key: "eliminar",
+                                    label: "Eliminar",
+                                    color: "#ef4444",
+                                    danger: true,
+                                    icon: <i className="fa-solid fa-trash"></i>,
+                                    onClick: () => onDelete(product),
+                                  },
+                                ]}
+                              />
                             </>
+                          ) : (
+                            <Link
+                              to={`/products/${product.id}`}
+                              state={{ fromSearch: location.search }}
+                              className="text-green-500 hover:text-green-600"
+                              title="Detalle"
+                            >
+                              <i className="fa-solid fa-circle-info text-lg"></i>
+                            </Link>
                           )}
                         </div>
                       </td>
@@ -636,7 +681,13 @@ const TableElement = ({
         </div>
       </div>
       {vintedProduct && (
-        <VintedCopyModal product={vintedProduct} onClose={closeVintedModal} />
+        <VintedCopyModal
+          product={vintedProduct}
+          accounts={listingAccounts}
+          activeListings={listingsByProduct[String(vintedProduct.id)] || []}
+          onClose={closeVintedModal}
+          onChanged={onListingsChanged}
+        />
       )}
       <Pagination
         totalPages={totalPages}
