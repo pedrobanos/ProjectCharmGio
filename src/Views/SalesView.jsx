@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Loading from "../components/Loading";
 import { bloquearCliente, desbloquearCliente, getClientesBlacklisted } from "../services/clientServices";
 import { useFetchSales, useLowStockProducts } from "../hooks";
+import PageHeader from "../components/PageHeader";
 import ReembolsoModal from "../components/ReembolsoModal";
 import { MONTHS } from "../Constants";
 import { processReturn } from "../services/salesServices";
@@ -86,32 +87,37 @@ const SalesView = ({ productId, userRole }) => {
 
 
   return (
-    <div className="w-11/12 mx-20 p-8 space-y-6 ">
-      <h1 className="text-5xl text-center font-bold mb-8 mt-8 text-blue-500">
-        Ventas de {MONTHS[selectedMonth]} - {selectedYear}
-      </h1>
+    <div className="w-full max-w-7xl mx-auto px-1 sm:px-2 pb-10 space-y-5">
+      <PageHeader
+        icon="fa-solid fa-cart-shopping"
+        tone="amber"
+        title={`Ventas de ${MONTHS[selectedMonth]} ${selectedYear}`}
+        subtitle={`${filteredSales.length} ventas · ${totalVentas} unidades`}
+        className="mb-2"
+      />
 
       {/* Botones meses */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
         {MONTHS.map((name, index) => (
           <button
             key={name}
             onClick={() => setSelectedMonth(index)}
-            className={`px-3 py-2 rounded-lg border font-semibold transition ${selectedMonth === index
-              ? "bg-blue-600 text-white"
-              : "bg-gray-100 hover:bg-blue-100"
+            className={`px-2 py-2 rounded-xl border text-sm font-semibold transition flex items-center justify-center gap-1.5 ${selectedMonth === index
+              ? "bg-yellow-700 text-white border-yellow-700 shadow-sm"
+              : "bg-white border-gray-200 text-gray-700 hover:bg-yellow-50"
               }`}
           >
+            <i className="fa-regular fa-calendar text-xs opacity-70"></i>
             {name}
           </button>
         ))}
       </div>
 
       {/* Filtro cliente + checkbox stock */}
-      <div className="flex flex-row items-center gap-4 w-full mb-4">
+      <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-3">
         <div className="flex items-center gap-2">
-          <label htmlFor="filtroCliente" className="font-semibold text-gray-700" hidden={showLowStock}>
-            Vendido por:
+          <label htmlFor="filtroCliente" className="font-semibold text-gray-700 text-sm" hidden={showLowStock}>
+            <i className="fa-solid fa-user-tag mr-1.5 text-gray-400"></i>Vendido por:
           </label>
           {userRole === "admin" ? (
             // 🔹 Admin puede seleccionar cualquier cliente
@@ -139,8 +145,10 @@ const SalesView = ({ productId, userRole }) => {
             </select>
           )}
         </div>
-     <label htmlFor="filtroAno" className="font-semibold text-gray-700" hidden={showLowStock}/>
-            Seleccionar Año:
+        <div className="flex items-center gap-2">
+     <label htmlFor="filtroAno" className="font-semibold text-gray-700 text-sm">
+            <i className="fa-solid fa-calendar-days mr-1.5 text-gray-400"></i>Año:
+     </label>
        <select
               id="filtroAno"
               value={selectedYear}
@@ -151,6 +159,7 @@ const SalesView = ({ productId, userRole }) => {
               <option value={new Date().getFullYear() - 1}>{new Date().getFullYear() - 1}</option>
               <option value={new Date().getFullYear() - 2}>{new Date().getFullYear() - 2}</option>
       </select>
+        </div>
 
 
         <label className="flex items-center gap-2">
@@ -159,7 +168,7 @@ const SalesView = ({ productId, userRole }) => {
             checked={showLowStock}
             onChange={(e) => setShowLowStock(e.target.checked)}
           />
-          <span className="text-sm">Ver productos con stock bajo</span>
+          <span className="text-sm"><i className="fa-solid fa-triangle-exclamation mr-1 text-orange-500"></i>Ver productos con stock bajo</span>
         </label>
 
         {filterBy === "carol" && saldoTotalPendiente > 0 && !showLowStock &&
@@ -169,16 +178,18 @@ const SalesView = ({ productId, userRole }) => {
                 <button
                   type="button"
                   onClick={() => setIsReembolsoOpen(true)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer font-semibold hover:bg-green-700 transition"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer font-semibold hover:bg-green-700 transition flex items-center gap-2"
                 >
+                  <i className="fa-solid fa-hand-holding-dollar"></i>
                   Iniciar reembolso
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={() => setIsReembolsoOpen(true)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer font-semibold hover:bg-green-700 transition"
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg cursor-pointer font-semibold hover:bg-green-700 transition flex items-center gap-2"
                 >
+                  <i className="fa-solid fa-receipt"></i>
                   Ver Reembolso
                 </button>
               )
@@ -207,19 +218,19 @@ const SalesView = ({ productId, userRole }) => {
         )}
       </div>
       {/* Tabla */}
-      <div className="max-h-[700px] overflow-y-auto border border-gray-200 rounded-md">
+      <div className="max-h-[700px] overflow-auto border border-gray-200 rounded-2xl bg-white shadow-sm">
         {!showLowStock ? (
-          <table className="table-fixed w-full border-collapse text-sm sm:text-base">
+          <table className="table-fixed w-full min-w-[820px] border-collapse text-sm sm:text-base">
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm sticky top-0 z-10">
               <tr>
-                <th className="w-16 px-2 py-2 text-center">Foto</th>
-                <th className="w-40 px-2 py-2 text-center">Producto</th>
-                <th className="w-12 px-2 py-2 text-center">Cantidad</th>
-                <th className="w-24 px-2 py-2 text-center">Precio</th>
-                <th className="w-28 px-2 py-2 text-center">Fecha</th>
-                <th className="w-28 px-2 py-2 text-center">Cliente</th>
-                <th className="w-20 px-2 py-2 text-center">Blacklist</th>
-                <th className="w-20 px-2 py-2 text-center">Devolución</th>
+                <th className="w-16 px-2 py-2 text-center"><i className="fa-solid fa-image mr-1 text-gray-400"></i>Foto</th>
+                <th className="w-40 px-2 py-2 text-center"><i className="fa-solid fa-gem mr-1 text-gray-400"></i>Producto</th>
+                <th className="w-16 px-2 py-2 text-center"><i className="fa-solid fa-boxes-stacked mr-1 text-gray-400"></i>Cant.</th>
+                <th className="w-24 px-2 py-2 text-center"><i className="fa-solid fa-euro-sign mr-1 text-gray-400"></i>Precio</th>
+                <th className="w-28 px-2 py-2 text-center"><i className="fa-regular fa-clock mr-1 text-gray-400"></i>Fecha</th>
+                <th className="w-28 px-2 py-2 text-center"><i className="fa-solid fa-user mr-1 text-gray-400"></i>Cliente</th>
+                <th className="w-20 px-2 py-2 text-center"><i className="fa-solid fa-skull-crossbones mr-1 text-gray-400"></i>Blacklist</th>
+                <th className="w-20 px-2 py-2 text-center"><i className="fa-solid fa-arrow-rotate-left mr-1 text-gray-400"></i>Devol.</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 text-gray-800">
@@ -302,7 +313,7 @@ const SalesView = ({ productId, userRole }) => {
             <tfoot className="bg-gray-50 font-bold text-gray-800 sticky bottom-0">
               <tr className="border-t border-gray-300">
                 <td colSpan={5} className="px-4 py-2 text-right">
-                  Total de ventas:
+                  <i className="fa-solid fa-boxes-stacked mr-2 text-blue-500"></i>Total de ventas:
                 </td>
                 <td colSpan={3} className="px-4 py-2 text-end text-blue-600">
                   {totalVentas} unds
@@ -311,7 +322,7 @@ const SalesView = ({ productId, userRole }) => {
 
               {filteredSales.some((s) => !(s.clienteNombre || "").toLowerCase().includes("carol")) && (
                 <tr className="border-t border-gray-300">
-                  <td colSpan={5} className="px-4 py-2 text-right">Beneficio:</td>
+                  <td colSpan={5} className="px-4 py-2 text-right"><i className="fa-solid fa-sack-dollar mr-2 text-green-600"></i>Beneficio:</td>
                   <td colSpan={3} className={`px-4 py-2 text-end ${beneficioTotal >= 0 ? "text-green-600" : "text-red-600"
                     }`}>
                     {beneficioTotal.toFixed(2)} €
@@ -322,7 +333,7 @@ const SalesView = ({ productId, userRole }) => {
                 <>
                   <tr className="border-t border-gray-300">
                     <td colSpan={5} className="px-4 py-2 text-right">
-                      Saldo mes anterior (Carol):
+                      <i className="fa-solid fa-clock-rotate-left mr-2 text-yellow-600"></i>Saldo mes anterior (Carol):
                     </td>
                     <td colSpan={3} className="px-4 py-2 text-end text-yellow-600">
                       {saldoMesAnterior.toFixed(2)} €
@@ -330,7 +341,7 @@ const SalesView = ({ productId, userRole }) => {
                   </tr>
                   <tr className="border-t border-gray-300">
                     <td colSpan={5} className="px-4 py-2 text-right">
-                      Saldo del mes actual (Carol):
+                      <i className="fa-solid fa-calendar-check mr-2 text-blue-600"></i>Saldo del mes actual (Carol):
                     </td>
                     <td colSpan={3} className="px-4 py-2 text-end text-blue-600">
                       {saldoMes.toFixed(2)} €
@@ -338,7 +349,7 @@ const SalesView = ({ productId, userRole }) => {
                   </tr>
                   <tr className="border-t border-gray-300">
                     <td colSpan={5} className="px-4 py-2 text-right">
-                      Saldo total pendiente (Carol):
+                      <i className="fa-solid fa-hourglass-half mr-2 text-red-600"></i>Saldo total pendiente (Carol):
                     </td>
                     <td colSpan={3} className="px-4 py-2 text-end text-red-600">
                       {saldoTotalPendiente.toFixed(2)} €
@@ -351,14 +362,14 @@ const SalesView = ({ productId, userRole }) => {
           </table>
         ) : (
           // 🔹 Tabla de stock bajo
-          <table className="table-fixed w-full border-collapse text-sm sm:text-base">
+          <table className="table-fixed w-full min-w-[640px] border-collapse text-sm sm:text-base">
             <thead className="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm sticky top-0 z-10">
               <tr>
-                <th className="w-16 px-2 py-2 text-center">Foto</th>
-                <th className="w-40 px-2 py-2 text-center">Producto</th>
-                <th className="w-16 px-2 py-2 text-center">Stock</th>
-                <th className="w-24 px-2 py-2 text-center">Total Vendido</th>
-                <th className="w-24 px-2 py-2 text-center">Lugar</th>
+                <th className="w-16 px-2 py-2 text-center"><i className="fa-solid fa-image mr-1 text-gray-400"></i>Foto</th>
+                <th className="w-40 px-2 py-2 text-center"><i className="fa-solid fa-gem mr-1 text-gray-400"></i>Producto</th>
+                <th className="w-16 px-2 py-2 text-center"><i className="fa-solid fa-boxes-stacked mr-1 text-gray-400"></i>Stock</th>
+                <th className="w-24 px-2 py-2 text-center"><i className="fa-solid fa-chart-line mr-1 text-gray-400"></i>Vendido</th>
+                <th className="w-24 px-2 py-2 text-center"><i className="fa-solid fa-location-dot mr-1 text-gray-400"></i>Lugar</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 text-gray-800">
@@ -386,7 +397,7 @@ const SalesView = ({ productId, userRole }) => {
         )}
       </div>
       {showConfirmModal && selectedSale && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl p-6 w-96 text-center space-y-4">
             <h2 className="text-lg font-bold text-gray-800">
               ¿Está seguro de devolver este producto?
@@ -399,8 +410,9 @@ const SalesView = ({ productId, userRole }) => {
             <div className="flex justify-center gap-4 mt-4">
               <button
                 onClick={() => setShowConfirmModal(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 flex items-center gap-2"
               >
+                <i className="fa-solid fa-xmark"></i>
                 Cancelar
               </button>
               <button

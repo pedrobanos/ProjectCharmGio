@@ -421,9 +421,167 @@ const TableElement = ({
 
   return (
     <>
+      {/* 📱 MÓVIL: tarjetas en lugar de tabla */}
+      <div className="md:hidden w-full flex flex-col gap-3">
+        {paginatedProducts.length === 0 && (
+          <p className="text-center text-gray-500 py-10">
+            <i className="fa-solid fa-box-open mr-2"></i>No hay productos que mostrar.
+          </p>
+        )}
+        {paginatedProducts.map((product) => {
+          const prodListings = listingsByProduct[String(product.id)] || [];
+          const lowStock = parseInt(product.cantidad, 10) <= 5;
+          return (
+            <article
+              key={product.id}
+              className="bg-white rounded-2xl border border-gray-200 shadow-sm p-3 flex gap-3 min-w-0"
+            >
+              <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                {product.foto ? (
+                  <button type="button" onClick={(e) => handleClickFoto(e, product.foto)}>
+                    <img
+                      src={product.foto}
+                      alt={`Foto de ${product.nombre}`}
+                      className="w-20 h-20 object-cover rounded-xl border border-gray-100"
+                    />
+                  </button>
+                ) : (
+                  <div className="w-20 h-20 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300">
+                    <i className="fa-solid fa-image text-2xl"></i>
+                  </div>
+                )}
+                {isLote && (
+                  <label className="flex items-center gap-1 text-xs text-gray-600">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(product.id)}
+                      onChange={() => toggleCheckbox(product.id)}
+                    />
+                    Lote
+                  </label>
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-2">
+                  <Link
+                    to={`/products/${product.id}`}
+                    state={{ fromSearch: location.search }}
+                    className={`font-semibold leading-snug ${
+                      product.descripcion && product.descripcion.length > 10 ? "text-gray-900" : "text-red-600"
+                    }`}
+                  >
+                    {product.nombre}
+                  </Link>
+                  {!isLote && userRole === "admin" && (
+                    <RowActionsMenu
+                      items={[
+                        {
+                          key: "detalle",
+                          label: "Detalle",
+                          color: "#22c55e",
+                          icon: <i className="fa-solid fa-circle-info"></i>,
+                          to: `/products/${product.id}`,
+                          state: { fromSearch: location.search },
+                        },
+                        {
+                          key: "editar",
+                          label: "Editar",
+                          color: "#3b82f6",
+                          icon: <i className="fa-solid fa-pen-to-square"></i>,
+                          to: `/products/edit/${product.id}${location.search}`,
+                        },
+                        {
+                          key: "anuncio",
+                          label: "Copiar para anuncio",
+                          icon: (
+                            <span className="inline-flex -space-x-1">
+                              <PlatformIcon platform="Vinted" size={14} />
+                              <PlatformIcon platform="Wallapop" size={14} />
+                            </span>
+                          ),
+                          onClick: () => setVintedProduct(product),
+                        },
+                        {
+                          key: "eliminar",
+                          label: "Eliminar",
+                          color: "#ef4444",
+                          danger: true,
+                          icon: <i className="fa-solid fa-trash"></i>,
+                          onClick: () => onDelete(product),
+                        },
+                      ]}
+                    />
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm">
+                  <span className={`flex items-center gap-1 ${lowStock ? "text-red-600 font-semibold" : "text-gray-600"}`}>
+                    <i className="fa-solid fa-boxes-stacked text-xs"></i>
+                    {product.cantidad} uds
+                  </span>
+                  <span className="flex items-center gap-1 text-gray-800 font-semibold">
+                    <i className="fa-solid fa-euro-sign text-xs text-gray-400"></i>
+                    {product.precio}
+                  </span>
+                </div>
+                {product.lugar && (
+                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1 min-w-0">
+                    <i className="fa-solid fa-location-dot"></i>
+                    <span className="truncate">{product.lugar}</span>
+                  </p>
+                )}
+                {(product.proveedor || product.codigoProveedor) && (
+                  <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1 min-w-0">
+                    <i className="fa-solid fa-truck"></i>
+                    <span className="truncate">
+                      {[product.proveedor, product.codigoProveedor].filter(Boolean).join(" · ")}
+                    </span>
+                  </p>
+                )}
+
+                {prodListings.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setVintedProduct(product)}
+                    className="flex flex-wrap items-center gap-1 mt-2"
+                  >
+                    {prodListings.map((l) => (
+                      <AccountBadge key={l.id} account={l.account} size={14} />
+                    ))}
+                    <span className="text-[10px] text-gray-500">
+                      {prodListings.length}/{product.cantidad}
+                    </span>
+                  </button>
+                )}
+
+                {!isLote && userRole === "admin" && (
+                  <div className="flex gap-2 mt-2.5">
+                    <button
+                      type="button"
+                      onClick={() => onSale(product)}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-yellow-500 text-white text-sm font-semibold py-2 hover:bg-yellow-600"
+                    >
+                      <i className="fa-solid fa-cart-plus"></i> Vender
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setVintedProduct(product)}
+                      className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-teal-600 text-teal-700 text-sm font-semibold py-2 hover:bg-teal-50"
+                    >
+                      <i className="fa-solid fa-bullhorn"></i> Anunciar
+                    </button>
+                  </div>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
       <div
         ref={containerRef}
-        className="relative w-full overflow-x-auto  mx-auto px-4"
+        className="relative w-full overflow-x-auto mx-auto px-4 hidden md:block"
       >
         {/* HEADER FIJO */}
         <div ref={fixedWrapRef} className="fixed z-40" style={{ top: HEADER_OFFSET, display: "none" }}>
@@ -447,7 +605,7 @@ const TableElement = ({
                   <SortableHeader label="Lugar" columnKey="lugar" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
                   <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-                  <th className="px-2 py-2 text-center bg-gray-100">Plataforma anuncio</th>
+                  <SortableHeader label="Plataforma anuncio" columnKey="anuncios" {...{ orderBy, orderDirection, onSort }} />
                   {!isLote && userRole === "admin" && <th className="px-2 py-2 text-center bg-gray-100">Acciones</th>}
                 </tr>
               </thead>
@@ -476,7 +634,7 @@ const TableElement = ({
                 <SortableHeader label="Lugar" columnKey="lugar" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
                 <SortableHeader label="Proveedor" columnKey="proveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
                 <SortableHeader label="Cod. Proveedor" columnKey="codigoProveedor" hiddenOnMobile {...{ orderBy, orderDirection, onSort }} />
-                <th className="px-2 py-2 text-center">Plataforma anuncio</th>
+                <SortableHeader label="Plataforma anuncio" columnKey="anuncios" {...{ orderBy, orderDirection, onSort }} />
                 {!isLote && <th className="px-2 py-2 text-center">Acciones</th>}
               </tr>
             </thead>
@@ -663,33 +821,33 @@ const TableElement = ({
               />
             </tbody>
           </table>
-          {/* Popup flotante en posición de la miniatura */}
-          {fotoSeleccionada && (
-            <div
-              className="fixed z-50"
-              style={{
-                top: popupPos.top,
-                left: popupPos.left,
-                transform: "translate(-50%, -50%)", // centra el popup sobre la miniatura
-              }}
-            >
-              <div className="relative bg-white border rounded-lg shadow-lg p-2">
-                <button
-                  onClick={() => setFotoSeleccionada(null)}
-                  className="absolute -top-2 -right-2 bg-white border rounded-full w-6 h-6 flex items-center justify-center shadow"
-                >
-                  ✕
-                </button>
-                <img
-                  src={fotoSeleccionada}
-                  alt="Foto ampliada"
-                  className="h-40 w-40 object-contain rounded-md"
-                />
-              </div>
-            </div>
-          )}
         </div>
       </div>
+      {/* Popup flotante en posición de la miniatura */}
+      {fotoSeleccionada && (
+        <div
+          className="fixed z-50"
+          style={{
+            top: popupPos.top,
+            left: popupPos.left,
+            transform: "translate(-50%, -50%)", // centra el popup sobre la miniatura
+          }}
+        >
+          <div className="relative bg-white border rounded-lg shadow-lg p-2">
+            <button
+              onClick={() => setFotoSeleccionada(null)}
+              className="absolute -top-2 -right-2 bg-white border rounded-full w-6 h-6 flex items-center justify-center shadow"
+            >
+              ✕
+            </button>
+            <img
+              src={fotoSeleccionada}
+              alt="Foto ampliada"
+              className="h-40 w-40 object-contain rounded-md"
+            />
+          </div>
+        </div>
+      )}
       {vintedProduct && (
         <VintedCopyModal
           product={vintedProduct}

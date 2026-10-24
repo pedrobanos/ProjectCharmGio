@@ -6,15 +6,81 @@ export const PLATFORM_STYLES = {
   Wallapop: { bg: "#13C1AC", text: "#ffffff", letter: "w", light: "#e7f9f6" },
 };
 
-// Temáticas para filtrar anuncios. Se buscan en el nombre, la descripción y el lugar
-// (salen de los expositores temáticos de LugaresDisponibles). Añade aquí las que quieras.
+// Temáticas para filtrar anuncios. Se buscan (como palabras) en el nombre y la descripción
+// del producto. Añade aquí temáticas o palabras nuevas cuando quieras.
 export const TEMATICAS = [
-  { key: "disney", label: "Disney 🐭", words: ["disney"] },
-  { key: "marvel", label: "Marvel", words: ["marvel"] },
-  { key: "princesas", label: "Princesas 👑", words: ["princes"] },
-  { key: "animales", label: "Animales 🐾", words: ["animal"] },
-  { key: "viajes", label: "Viajes ✈️", words: ["viaje"] },
+  {
+    key: "disney",
+    label: "Disney 🐭",
+    words: ["disney", "mickey", "minnie", "stitch", "frozen", "elsa", "olaf", "winnie", "pooh", "dumbo",
+      "bambi", "simba", "nemo", "dory", "toy story", "buzz", "woody", "pluto", "goofy", "donald", "daisy",
+      "lilo", "pinocho", "peter pan", "campanilla", "aladdin", "genio", "marie", "aristogatos"],
+  },
+  {
+    key: "marvel",
+    label: "Marvel 🦸",
+    words: ["marvel", "spiderman", "spider", "araña", "iron man", "ironman", "hulk", "thor", "capitan america",
+      "avengers", "vengadores", "venom", "deadpool", "groot", "loki", "thanos", "black panther", "viuda negra",
+      "batman", "superman", "wonder woman"],
+  },
+  {
+    key: "princesas",
+    label: "Princesas 👑",
+    words: ["princes", "ariel", "sirenita", "bella", "cenicienta", "rapunzel", "blancanieves", "jasmine",
+      "aurora", "mulan", "moana", "vaiana", "tiana", "corona", "tiara"],
+  },
+  {
+    key: "animales",
+    label: "Animales 🐾",
+    words: ["animal", "perro", "perrito", "gato", "gatito", "huella", "pata", "mariposa", "pajaro", "buho",
+      "caballo", "oso", "conejo", "elefante", "delfin", "tortuga", "pez", "leon", "tigre", "unicornio",
+      "panda", "zorro", "abeja", "mariquita", "pinguino", "ballena", "koala"],
+  },
+  {
+    key: "viajes",
+    label: "Viajes ✈️",
+    words: ["viaje", "avion", "maleta", "torre eiffel", "eiffel", "paris", "londres", "london", "nueva york",
+      "new york", "roma", "globo", "brujula", "mapa", "barco", "tren", "playa", "mundo", "bandera"],
+  },
+  {
+    key: "amor",
+    label: "Amor ❤️",
+    words: ["corazon", "amor", "love", "beso", "infinito", "san valentin", "pareja"],
+  },
+  {
+    key: "letras",
+    label: "Letras 🔤",
+    words: ["letra", "inicial", "numero", "abecedario"],
+  },
+  {
+    key: "familia",
+    label: "Familia 👨‍👩‍👧",
+    words: ["mama", "papa", "madre", "padre", "abuela", "abuelo", "hermana", "hermano", "hija", "hijo",
+      "familia", "bebe", "amiga", "amigas"],
+  },
+  {
+    key: "navidad",
+    label: "Navidad 🎄",
+    words: ["navidad", "papa noel", "reno", "arbol de navidad", "copo", "nieve", "regalo", "muñeco de nieve"],
+  },
+  {
+    key: "magia",
+    label: "Magia ✨",
+    words: ["harry potter", "hogwarts", "varita", "estrella", "luna", "sol", "magia", "hada", "trebol",
+      "suerte", "angel", "ala"],
+  },
 ];
+
+// ¿El texto (ya normalizado: minúsculas y sin tildes) contiene la palabra?
+// Palabras cortas (≤ 4 letras) deben ir completas ("sol" no encaja en "solitario");
+// las largas valen como inicio de palabra ("princes" → "princesa", "animal" → "animales").
+const escapeRe = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+export const textHasWord = (normalizedText, normalizedWord) => {
+  if (!normalizedWord) return false;
+  const w = escapeRe(normalizedWord);
+  const end = normalizedWord.length <= 4 ? "(?:s|es)?(?![a-z0-9])" : "";
+  return new RegExp(`(?:^|[^a-z0-9])${w}${end}`).test(normalizedText);
+};
 
 // Copia texto al portapapeles. Usa la API moderna y, si no está disponible
 // (p. ej. abriendo la app por http en la red local), un textarea oculto.

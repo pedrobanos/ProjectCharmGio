@@ -267,6 +267,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getProductById, updateProduct } from "../services/productServices";
 import { LugaresDisponibles } from "../Constants";
 import Loading from "../components/Loading";
+import PageHeader from "../components/PageHeader";
 
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -304,9 +305,24 @@ const AlertIcon = ({ className = "" }) => (
   </svg>
 );
 
+const FIELD_ICONS = {
+    Nombre: "fa-tag",
+    Cantidad: "fa-boxes-stacked",
+    Precio: "fa-euro-sign",
+    Proveedor: "fa-truck",
+    "Código proveedor": "fa-barcode",
+    Lugar: "fa-location-dot",
+    "Posición exacta": "fa-crosshairs",
+    Descripción: "fa-align-left",
+    Enlace: "fa-link",
+};
+
 const Field = ({ label, hint, error, children, className = "" }) => (
   <label className={`block ${className}`}>
-    <span className={labelBase}>{label}</span>
+    <span className={labelBase}>
+        {FIELD_ICONS[label] && <i className={`fa-solid ${FIELD_ICONS[label]} mr-1.5 text-slate-400`}></i>}
+        {label}
+    </span>
     {children}
     {error ? (
       <span
@@ -521,13 +537,14 @@ const EditProduct = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-10">
+    <div className="px-1 sm:px-2 pb-10">
       <div className="mx-auto max-w-5xl">
-        <header className="mb-8">
-          <h1 className="text-5xl text-center font-bold mb-8 mt-8 text-blue-500">
-            Editar producto
-          </h1>
-        </header>
+        <PageHeader
+          icon="fa-solid fa-pen-to-square"
+          tone="blue"
+          title="Editar producto"
+          subtitle="Cambia los datos, la foto o la ubicación del charm"
+        />
 
         {formError && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -545,7 +562,7 @@ const EditProduct = () => {
             {/* ── Columna izquierda: foto + resumen ── */}
             <aside className="lg:sticky lg:top-8">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <span className={labelBase}>Foto</span>
+                <span className={labelBase}><i className="fa-solid fa-camera mr-1.5 text-slate-400"></i>Foto</span>
 
                 <div
                   onDragOver={(e) => {
@@ -645,7 +662,7 @@ const EditProduct = () => {
 
               {/* Resumen en vivo */}
               <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <span className={labelBase}>Así se guardará</span>
+                <span className={labelBase}><i className="fa-solid fa-eye mr-1.5 text-slate-400"></i>Así se guardará</span>
                 <p className="text-base font-semibold text-slate-900">
                   {nombre.trim() || (
                     <span className="font-normal text-slate-300">Sin nombre</span>
@@ -678,7 +695,8 @@ const EditProduct = () => {
             {/* ── Columna derecha: datos ── */}
             <div className="space-y-6">
               <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h2 className="mb-5 text-sm font-semibold text-slate-900">
+                <h2 className="mb-5 text-sm font-semibold text-slate-900 flex items-center gap-2">
+                  <i className="fa-solid fa-gem text-blue-600"></i>
                   Datos del producto
                 </h2>
 
@@ -764,7 +782,8 @@ const EditProduct = () => {
               </section>
 
               <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h2 className="mb-5 text-sm font-semibold text-slate-900">
+                <h2 className="mb-5 text-sm font-semibold text-slate-900 flex items-center gap-2">
+                  <i className="fa-solid fa-warehouse text-blue-600"></i>
                   Ubicación en el almacén
                 </h2>
 
@@ -827,7 +846,8 @@ const EditProduct = () => {
             {/* ── Ancho completo bajo las dos columnas ── */}
             <div className="space-y-6 lg:col-span-2">
               <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h2 className="mb-5 text-sm font-semibold text-slate-900">
+                <h2 className="mb-5 text-sm font-semibold text-slate-900 flex items-center gap-2">
+                  <i className="fa-solid fa-circle-info text-blue-600"></i>
                   Detalles adicionales
                 </h2>
 
@@ -876,6 +896,7 @@ const EditProduct = () => {
                   onClick={() => navigate(-1)}
                   className="rounded-xl border border-slate-200 cursor-pointer bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
                 >
+                  <i className="fa-solid fa-xmark mr-2"></i>
                   Cancelar
                 </button>
                 <button
@@ -883,6 +904,7 @@ const EditProduct = () => {
                   disabled={saving}
                   className="rounded-xl bg-blue-600 cursor-pointer px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/25 disabled:cursor-not-allowed disabled:opacity-60"
                 >
+                  <i className={saving ? "fa-solid fa-spinner fa-spin mr-2" : "fa-solid fa-floppy-disk mr-2"}></i>
                   {saving ? "Guardando…" : "Guardar cambios"}
                 </button>
               </div>

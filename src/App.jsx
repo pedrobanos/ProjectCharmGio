@@ -65,7 +65,7 @@ function AppContent() {
         )}
 
         {/* Contenido principal */}
-        <div className="flex-grow p-4 overflow-auto">
+        <div className={`flex-grow min-w-0 overflow-auto ${!hideNavBar && user ? "p-3 sm:p-4 md:pl-20" : ""}`}>
           <Routes>
             <Route path="/" element={user ? <Navigate to="/products" replace /> : <Navigate to="/login" replace />} />
             <Route path="/login" element={user ? <Navigate to="/products" replace /> : <LoginFixed onLoginSuccess={handleLogin} />} />

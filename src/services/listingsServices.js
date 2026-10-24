@@ -16,7 +16,7 @@ export const normalizePlatform = (value) => {
 export const accountLabel = (account) =>
   account?.username?.trim() || account?.mail?.trim() || `Cuenta ${account?.id ?? "?"}`;
 
-const isBlocked = (account) => {
+export const isBlocked = (account) => {
   const b = account?.blocked_at;
   return b !== null && b !== undefined && String(b).trim() !== "" && b !== false;
 };
@@ -101,6 +101,18 @@ export const updateListingStatus = async (id, estado, saleId = null) => {
     .single();
   if (error) throw error;
   return data;
+};
+
+// Retira todos los anuncios activos de una cuenta (p. ej. al bloquearla). Devuelve cuántos.
+export const retireListingsByAccount = async (accountId) => {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .update({ estado: "retirado", cerrado_at: new Date().toISOString() })
+    .eq("account_id", accountId)
+    .eq("estado", "activo")
+    .select("id");
+  if (error) throw error;
+  return (data || []).length;
 };
 
 // Agrupa anuncios activos por producto, con la cuenta ya resuelta:

@@ -6,37 +6,39 @@ import {
   deleteIpadAccount,
 } from "../services/accountsServices";
 
-const EditableCell = ({ value, onChange }) => {
-  const [isEditing, setIsEditing] = useState(false);
+// Campo que se edita directamente y se guarda al salir de él
+const EditableCell = ({ value, onChange, placeholder, icon }) => {
   const [tempValue, setTempValue] = useState(value ?? "");
 
-  const startEdit = () => {
-    setTempValue(value ?? "");
-    setIsEditing(true);
-  };
+  useEffect(() => setTempValue(value ?? ""), [value]);
 
   const save = () => {
-    setIsEditing(false);
     if (tempValue !== (value ?? "")) onChange(tempValue === "" ? null : tempValue);
   };
 
-  return isEditing ? (
-    <input
-      type="text"
-      autoFocus
-      className="border rounded px-2 py-1.5 text-sm w-full"
-      value={tempValue}
-      onChange={(e) => setTempValue(e.target.value)}
-      onBlur={save}
-      onKeyDown={(e) => {
-        if (e.key === "Enter") save();
-        else if (e.key === "Escape") setIsEditing(false);
-      }}
-    />
-  ) : (
-    <span onDoubleClick={startEdit} className="cursor-pointer block py-1">
-      {value || "—"}
-    </span>
+  return (
+    <div className="relative">
+      {icon && (
+        <i className={`${icon} absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-300 text-xs`}></i>
+      )}
+      <input
+        type="text"
+        className={`w-full rounded-lg border border-transparent bg-transparent py-1.5 pr-2 text-sm hover:border-gray-200 focus:border-purple-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 ${
+          icon ? "pl-7" : "pl-2"
+        }`}
+        value={tempValue}
+        placeholder={placeholder}
+        onChange={(e) => setTempValue(e.target.value)}
+        onBlur={save}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+          else if (e.key === "Escape") {
+            setTempValue(value ?? "");
+            e.currentTarget.blur();
+          }
+        }}
+      />
+    </div>
   );
 };
 
@@ -91,62 +93,83 @@ const IpadAccountsPanel = () => {
   };
 
   return (
-    <div className="mt-10">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-xl font-bold text-gray-800">
-          <i className="fa-solid fa-tablet-screen-button mr-2 text-gray-400"></i>
-          Multicuentas iPad
-        </h2>
+    <section className="mt-10 bg-white rounded-2xl border border-gray-200 shadow-sm p-4 sm:p-5 max-w-3xl min-w-0">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3">
+          <span className="w-10 h-10 rounded-xl bg-gray-800 text-white flex items-center justify-center">
+            <i className="fa-solid fa-tablet-screen-button"></i>
+          </span>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Multicuentas iPad</h2>
+            <p className="text-xs text-gray-500">Perfiles abiertos en el iPad · toca un campo para editarlo</p>
+          </div>
+        </div>
         <button
           type="button"
           onClick={handleAdd}
-          className="flex items-center gap-2 text-sm font-semibold bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 cursor-pointer"
+          className="flex items-center gap-2 text-sm font-semibold bg-gray-900 text-white px-4 py-2 rounded-xl hover:bg-gray-800"
         >
           <i className="fa-solid fa-plus"></i> Añadir perfil
         </button>
       </div>
 
-      {error && <p className="text-red-500 mb-3 text-sm">{error}</p>}
+      {error && (
+        <p className="text-red-600 mb-3 text-sm flex items-center gap-2">
+          <i className="fa-solid fa-circle-exclamation"></i>
+          {error}
+        </p>
+      )}
 
-      <div className="w-full overflow-auto rounded-xl border border-gray-200 shadow-sm max-w-2xl">
+      <div className="w-full overflow-auto rounded-xl border border-gray-200">
         <table className="w-full border-collapse text-sm">
-          <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
+          <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
             <tr>
-              <th className="px-3 py-3 text-center">Perfil</th>
-              <th className="px-3 py-3 text-center">Usuario</th>
-              <th className="px-3 py-3 text-center w-24">Acciones</th>
+              <th className="px-3 py-2.5 text-left">
+                <i className="fa-solid fa-id-badge mr-1.5 text-gray-400"></i>Perfil
+              </th>
+              <th className="px-3 py-2.5 text-left">
+                <i className="fa-solid fa-at mr-1.5 text-gray-400"></i>Usuario
+              </th>
+              <th className="px-3 py-2.5 text-center w-20">
+                <i className="fa-solid fa-gear text-gray-400"></i>
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 text-gray-800 text-center">
+          <tbody className="divide-y divide-gray-100 text-gray-800">
             {rows.map((row) => (
               <tr key={row.id} className="hover:bg-gray-50">
                 <td className="px-3 py-1">
                   <EditableCell
                     value={row.profile_name}
+                    placeholder="Nombre del perfil"
+                    icon="fa-solid fa-id-badge"
                     onChange={(val) => handleEdit(row.id, "profile_name", val)}
                   />
                 </td>
                 <td className="px-3 py-1">
                   <EditableCell
                     value={row.username}
+                    placeholder="Usuario"
+                    icon="fa-solid fa-at"
                     onChange={(val) => handleEdit(row.id, "username", val)}
                   />
                 </td>
-                <td className="px-3 py-1">
+                <td className="px-3 py-1 text-center">
                   <button
                     type="button"
                     onClick={() => setToDelete(row)}
-                    className="text-red-500 hover:text-red-600 cursor-pointer"
+                    className="w-8 h-8 rounded-lg text-red-500 hover:bg-red-50"
                     title="Eliminar perfil"
                   >
-                    <i className="fa-solid fa-trash text-lg"></i>
+                    <i className="fa-solid fa-trash"></i>
                   </button>
                 </td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={3} className="px-4 py-8 text-gray-400">
+                <td colSpan={3} className="px-4 py-8 text-gray-400 text-center">
+                  <i className="fa-solid fa-tablet-screen-button mr-2"></i>
                   No hay perfiles todavía.
                 </td>
               </tr>
@@ -176,23 +199,25 @@ const IpadAccountsPanel = () => {
               <button
                 type="button"
                 onClick={() => setToDelete(null)}
-                className="rounded-lg border border-gray-200 bg-white px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 cursor-pointer"
+                className="rounded-lg border border-gray-200 bg-white px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 flex items-center gap-2"
               >
+                <i className="fa-solid fa-xmark"></i>
                 Cancelar
               </button>
               <button
                 type="button"
                 autoFocus
                 onClick={handleDelete}
-                className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700 cursor-pointer"
+                className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700 flex items-center gap-2"
               >
+                <i className="fa-solid fa-trash"></i>
                 Eliminar
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 

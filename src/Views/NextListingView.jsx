@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Loading from "../components/Loading";
+import PageHeader from "../components/PageHeader";
 import ListingCopyFields from "../components/ListingCopyFields";
 import PlatformIcon, { AccountBadge } from "../components/PlatformIcon";
-import { PLATFORM_STYLES, TEMATICAS } from "../utils/listingUtils";
+import { PLATFORM_STYLES, TEMATICAS, textHasWord } from "../utils/listingUtils";
 import { LugaresDisponibles, normalizeString } from "../Constants";
 import {
   accountLabel,
@@ -52,11 +53,27 @@ const saveAccount = (id) => {
   }
 };
 
-// Texto en el que se busca (sin tildes y en minúsculas)
-const haystackOf = (p) =>
-  normalizeString(
-    [p.nombre, p.descripcion, p.lugar, p.proveedor, p.codigoProveedor].filter(Boolean).join(" ")
-  );
+// Lugar "base" (sin la posición): "Caja Beige 3" → "Caja Beige"
+const LUGARES_NORM = LugaresDisponibles.map((l) => [l, normalizeString(l).trim()]).sort(
+  (a, b) => b[1].length - a[1].length
+);
+const lugarBaseOf = (lugar) => {
+  const raw = String(lugar || "").trim();
+  if (!raw) return "Sin lugar";
+  const n = normalizeString(raw);
+  const known = LUGARES_NORM.find(([, ln]) => n.startsWith(ln));
+  if (known) return known[0];
+  const parts = raw.split(/\s+/);
+  if (parts.length > 1 && parts[parts.length - 1].length <= 3) parts.pop();
+  return parts.join(" ");
+};
+
+// Texto de las temáticas: nombre y descripción (el lugar tiene su propio filtro)
+const temaTextOf = (p) => normalizeString([p.nombre, p.descripcion].filter(Boolean).join(" "));
+const matchesTema = (p, t) => {
+  const text = temaTextOf(p);
+  return t.words.some((w) => textHasWord(text, normalizeString(w)));
+};
 
 /**
  * /anuncios            → usa la última cuenta elegida a mano en este dispositivo
@@ -73,6 +90,7 @@ const NextListingView = () => {
   const lugar = searchParams.get("lugar") || "";
   const tema = searchParams.get("tema") || "";
   const prov = searchParams.get("prov") || "";
+  const est = searchParams.get("est") || ""; // "nuevo" (en ninguna cuenta) | "otra" (ya en otra cuenta)
 
   const [accounts, setAccounts] = useState([]);
   const [account, setAccount] = useState(null);
@@ -82,7 +100,7 @@ const NextListingView = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(null); // último publicado
-  const [showFilters, setShowFilters] = useState(() => Boolean(q || lugar || tema || prov));
+  const [showFilters, setShowFilters] = useState(() => Boolean(q || lugar || tema || prov || est));
 
   // Cambia un parámetro de la URL sin perder los demás
   const setParam = useCallback(
@@ -139,34 +157,90 @@ const NextListingView = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cuentaParam, loadPending]);
 
-  // Proveedores que aparecen en los pendientes
-  const proveedores = useMemo(
-    () =>
-      [...new Set(pending.map((p) => p.proveedor?.trim()).filter(Boolean))].sort((a, b) =>
-        a.localeCompare(b, "es")
-      ),
+  // Texto en el que busca el buscador: TODOS los campos del producto
+  // (nombre, descripción, lugar, proveedor, código, precio, stock, id y cuentas donde ya está)
+  const haystackOf = useCallback(
+    (p) => {
+      const cuentas = (p.listedAccountIds || [])
+        .map((id) => accounts.find((a) => String(a.id) === String(id)))
+        .filter(Boolean)
+        .map((a) => `${a.username || ""} ${a.mail || ""} ${a.platform || ""}`);
+      const precio = p.precio != null ? `${p.precio} ${String(p.precio).replace(".", ",")}` : "";
+      return normalizeString(
+        [
+          p.nombre,
+          p.descripcion,
+          p.lugar,
+          lugarBaseOf(p.lugar),
+          p.proveedor,
+          p.codigoProveedor,
+          precio,
+          p.cantidad != null ? `${p.cantidad} uds unidades` : "",
+          `#${p.id} ${p.id}`,
+          ...cuentas,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      );
+    },
+    [accounts]
+  );
+
+  // Filtros sacados de los productos pendientes reales, con cuántos hay de cada
+  const lugaresOpts = useMemo(() => {
+    const m = new Map();
+    for (const p of pending) {
+      const b = lugarBaseOf(p.lugar);
+      m.set(b, (m.get(b) || 0) + 1);
+    }
+    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "es"));
+  }, [pending]);
+
+  const temaCounts = useMemo(() => {
+    const c = {};
+    for (const t of TEMATICAS) c[t.key] = pending.filter((p) => matchesTema(p, t)).length;
+    return c;
+  }, [pending]);
+
+  const proveedores = useMemo(() => {
+    const m = new Map();
+    for (const p of pending) {
+      const pr = p.proveedor?.trim();
+      if (pr) m.set(pr, (m.get(pr) || 0) + 1);
+    }
+    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "es"));
+  }, [pending]);
+
+  const estadoCounts = useMemo(
+    () => ({
+      nuevo: pending.filter((p) => !(p.listedAccountIds || []).length).length,
+      otra: pending.filter((p) => (p.listedAccountIds || []).length > 0).length,
+    }),
     [pending]
   );
 
   // Aplicar buscador y filtros
   const filtered = useMemo(() => {
-    const terms = normalizeString(q).split(" ").filter(Boolean);
+    const terms = normalizeString(q).split(/\s+/).filter(Boolean);
     const temaDef = TEMATICAS.find((t) => t.key === tema);
-    const lugarNorm = normalizeString(lugar);
     return pending.filter((p) => {
-      const hay = haystackOf(p);
-      if (terms.length && !terms.every((t) => hay.includes(t))) return false;
-      if (lugarNorm && !normalizeString(p.lugar).startsWith(lugarNorm)) return false;
-      if (temaDef && !temaDef.words.some((w) => hay.includes(normalizeString(w)))) return false;
+      if (terms.length) {
+        const hay = haystackOf(p);
+        if (!terms.every((t) => hay.includes(t))) return false;
+      }
+      if (lugar && lugarBaseOf(p.lugar) !== lugar) return false;
+      if (temaDef && !matchesTema(p, temaDef)) return false;
       if (prov && (p.proveedor?.trim() || "") !== prov) return false;
+      if (est === "nuevo" && (p.listedAccountIds || []).length) return false;
+      if (est === "otra" && !(p.listedAccountIds || []).length) return false;
       return true;
     });
-  }, [pending, q, lugar, tema, prov]);
+  }, [pending, q, lugar, tema, prov, est, haystackOf]);
 
   const product =
     filtered.find((p) => String(p.id) === String(selectedId)) || filtered[0] || null;
   const isMobile = () => typeof window !== "undefined" && window.innerWidth < 768;
-  const activeFilters = [q, lugar, tema, prov].filter(Boolean).length;
+  const activeFilters = [q, lugar, tema, prov, est].filter(Boolean).length;
 
   const refresh = async () => {
     setLoading(true);
@@ -219,7 +293,7 @@ const NextListingView = () => {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
-        ["q", "lugar", "tema", "prov"].forEach((k) => next.delete(k));
+        ["q", "lugar", "tema", "prov", "est"].forEach((k) => next.delete(k));
         return next;
       },
       { replace: true }
@@ -278,7 +352,7 @@ const NextListingView = () => {
           type="search"
           value={q}
           onChange={(e) => setParam("q", e.target.value)}
-          placeholder="Buscar por nombre, descripción, código..."
+          placeholder="Buscar en todo: nombre, código, precio, lugar…"
           className="border border-gray-300 rounded-md py-2 pl-9 pr-3 w-full text-base bg-white"
         />
       </div>
@@ -316,48 +390,85 @@ const NextListingView = () => {
           } md:flex mt-2 flex-col gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3`}
         >
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Lugar</label>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              <i className="fa-solid fa-circle-half-stroke mr-1.5 text-gray-400"></i>Estado
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                ["", "Todos", pending.length],
+                ["nuevo", "Sin anunciar", estadoCounts.nuevo],
+                ["otra", "Ya en otra cuenta", estadoCounts.otra],
+              ].map(([v, label, n]) => (
+                <button
+                  key={v || "todos"}
+                  type="button"
+                  onClick={() => setParam("est", v)}
+                  className={`px-3 py-1.5 rounded-full text-sm border ${
+                    est === v
+                      ? "bg-gray-800 text-white border-gray-800"
+                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                  }`}
+                >
+                  {label} <span className="opacity-60">({n})</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              <i className="fa-solid fa-location-dot mr-1.5 text-gray-400"></i>Lugar
+            </label>
             <select value={lugar} onChange={(e) => setParam("lugar", e.target.value)} className={selectClass}>
-              <option value="">Todos</option>
-              {LugaresDisponibles.map((l) => (
+              <option value="">Todos ({pending.length})</option>
+              {lugaresOpts.map(([l, n]) => (
                 <option key={l} value={l}>
-                  {l}
+                  {l} ({n})
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Temática</label>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              <i className="fa-solid fa-tags mr-1.5 text-gray-400"></i>Temática
+            </label>
             <div className="flex flex-wrap gap-1.5">
               {TEMATICAS.map((t) => {
                 const active = tema === t.key;
+                const n = temaCounts[t.key] || 0;
+                if (!n && !active) return null; // solo las que tienen productos
                 return (
                   <button
                     key={t.key}
                     type="button"
                     onClick={() => setParam("tema", active ? "" : t.key)}
-                    className={`px-3 py-1.5 rounded-full text-sm border cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-full text-sm border ${
                       active
                         ? "bg-gray-800 text-white border-gray-800"
                         : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
                     }`}
                   >
-                    {t.label}
+                    {t.label} <span className="opacity-60">({n})</span>
                   </button>
                 );
               })}
+              {TEMATICAS.every((t) => !temaCounts[t.key]) && (
+                <span className="text-xs text-gray-400">Ninguna temática encontrada en los pendientes.</span>
+              )}
             </div>
           </div>
 
           {proveedores.length > 0 && (
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Proveedor</label>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">
+                <i className="fa-solid fa-truck mr-1.5 text-gray-400"></i>Proveedor
+              </label>
               <select value={prov} onChange={(e) => setParam("prov", e.target.value)} className={selectClass}>
-                <option value="">Todos</option>
-                {proveedores.map((p) => (
+                <option value="">Todos ({pending.length})</option>
+                {proveedores.map(([p, n]) => (
                   <option key={p} value={p}>
-                    {p}
+                    {p} ({n})
                   </option>
                 ))}
               </select>
@@ -523,12 +634,20 @@ const NextListingView = () => {
   // Escritorio (lg): 3 columnas → cuenta y filtros · lista · producto fijo
 
   return (
-    <div className="w-full max-w-lg md:max-w-5xl lg:max-w-7xl mx-auto mt-16 mb-10 px-1 md:pl-16 md:pr-2">
-      <h1 className="text-3xl md:text-4xl font-bold text-center mb-4 md:mb-6 flex items-center justify-center gap-2">
-        Siguiente anuncio
-        <PlatformIcon platform="Vinted" size={24} />
-        <PlatformIcon platform="Wallapop" size={24} />
-      </h1>
+    <div className="w-full max-w-lg md:max-w-5xl lg:max-w-7xl mx-auto mt-12 mb-10 px-1">
+      <PageHeader
+        icon="fa-solid fa-bullhorn"
+        tone="teal"
+        title="Siguiente anuncio"
+        extra={
+          <span className="inline-flex items-center gap-1">
+            <PlatformIcon platform="Vinted" size={24} />
+            <PlatformIcon platform="Wallapop" size={24} />
+          </span>
+        }
+        subtitle="Copia los datos, publícalo en la app y márcalo como publicado"
+        className="mt-0"
+      />
 
       <div className="md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 md:items-start">
         {/* Columna de controles */}

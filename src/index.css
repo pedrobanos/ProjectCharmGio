@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+/* Ajustes base para toda la app */
+@layer base {
+  /* Tailwind 4 pinta los bordes con el color del texto (negro); los dejamos en gris suave */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+
+  /* Que todos los botones muestren la manita */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  body {
+    background-color: var(--color-slate-50);
+    color: var(--color-gray-800);
+    -webkit-font-smoothing: antialiased;
+  }
+}

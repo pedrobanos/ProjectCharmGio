@@ -106,10 +106,13 @@ export default function VentaLoteModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[95vh] overflow-y-auto">
-        <h2 className="text-4xl text-center font-semibold mb-4">
-          Lote de Productos
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md mx-4 max-h-[95vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-4 flex items-center gap-3 text-gray-900">
+          <span className="w-10 h-10 rounded-xl bg-green-700 text-white flex items-center justify-center text-lg">
+            <i className="fa-solid fa-layer-group"></i>
+          </span>
+          Lote de productos
         </h2>
         {/* Lista de productos */}
         <ul className="divide-y divide-gray-200">
@@ -208,7 +211,7 @@ export default function VentaLoteModal({
         <div className="flex flex-col gap-4 mb-4 mt-6">
           {/* Select Cliente */}
           <div className="w-full">
-            <label className="block text-sm font-medium mb-1">Cliente</label>
+            <label className="block text-sm font-medium mb-1"><i className="fa-solid fa-user mr-1.5 text-gray-400"></i>Cliente</label>
             <select
               value={selectedPerson}
               onChange={(e) => setSelectedPerson(e.target.value)}
@@ -226,7 +229,7 @@ export default function VentaLoteModal({
               {/* Nombre del cliente */}
               <div className="flex-1">
                 <label className="block text-sm font-medium mb-1">
-                  Nombre Cliente
+                  <i className="fa-solid fa-id-card mr-1.5 text-gray-400"></i>Nombre cliente
                 </label>
                 <input
                   type="text"
@@ -245,7 +248,7 @@ export default function VentaLoteModal({
               {/* Total del lote */}
               <div className="w-full sm:w-1/3">
                 <label className="block text-sm font-medium mb-1">
-                  Total Lote (€)
+                  <i className="fa-solid fa-euro-sign mr-1.5 text-gray-400"></i>Total lote (€)
                 </label>
                 <input
                   type="text"

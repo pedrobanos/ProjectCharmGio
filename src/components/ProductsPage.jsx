@@ -13,6 +13,8 @@ import { normalizeString } from "../Constants";
 import { SaleConfirmedModal } from "./SaleConfirmedModal";
 import VentaIndividualModal from "./VentaIndivualModal";
 import VentaLoteModal from "./VentaLoteModal";
+import PageHeader from "./PageHeader";
+import PlatformIcon from "./PlatformIcon";
 import {
     getListingAccounts,
     getActiveListings,
@@ -52,6 +54,8 @@ const ProductsPage = ({ userRole }) => {
     const [listingAccounts, setListingAccounts] = useState([]);
     const [activeListings, setActiveListings] = useState([]);
     const [selectedListingId, setSelectedListingId] = useState("");
+    // Filtro por anuncios: "todos" | "anunciados" | "sin" | "Vinted" | "Wallapop" | "acc:<id>"
+    const [listingFilter, setListingFilter] = useState("todos");
     const [soldListing, setSoldListing] = useState(null);
     const [listingsToReview, setListingsToReview] = useState([]);
 
@@ -151,7 +155,8 @@ const ProductsPage = ({ userRole }) => {
             setOrderDirection(orderDirection === "asc" ? "desc" : "asc");
         } else {
             setOrderBy(columnKey);
-            setOrderDirection("asc");
+            // "Plataforma anuncio": la primera vez, los anunciados arriba
+            setOrderDirection(columnKey === "anuncios" ? "desc" : "asc");
         }
     };
 
@@ -161,13 +166,46 @@ const ProductsPage = ({ userRole }) => {
         if (term) {
             const terms = term.split(" ").filter(Boolean);
             filtered = products.filter((p) => {
+                const cuentas = (listingsByProduct[String(p.id)] || [])
+                    .map((l) => `${l.account.username || ""} ${l.account.platform || ""}`)
+                    .join(" ");
                 const haystack = `${p.nombreLower || ""} ${p.lugarLower || ""} ${p.codigoProveedorLower || ""
-                    } ${p.descripcionLower || ""}`;
+                    } ${p.descripcionLower || ""} ${p.proveedor || ""} ${cuentas}`;
                 const normalizedHaystack = normalizeString(haystack);
                 return terms.every((t) => normalizedHaystack.includes(t));
             });
         }
+        if (listingFilter !== "todos") {
+            filtered = filtered.filter((p) => {
+                const pl = listingsByProduct[String(p.id)] || [];
+                if (listingFilter === "anunciados") return pl.length > 0;
+                if (listingFilter === "sin") return pl.length === 0;
+                if (listingFilter.startsWith("acc:")) {
+                    const id = listingFilter.slice(4);
+                    return pl.some((l) => String(l.account_id) === id);
+                }
+                return pl.some((l) => l.account.platform === listingFilter);
+            });
+        }
         if (!orderBy) return filtered;
+        if (orderBy === "anuncios") {
+            // Ordena por nº de anuncios activos; a igualdad, por plataforma/cuenta y nombre
+            const info = (p) => {
+                const pl = listingsByProduct[String(p.id)] || [];
+                const first = pl
+                    .map((l) => `${l.account.platform} ${l.account.username || ""}`.toLowerCase())
+                    .sort()[0] || "";
+                return { n: pl.length, first };
+            };
+            const dir = orderDirection === "asc" ? 1 : -1;
+            return [...filtered].sort((a, b) => {
+                const ia = info(a);
+                const ib = info(b);
+                if (ia.n !== ib.n) return (ia.n - ib.n) * dir;
+                if (ia.first !== ib.first) return ia.first.localeCompare(ib.first, "es");
+                return String(a.nombre || "").localeCompare(String(b.nombre || ""), "es");
+            });
+        }
         return [...filtered].sort((a, b) => {
             let valA = a[orderBy];
             let valB = b[orderBy];
@@ -184,7 +222,25 @@ const ProductsPage = ({ userRole }) => {
             if (valA > valB) return orderDirection === "asc" ? 1 : -1;
             return 0;
         });
-    }, [products, searchTerm, orderBy, orderDirection]);
+    }, [products, searchTerm, orderBy, orderDirection, listingFilter, listingsByProduct]);
+
+    // Contadores para los filtros de anuncios
+    const listingCounts = useMemo(() => {
+        const c = { todos: products.length, anunciados: 0, sin: 0, Vinted: 0, Wallapop: 0 };
+        for (const p of products) {
+            const pl = listingsByProduct[String(p.id)] || [];
+            if (pl.length) c.anunciados += 1;
+            else c.sin += 1;
+            if (pl.some((l) => l.account.platform === "Vinted")) c.Vinted += 1;
+            if (pl.some((l) => l.account.platform === "Wallapop")) c.Wallapop += 1;
+        }
+        return c;
+    }, [products, listingsByProduct]);
+
+    const changeListingFilter = (value) => {
+        setListingFilter(value);
+        setCurrentPage(1);
+    };
 
     const handleEditCell = async (id, field, newValue) => {
         try {
@@ -392,15 +448,19 @@ const ProductsPage = ({ userRole }) => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center gap-4 mx-6 px-6 w-full mt-10">
+        <div className="flex flex-col items-center justify-center gap-4 w-full">
             {loading ? (
                 <Loading />
             ) : (
                 <>
-                    <h1 className="text-5xl text-center font-bold mb-4 mt-8 text-blue-500">
-                        Productos de la tienda <span className="mx-4">💍</span>
-                    </h1>
-                    <div className="w-3/4  mx-auto mb-4 flex flex-col gap-2">
+                    <PageHeader
+                        icon="fa-solid fa-gem"
+                        tone="red"
+                        title="Productos de la tienda"
+                        subtitle={`${products.length} productos · ${listingCounts.anunciados} anunciados`}
+                        className="max-w-7xl px-1 mb-2"
+                    />
+                    <div className="w-full max-w-5xl mx-auto mb-2 flex flex-col gap-3">
                         <div className="flex items-center gap-3 w-full">
                             <SearchBar
                                 onSearch={setSearchTerm}
@@ -454,6 +514,58 @@ const ProductsPage = ({ userRole }) => {
                             >
                                 <i className="fa-solid fa-plus text-white"></i>
                             </Link>}
+                        </div>
+
+                        {/* 📣 Filtro por anuncios */}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-xs font-semibold text-gray-500 mr-1 flex items-center gap-1.5">
+                                <i className="fa-solid fa-bullhorn"></i>
+                                Anuncios:
+                            </span>
+                            {[
+                                ["todos", "Todos", <i key="i" className="fa-solid fa-layer-group"></i>],
+                                ["anunciados", "Anunciados", <i key="i" className="fa-solid fa-circle-check text-teal-600"></i>],
+                                ["sin", "Sin anunciar", <i key="i" className="fa-regular fa-circle text-gray-400"></i>],
+                                ["Vinted", "Vinted", <PlatformIcon key="i" platform="Vinted" size={15} />],
+                                ["Wallapop", "Wallapop", <PlatformIcon key="i" platform="Wallapop" size={15} />],
+                            ].map(([key, label, icon]) => {
+                                const active = listingFilter === key;
+                                return (
+                                    <button
+                                        key={key}
+                                        type="button"
+                                        onClick={() => changeListingFilter(key)}
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition ${
+                                            active
+                                                ? "bg-gray-900 text-white border-gray-900"
+                                                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                                        }`}
+                                    >
+                                        {icon}
+                                        {label}
+                                        <span className={`text-xs rounded-full px-1.5 ${active ? "bg-white/20" : "bg-gray-100 text-gray-500"}`}>
+                                            {listingCounts[key]}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                            {listingAccounts.length > 0 && (
+                                <select
+                                    value={listingFilter.startsWith("acc:") ? listingFilter : ""}
+                                    onChange={(e) => changeListingFilter(e.target.value || "todos")}
+                                    className={`rounded-full border px-3 py-1.5 text-sm bg-white ${
+                                        listingFilter.startsWith("acc:") ? "border-gray-900" : "border-gray-200"
+                                    }`}
+                                    title="Ver los anunciados en una cuenta"
+                                >
+                                    <option value="">👤 Por cuenta…</option>
+                                    {listingAccounts.map((a) => (
+                                        <option key={a.id} value={`acc:${a.id}`}>
+                                            {a.platform} · {a.username || a.mail || `Cuenta ${a.id}`}
+                                        </option>
+                                    ))}
+                                </select>
+                            )}
                         </div>
                     </div>
                     {/* 📋 Tabla */}

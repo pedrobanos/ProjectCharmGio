@@ -93,10 +93,13 @@ export default function VentaIndividualModal({
   if (!isOpen || !selectedProduct) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[95vh] overflow-y-auto">
-        <h2 className="text-4xl text-center font-semibold mb-4">
-          Venta Individual
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-sm mx-4 max-h-[95vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-4 flex items-center gap-3 text-gray-900">
+          <span className="w-10 h-10 rounded-xl bg-yellow-500 text-white flex items-center justify-center text-lg">
+            <i className="fa-solid fa-cart-plus"></i>
+          </span>
+          Venta individual
         </h2>
 
         {/* Info producto */}
@@ -125,7 +128,7 @@ export default function VentaIndividualModal({
         {productListings.length > 0 && (
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">
-              ¿Desde qué anuncio se ha vendido?
+              <i className="fa-solid fa-bullhorn mr-1.5 text-gray-400"></i>¿Desde qué anuncio se ha vendido?
             </label>
             <div className="flex flex-col gap-1.5">
               {productListings.map((l) => (
@@ -165,7 +168,7 @@ export default function VentaIndividualModal({
 
         {/* Cantidad */}
         <label className="block text-sm font-medium mb-1">
-          Cantidad a vender
+          <i className="fa-solid fa-boxes-stacked mr-1.5 text-gray-400"></i>Cantidad a vender
         </label>
         <input
           type="number"
@@ -181,7 +184,7 @@ export default function VentaIndividualModal({
         )}
 
         {/* Selector de cliente */}
-        <label className="block text-sm font-medium mb-1">Cliente</label>
+        <label className="block text-sm font-medium mb-1"><i className="fa-solid fa-user mr-1.5 text-gray-400"></i>Cliente</label>
         <select
           value={selectedPerson}
           onChange={(e) => setSelectedPerson(e.target.value)}
@@ -197,7 +200,7 @@ export default function VentaIndividualModal({
         {selectedPerson && (
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">
-              Nombre Cliente
+              <i className="fa-solid fa-id-card mr-1.5 text-gray-400"></i>Nombre cliente
             </label>
             <input
               type="text"
@@ -223,7 +226,7 @@ export default function VentaIndividualModal({
 
         {/* Precio */}
         <label className="block text-sm font-medium mb-1">
-          Precio Total (€)
+          <i className="fa-solid fa-euro-sign mr-1.5 text-gray-400"></i>Precio total (€)
         </label>
         <input
           type="text"

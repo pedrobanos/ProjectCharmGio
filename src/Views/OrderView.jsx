@@ -1,3 +1,4 @@
+import PageHeader from "../components/PageHeader";
 import React, { useEffect, useState, useRef } from "react";
 import { withFotosBase64 } from "../utils/imgToDataUrl";
 import { exportPedidoPDF } from "../utils/exportPedidoPDF";
@@ -149,17 +150,22 @@ const OrderView = () => {
 
 
     return (
-    <div className="max-w-screen-lg mx-auto p-8 space-y-6"> 
-    <h1 className="text-5xl font-bold text-center text-blue-600 mt-9 mb-8">
-        Hacer Pedido 🛒💨 </h1>
+    <div className="w-full max-w-6xl mx-auto px-1 sm:px-2 pb-10 space-y-5">
+        <PageHeader
+            icon="fa-solid fa-cart-plus"
+            tone="green"
+            title="Hacer pedido"
+            subtitle="Elige cuántas unidades pedir de cada producto al proveedor"
+            className="mb-2"
+        />
         {/* 🔍 Barra de búsqueda + Filtro */}
-        <div className="flex gap-4 items-center">
-            <div className="relative flex-grow w-1/2">
+        <div className="flex flex-wrap gap-4 items-center bg-white border border-gray-200 rounded-2xl shadow-sm p-3">
+            <div className="relative flex-grow min-w-[200px]">
                 <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 <input
                     type="text"
                     placeholder="Buscar por nombre..."
-                    className="border pl-10 pr-3 py-2 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="border border-gray-200 pl-10 pr-3 py-2.5 w-full rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500"
                     value={inputValue} // usamos inputValue para que el usuario pueda escribir libremente
                     onChange={(e) => {
                         const value = e.target.value;
@@ -194,39 +200,40 @@ const OrderView = () => {
                     className="w-40 cursor-pointer"
                 />
                 <label className="text-sm text-gray-600">
-                    Stock máximo: {sliderValue}
+                    <i className="fa-solid fa-boxes-stacked mr-1.5 text-gray-400"></i>
+                    Stock máximo: <strong>{sliderValue}</strong>
                 </label>
             </div>
         </div>
         {/* 🟦 GRID DE PRODUCTOS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {products.map((p) => (
                 <div
                     key={p.id}
-                    className={`border rounded p-3 flex flex-col items-center shadow-sm transition ${(pedido.find((i) => i.id === p.id)?.cantidad ?? 0) > 0
-                        ? "bg-black text-white"
-                        : "bg-white text-black"
+                    className={`border rounded-2xl p-3 flex flex-col items-center shadow-sm transition ${(pedido.find((i) => i.id === p.id)?.cantidad ?? 0) > 0
+                        ? "bg-green-50 border-green-500 ring-2 ring-green-500/30 text-gray-900"
+                        : "bg-white border-gray-200 text-gray-900"
                         }`}
                 >
                     {p.foto ? (
                         <img
                             src={p.foto}
                             alt={p.nombre}
-                            className="w-24 h-24 object-cover rounded mb-2"
+                            className="w-24 h-24 object-cover rounded-xl mb-2"
                         />
                     ) : (
-                        <div className="w-20 h-20 bg-gray-100 flex items-center justify-center text-xs text-gray-500 mb-2">
-                            Sin foto
+                        <div className="w-24 h-24 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 mb-2">
+                            <i className="fa-solid fa-image text-2xl"></i>
                         </div>
                     )}
 
                     <div className="flex flex-col flex-1 items-center w-full">
-                        <p className="font-semibold text-md text-center mb-2">
+                        <p className="font-semibold text-sm text-center mb-2 leading-snug">
                             {p.nombre}
                         </p>
                         <div className="flex flex-col items-center mt-auto">
                             <p className="text-sm text-gray-500 mb-1">
-                                Stock:{" "}
+                                <i className="fa-solid fa-boxes-stacked mr-1"></i>Stock:{" "}
                                 <span className="text-red-600 font-bold">{p.cantidad}</span>
                             </p>
                             <input
@@ -236,7 +243,8 @@ const OrderView = () => {
                                 onChange={(e) =>
                                     handleCantidadChange(p, Number(e.target.value))
                                 }
-                                className="border rounded px-2 py-1 w-20 text-center"
+                                placeholder="0"
+                                className="border border-gray-300 rounded-lg px-2 py-1.5 w-20 text-center bg-white"
                             />
                         </div>
                     </div>
@@ -252,17 +260,25 @@ const OrderView = () => {
         />
 
         {/* 📦 RESUMEN DEL PEDIDO */}
-        <div className="mt-6">
-            <h2 className="text-xl font-bold mb-3">📝 Hoja de Pedido</h2>
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 sm:p-5">
+            <h2 className="text-lg font-bold mb-3 flex items-center gap-2.5">
+                <span className="w-8 h-8 rounded-lg bg-green-600 text-white flex items-center justify-center text-sm">
+                    <i className="fa-solid fa-clipboard-list"></i>
+                </span>
+                Hoja de pedido
+            </h2>
             {pedidoConCantidad.length === 0 ? (
-                <p className="text-gray-500">No has seleccionado productos.</p>
+                <p className="text-gray-500">
+                    <i className="fa-solid fa-hand-pointer mr-1.5"></i>No has seleccionado productos.
+                </p>
             ) : (
-                <table className="table-auto w-full border text-sm">
+                <div className="overflow-x-auto">
+                <table className="table-auto w-full text-sm">
                     <thead className="bg-gray-100">
                         <tr className="h-14">
-                            <th className="px-4 py-2">Foto</th>
-                            <th className="px-4 py-2">Producto</th>
-                            <th className="px-4 py-2">Cantidad</th>
+                            <th className="px-4 py-2"><i className="fa-solid fa-image mr-1.5 text-gray-400"></i>Foto</th>
+                            <th className="px-4 py-2"><i className="fa-solid fa-gem mr-1.5 text-gray-400"></i>Producto</th>
+                            <th className="px-4 py-2"><i className="fa-solid fa-boxes-stacked mr-1.5 text-gray-400"></i>Cantidad</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -290,7 +306,7 @@ const OrderView = () => {
                      <tfoot className="bg-blue-100 font-bold">
                         <tr className="h-14 align-middle">
                             <td colSpan="2" className="px-4 py-2 text-right">
-                                Total Precio:
+                                <i className="fa-solid fa-euro-sign mr-2 text-blue-600"></i>Total precio:
                             </td>
                             <td className="px-4 py-2 text-center">{totalPrecio}</td>
                         </tr>
@@ -298,32 +314,35 @@ const OrderView = () => {
                     <tfoot className="bg-gray-100 font-bold">
                         <tr className="h-14 align-middle">
                             <td colSpan="2" className="px-4 py-2 text-right">
-                                Total Cantidad:
+                                <i className="fa-solid fa-boxes-stacked mr-2 text-gray-500"></i>Total cantidad:
                             </td>
                             <td className="px-4 py-2 text-center">{totalCantidad}</td>
                         </tr>
                     </tfoot>
                     
                 </table>
+                </div>
             )}
         </div>
 
         {/* Botones de acción */}
-        <div className="flex justify-end space-x-3">
+        <div className="flex flex-wrap justify-end gap-3">
             <button
                 onClick={handleExport}
                 disabled={exporting || pedidoConCantidad.length === 0}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50"
+                className="px-4 py-2.5 bg-white border border-gray-300 text-gray-800 rounded-xl hover:bg-gray-50 disabled:opacity-50 flex items-center gap-2 font-semibold"
             >
-                {exporting ? "Generando PDF..." : "Exportar Pedido a PDF"}
+                <i className={exporting ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-file-pdf text-red-600"}></i>
+                {exporting ? "Generando PDF..." : "Exportar pedido a PDF"}
             </button>
 
             <button
                 onClick={handleGuardarPedido}
                 disabled={saving || pedidoConCantidad.length === 0}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                className="px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 flex items-center gap-2 font-semibold"
             >
-                {saving ? "Guardando..." : "Guardar Pedido en Base de Datos"}
+                <i className={saving ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-floppy-disk"}></i>
+                {saving ? "Guardando..." : "Guardar pedido"}
             </button>
         </div>
     </div>

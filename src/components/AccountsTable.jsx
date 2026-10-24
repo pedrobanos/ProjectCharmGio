@@ -1,31 +1,34 @@
 import React, { useState, useEffect } from "react";
+import PlatformIcon from "./PlatformIcon";
+import { isBlocked, normalizePlatform } from "../services/listingsServices";
 
 const COLUMNS = [
-  { key: "mail", label: "Mail", minW: 220 },
-  { key: "username", label: "Usuario", minW: 160 },
-  { key: "password", label: "Password", type: "password", minW: 170 },
-  { key: "phone_number", label: "Teléfono", minW: 130 },
-  { key: "associated_number", label: "Asociado a", minW: 200 },
-  { key: "pin", label: "PIN", minW: 90 },
-  { key: "puk", label: "PUK", minW: 110 },
-  { key: "phone_brand", label: "Móvil", minW: 200 },
-  { key: "sim_brand", label: "SIM", minW: 110 },
-  { key: "is_esim", label: "eSIM", type: "boolean", minW: 90 },
-  { key: "platform_app", label: "Plataforma", minW: 130 },
-  { key: "created_at", label: "Creada", type: "date", minW: 150 },
-  { key: "blocked_at", label: "Bloqueada", minW: 130 },
-  { key: "bank_name", label: "Banco", minW: 150 },
-  { key: "iban", label: "IBAN", minW: 220 },
+  { key: "mail", icon: "fa-solid fa-envelope", label: "Mail", minW: 220 },
+  { key: "username", icon: "fa-solid fa-at", label: "Usuario", minW: 160 },
+  { key: "password", icon: "fa-solid fa-lock", label: "Password", type: "password", minW: 170 },
+  { key: "phone_number", icon: "fa-solid fa-phone", label: "Teléfono", minW: 130 },
+  { key: "associated_number", icon: "fa-solid fa-user", label: "Asociado a", minW: 200 },
+  { key: "pin", icon: "fa-solid fa-hashtag", label: "PIN", minW: 90 },
+  { key: "puk", icon: "fa-solid fa-unlock-keyhole", label: "PUK", minW: 110 },
+  { key: "phone_brand", icon: "fa-solid fa-mobile-screen", label: "Móvil", minW: 200 },
+  { key: "sim_brand", icon: "fa-solid fa-sim-card", label: "SIM", minW: 110 },
+  { key: "is_esim", icon: "fa-solid fa-microchip", label: "eSIM", type: "boolean", minW: 90 },
+  { key: "is_pro", icon: "fa-solid fa-crown", label: "PRO", type: "boolean", pro: true, minW: 90 },
+  { key: "platform_app", icon: "fa-solid fa-shop", label: "Plataforma", minW: 130 },
+  { key: "created_at", icon: "fa-solid fa-calendar-plus", label: "Creada", type: "date", minW: 150 },
+  { key: "blocked_at", icon: "fa-solid fa-ban", label: "Bloqueada", minW: 130 },
+  { key: "bank_name", icon: "fa-solid fa-landmark", label: "Banco", minW: 150 },
+  { key: "iban", icon: "fa-solid fa-credit-card", label: "IBAN", minW: 220 },
 ];
 
-const ACTIONS_W = 90;
+const ACTIONS_W = 124;
 
 /* Nombre con el que se identifica una cuenta en los mensajes */
 export const nombreCuenta = (account) =>
   account?.mail || account?.username || account?.phone_number || "esta cuenta (sin datos)";
 
 /* ─────────────── Modal de confirmación ─────────────── */
-const ConfirmDeleteModal = ({ account, onCancel, onConfirm }) => {
+export const ConfirmDeleteModal = ({ account, onCancel, onConfirm }) => {
   useEffect(() => {
     if (!account) return;
     const onKeyDown = (e) => {
@@ -59,16 +62,18 @@ const ConfirmDeleteModal = ({ account, onCancel, onConfirm }) => {
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-gray-200 bg-white px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 cursor-pointer"
+            className="rounded-lg border border-gray-200 bg-white px-5 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 cursor-pointer flex items-center gap-2"
           >
+            <i className="fa-solid fa-xmark"></i>
             Cancelar
           </button>
           <button
             type="button"
             autoFocus
             onClick={onConfirm}
-            className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700 cursor-pointer"
+            className="rounded-lg bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-700 cursor-pointer flex items-center gap-2"
           >
+            <i className="fa-solid fa-trash"></i>
             Eliminar
           </button>
         </div>
@@ -78,7 +83,7 @@ const ConfirmDeleteModal = ({ account, onCancel, onConfirm }) => {
 };
 
 /* ─────────────── Celda editable ─────────────── */
-const EditableCell = ({ value, type, onChange }) => {
+const EditableCell = ({ value, type, onChange, pro }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value ?? "");
   const [revealed, setRevealed] = useState(false);
@@ -158,7 +163,17 @@ const EditableCell = ({ value, type, onChange }) => {
       </select>
     ) : (
       <span onDoubleClick={startEdit} className="cursor-pointer block py-1">
-        {value === true ? "Sí" : value === false ? "No" : "—"}
+        {pro && value === true ? (
+          <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+            <i className="fa-solid fa-crown"></i> PRO
+          </span>
+        ) : value === true ? (
+          "Sí"
+        ) : value === false ? (
+          "No"
+        ) : (
+          "—"
+        )}
       </span>
     );
   }
@@ -203,7 +218,7 @@ const EditableCell = ({ value, type, onChange }) => {
 };
 
 /* ─────────────── Tabla ─────────────── */
-const AccountsTable = ({ accounts, onEditCell, onDelete }) => {
+const AccountsTable = ({ accounts, onEditCell, onDelete, onEdit, onToggleBlock }) => {
   const [accountToDelete, setAccountToDelete] = useState(null);
 
   const confirmDelete = () => {
@@ -214,55 +229,97 @@ const AccountsTable = ({ accounts, onEditCell, onDelete }) => {
 
   return (
     <div className="w-full">
-      <div className="w-full overflow-auto rounded-xl border border-gray-200 shadow-sm max-h-[75vh]">
+      <p className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
+        <i className="fa-solid fa-hand-pointer"></i>
+        Doble clic en una celda para editarla. Las acciones están en la primera columna.
+      </p>
+      <div className="w-full overflow-auto rounded-2xl border border-gray-200 bg-white shadow-sm max-h-[75vh]">
         <table className="border-collapse text-sm" style={{ minWidth: "100%" }}>
           <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
             <tr>
-              
+              <th
+                className="sticky left-0 top-0 z-30 bg-gray-100 px-2 py-3 text-center border-r border-gray-200"
+                style={{ width: ACTIONS_W, minWidth: ACTIONS_W }}
+              >
+                Acciones
+              </th>
               {COLUMNS.map((col) => (
                 <th
                   key={col.key}
                   className="sticky top-0 z-10 bg-gray-100 px-3 py-3 text-center whitespace-nowrap"
                   style={{ minWidth: col.minW }}
                 >
+                  <i className={`${col.icon} mr-1.5 text-gray-400`}></i>
                   {col.label}
                 </th>
               ))}
-              <th
-                className="sticky left-0 top-0 z-30 bg-gray-100 px-2 py-3 text-center border-r border-gray-300"
-                style={{ width: ACTIONS_W, minWidth: ACTIONS_W }}
-              >
-                Acciones
-              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 text-gray-800">
             {accounts.map((account) => (
-              <tr key={account.id} className="hover:bg-gray-50">
-                
-                {COLUMNS.map((col) => (
-                  <td key={col.key} className="px-3 py-1" style={{ minWidth: col.minW }}>
-                    <EditableCell
-                      value={account[col.key]}
-                      type={col.type}
-                      onChange={(val) => onEditCell(account.id, col.key, val)}
-                    />
-                  </td>
-                ))}
-
+              <tr key={account.id} className={`hover:bg-gray-50 ${isBlocked(account) ? "bg-red-50/40" : ""}`}>
                 <td
                   className="sticky left-0 z-20 bg-white text-center border-r border-gray-200"
                   style={{ width: ACTIONS_W, minWidth: ACTIONS_W }}
                 >
-                  <button
-                    type="button"
-                    onClick={() => setAccountToDelete(account)}
-                    className="text-red-500 hover:text-red-600 cursor-pointer"
-                    title="Eliminar cuenta"
-                  >
-                    <i className="fa-solid fa-trash text-lg"></i>
-                  </button>
+                  <div className="flex items-center justify-center gap-1">
+                    {onEdit && (
+                      <button
+                        type="button"
+                        onClick={() => onEdit(account)}
+                        className="w-8 h-8 rounded-lg text-purple-700 hover:bg-purple-50"
+                        title="Editar cuenta"
+                      >
+                        <i className="fa-solid fa-pen-to-square"></i>
+                      </button>
+                    )}
+                    {onToggleBlock && (
+                      <button
+                        type="button"
+                        onClick={() => onToggleBlock(account)}
+                        className={`w-8 h-8 rounded-lg ${
+                          isBlocked(account)
+                            ? "text-green-600 hover:bg-green-50"
+                            : "text-orange-600 hover:bg-orange-50"
+                        }`}
+                        title={isBlocked(account) ? "Desbloquear cuenta" : "Bloquear cuenta y quitar sus anuncios"}
+                      >
+                        <i className={isBlocked(account) ? "fa-solid fa-lock-open" : "fa-solid fa-ban"}></i>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setAccountToDelete(account)}
+                      className="w-8 h-8 rounded-lg text-red-500 hover:bg-red-50"
+                      title="Eliminar cuenta"
+                    >
+                      <i className="fa-solid fa-trash"></i>
+                    </button>
+                  </div>
                 </td>
+                {COLUMNS.map((col) => (
+                  <td key={col.key} className="px-3 py-1" style={{ minWidth: col.minW }}>
+                    {col.key === "platform_app" && normalizePlatform(account.platform_app) ? (
+                      <div className="flex items-center gap-1.5">
+                        <PlatformIcon platform={account.platform_app} size={16} />
+                        <EditableCell
+                          value={account[col.key]}
+                          type={col.type}
+                          onChange={(val) => onEditCell(account.id, col.key, val)}
+                        />
+                      </div>
+                    ) : (
+                    <EditableCell
+                      value={account[col.key]}
+                      type={col.type}
+                      pro={col.pro}
+                      onChange={(val) => onEditCell(account.id, col.key, val)}
+                    />
+                    )}
+                  </td>
+                ))}
+
+
               </tr>
             ))}
 

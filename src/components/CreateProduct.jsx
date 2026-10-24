@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { createProduct } from "../services/productServices";
+import PageHeader from "./PageHeader";
 import { LugaresDisponibles } from "../Constants";
 
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
@@ -44,9 +45,24 @@ const AlertIcon = ({ className = "" }) => (
 
 /* Etiqueta + campo + mensaje. El error sustituye a la pista, así la altura
    apenas cambia y el formulario no da saltos al validar. */
+const FIELD_ICONS = {
+    Nombre: "fa-tag",
+    Cantidad: "fa-boxes-stacked",
+    Precio: "fa-euro-sign",
+    Proveedor: "fa-truck",
+    "Código proveedor": "fa-barcode",
+    Lugar: "fa-location-dot",
+    "Posición exacta": "fa-crosshairs",
+    Descripción: "fa-align-left",
+    Enlace: "fa-link",
+};
+
 const Field = ({ label, hint, error, children, className = "" }) => (
     <label className={`block ${className}`}>
-        <span className={labelBase}>{label}</span>
+        <span className={labelBase}>
+            {FIELD_ICONS[label] && <i className={`fa-solid ${FIELD_ICONS[label]} mr-1.5 text-slate-400`}></i>}
+            {label}
+        </span>
         {children}
         {error ? (
             <span
@@ -201,14 +217,15 @@ const CreateProduct = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 px-4 py-10">
+        <div className="px-1 sm:px-2 pb-10">
             <div className="mx-auto max-w-5xl">
                 {/* Cabecera */}
-                <header className="mb-8">
-                      <h1 className="text-5xl text-center font-bold mb-8 mt-8 text-blue-500">
-                         Crear producto
-                     </h1>
-               </header>
+                <PageHeader
+                    icon="fa-solid fa-plus"
+                    tone="blue"
+                    title="Crear producto"
+                    subtitle="Añade un charm nuevo al inventario de la tienda"
+                />
 
                 {/* Solo fallos generales: los de campo van bajo cada input */}
                 {formError && (
@@ -227,7 +244,7 @@ const CreateProduct = () => {
                         {/* ── Columna izquierda: foto + resumen ── */}
                         <aside className="lg:sticky lg:top-8">
                             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                                <span className={labelBase}>Foto</span>
+                                <span className={labelBase}><i className="fa-solid fa-camera mr-1.5 text-slate-400"></i>Foto</span>
 
                                 <div
                                     onDragOver={(e) => {
@@ -328,7 +345,7 @@ const CreateProduct = () => {
 
                             {/* Resumen en vivo */}
                             <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                                <span className={labelBase}>Así se guardará</span>
+                                <span className={labelBase}><i className="fa-solid fa-eye mr-1.5 text-slate-400"></i>Así se guardará</span>
                                 <p className="text-base font-semibold text-slate-900">
                                     {nombre.trim() || (
                                         <span className="font-normal text-slate-300">
@@ -363,7 +380,8 @@ const CreateProduct = () => {
                         {/* ── Columna derecha: datos ── */}
                         <div className="space-y-6">
                             <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                                <h2 className="mb-5 text-sm font-semibold text-slate-900">
+                                <h2 className="mb-5 text-sm font-semibold text-slate-900 flex items-center gap-2">
+                                    <i className="fa-solid fa-gem text-blue-600"></i>
                                     Datos del producto
                                 </h2>
 
@@ -453,7 +471,8 @@ const CreateProduct = () => {
                             </section>
 
                             <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                                <h2 className="mb-5 text-sm font-semibold text-slate-900">
+                                <h2 className="mb-5 text-sm font-semibold text-slate-900 flex items-center gap-2">
+                                    <i className="fa-solid fa-warehouse text-blue-600"></i>
                                     Ubicación en el almacén
                                 </h2>
 
@@ -518,7 +537,8 @@ const CreateProduct = () => {
                         {/* ── Ancho completo bajo las dos columnas ── */}
                      <div className="space-y-6 lg:col-span-2">
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-5 text-sm font-semibold text-slate-900">
+        <h2 className="mb-5 text-sm font-semibold text-slate-900 flex items-center gap-2">
+            <i className="fa-solid fa-circle-info text-blue-600"></i>
             Detalles adicionales
         </h2>
 
@@ -567,6 +587,7 @@ const CreateProduct = () => {
             onClick={() => navigate("/products")}
             className="rounded-xl border border-slate-200 cursor-pointer bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
         >
+            <i className="fa-solid fa-xmark mr-2"></i>
             Cancelar
         </button>
         <button
@@ -574,6 +595,7 @@ const CreateProduct = () => {
             disabled={loading}
             className="rounded-xl bg-blue-600 cursor-pointer px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/25 disabled:cursor-not-allowed disabled:opacity-60"
         >
+            <i className={loading ? "fa-solid fa-spinner fa-spin mr-2" : "fa-solid fa-circle-plus mr-2"}></i>
             {loading ? "Creando…" : "Crear producto"}
         </button>
     </div>

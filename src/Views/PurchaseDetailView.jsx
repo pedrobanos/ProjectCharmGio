@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import PageHeader from "../components/PageHeader";
 import { confirmPurchaseOrder, getPurchaseOrderById, updateItemQuantity, updateItemStatus } from "../services/purchaseServices";
 import Loading from "../components/Loading";
 
@@ -206,7 +207,8 @@ const PurchaseDetailView = () => {
         );
         try {
             await updateItemQuantity(itemId, qty);
-            if (qty === i.cantidad) {
+            const item = items.find((x) => x.id === itemId);
+            if (item && qty === Number(item.cantidad)) {
                 await updateItemStatus(itemId, "confirmado");
             }
         } catch (e) {
@@ -266,49 +268,71 @@ const PurchaseDetailView = () => {
         items.some(i => i.estado !== 'perdido' && (typeof i.cantidad_recibida !== 'number' || isNaN(i.cantidad_recibida)));
 
     return (
-        <div className="max-w-screen-lg mx-auto p-6">
-            <h1 className="text-4xl font-bold mt-9 mb-8">Pedido #{order.id} - {order.proveedor}</h1>
+        <div className="w-full max-w-5xl mx-auto px-1 sm:px-2 pb-10">
+            <PageHeader
+                icon="fa-solid fa-box-open"
+                tone="green"
+                title={`Pedido #${order.id}`}
+                subtitle={`Proveedor: ${order.proveedor || "—"}`}
+                actions={
+                    <Link
+                        to="/purchases"
+                        className="flex items-center gap-2 text-sm font-semibold bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-xl hover:bg-gray-50"
+                    >
+                        <i className="fa-solid fa-arrow-left"></i> Volver a pedidos
+                    </Link>
+                }
+            />
 
-            <div className="flex justify-between items-center mb-4">
-                <p className="text-gray-600">
+            <div className="flex flex-wrap gap-3 justify-between items-center mb-4 bg-white border border-gray-200 rounded-2xl shadow-sm p-3">
+                <p className="text-gray-600 flex items-center gap-2">
+                    <i className="fa-solid fa-circle-half-stroke text-gray-400"></i>
                     Estado:{" "}
-                    <span className={`font-bold ${order.estado === "pendiente" ? "text-yellow-600" : "text-green-600"}`}>
+                    <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                            order.estado === "pendiente" ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"
+                        }`}
+                    >
+                        <i className={order.estado === "pendiente" ? "fa-solid fa-hourglass-half" : "fa-solid fa-circle-check"}></i>
                         {order.estado}
                     </span>
                 </p>
                 {order.estado === "confirmado" ? (
                     <button
                         disabled
-                        className="px-4 py-2 rounded text-black bg-green-200 opacity-80 cursor-not-allowed"
+                        className="px-4 py-2 rounded-xl text-green-800 bg-green-100 cursor-not-allowed flex items-center gap-2 font-semibold"
                     >
-                        Pedido confirmado ✅
+                        <i className="fa-solid fa-circle-check"></i>
+                        Pedido confirmado
                     </button>
                 ) : (
                     <button
                         onClick={handleConfirmOrder}
                         disabled={disableConfirm}
-                        className={`px-4 py-2 rounded text-white transition ${disableConfirm
+                        className={`px-4 py-2 rounded-xl text-white transition flex items-center gap-2 font-semibold ${disableConfirm
                             ? "bg-gray-400 cursor-not-allowed"
                             : "bg-green-700 hover:bg-green-800"
                             }`}
                     >
-                        {confirming ? "Aplicando recepción..." : "Confirmar Pedido Completo"}
+                        <i className={confirming ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-truck-ramp-box"}></i>
+                        {confirming ? "Aplicando recepción..." : "Confirmar pedido completo"}
                     </button>
                 )}
 
             </div>
 
-            <table className="table-fixed w-full border-collapse text-sm sm:text-base">
+            <div className="overflow-x-auto bg-white border border-gray-200 rounded-2xl shadow-sm">
+            <table className="table-fixed w-full min-w-[760px] border-collapse text-sm sm:text-base">
                 <thead className="bg-gray-100 text-gray-700 uppercase text-xs sm:text-sm sticky top-0 z-10">
                     <tr>
-                        <th className="w-16 px-2 py-2 text-center">Foto</th>
-                        <th className="w-40 px-2 py-2 text-center">Producto</th>
-                        <th className="w-14 px-2 py-2 text-center">Cantidad pedida</th>
-                        <th className="w-14 px-2 py-2 text-center">Cantidad recibida</th>
-                        <th className="w-14 px-2 py-2 text-center">Restante</th>
-                        <th className="w-20 px-2 py-2 text-center">Estado</th>
+                        <th className="w-16 px-2 py-2.5 text-center"><i className="fa-solid fa-image mr-1 text-gray-400"></i>Foto</th>
+                        <th className="w-40 px-2 py-2.5 text-center"><i className="fa-solid fa-gem mr-1 text-gray-400"></i>Producto</th>
+                        <th className="w-14 px-2 py-2.5 text-center"><i className="fa-solid fa-cart-arrow-down mr-1 text-gray-400"></i>Pedida</th>
+                        <th className="w-14 px-2 py-2.5 text-center"><i className="fa-solid fa-dolly mr-1 text-gray-400"></i>Recibida</th>
+                        <th className="w-14 px-2 py-2.5 text-center"><i className="fa-solid fa-hourglass-half mr-1 text-gray-400"></i>Restante</th>
+                        <th className="w-20 px-2 py-2.5 text-center"><i className="fa-solid fa-circle-half-stroke mr-1 text-gray-400"></i>Estado</th>
                         {order.estado !== "confirmado" && (
-                            <th className="w-28 px-2 py-2 text-center">Acciones</th>
+                            <th className="w-28 px-2 py-2.5 text-center"><i className="fa-solid fa-gear mr-1 text-gray-400"></i>Acciones</th>
                         )}
                     </tr>
                 </thead>
@@ -330,7 +354,7 @@ const PurchaseDetailView = () => {
                                         <img
                                             src={i.products.foto}
                                             alt={i.products.nombre}
-                                            className="h-14 w-14 object-cover mx-auto hover:scale-105 transition-transform duration-200"
+                                            className="h-14 w-14 object-cover rounded-xl mx-auto hover:scale-105 transition-transform duration-200"
                                         />
                                     ) : (
                                         "--"
@@ -340,7 +364,7 @@ const PurchaseDetailView = () => {
                                     <div>
                                         <p className="font-medium text-gray-900">{i.products?.nombre}</p>
                                         {i.products?.lugar && (
-                                            <p className="text-sm text-gray-500 mt-1">{i.products.lugar}</p>
+                                            <p className="text-sm text-gray-500 mt-1"><i className="fa-solid fa-location-dot mr-1"></i>{i.products.lugar}</p>
                                         )}
                                     </div>
                                 </td>
@@ -363,13 +387,14 @@ const PurchaseDetailView = () => {
                                 <td>{restanteCalc}</td>
                                 <td>
                                     <span
-                                        className={`px-2 py-1 rounded text-white capitalize ${i.estado === "confirmado"
-                                            ? "bg-green-600"
+                                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold capitalize ${i.estado === "confirmado"
+                                            ? "bg-green-100 text-green-800"
                                             : i.estado === "perdido"
-                                                ? "bg-red-500"
-                                                : "bg-yellow-500"
+                                                ? "bg-red-100 text-red-700"
+                                                : "bg-yellow-100 text-yellow-800"
                                             }`}
                                     >
+                                        <i className={i.estado === "confirmado" ? "fa-solid fa-circle-check" : i.estado === "perdido" ? "fa-solid fa-ban" : "fa-solid fa-hourglass-half"}></i>
                                         {i.estado}
                                     </span>
                                 </td>
@@ -417,6 +442,7 @@ const PurchaseDetailView = () => {
                 </tbody>
 
             </table>
+            </div>
         </div>
     );
 };
