@@ -48,6 +48,27 @@ export const getActiveListings = async () => {
 };
 
 export const createListing = async (productId, accountId) => {
+  // Límite: como mucho un anuncio activo por unidad en stock
+  const [{ data: prod, error: pErr }, { count, error: cErr }] = await Promise.all([
+    supabase.from("products").select("cantidad").eq("id", productId).single(),
+    supabase
+      .from(TABLE)
+      .select("id", { count: "exact", head: true })
+      .eq("product_id", productId)
+      .eq("estado", "activo"),
+  ]);
+  if (pErr) throw pErr;
+  if (cErr) throw cErr;
+  const stock = Number(prod?.cantidad ?? 0);
+  if (stock <= 0) {
+    throw new Error("No queda stock de este producto, no se puede anunciar.");
+  }
+  if ((count ?? 0) >= stock) {
+    throw new Error(
+      `Ya está anunciado en ${count} cuenta(s) y solo tienes ${stock} unidad(es). Retira un anuncio o añade stock.`
+    );
+  }
+
   const { data, error } = await supabase
     .from(TABLE)
     .insert([{ product_id: productId, account_id: accountId }])
@@ -56,6 +77,9 @@ export const createListing = async (productId, accountId) => {
   if (error) {
     if (error.code === "23505") {
       throw new Error("Este producto ya está publicado en esa cuenta.");
+    }
+    if (error.code === "P0001" && error.message) {
+      throw new Error(error.message); // límite de stock comprobado en la base de datos
     }
     throw error;
   }
@@ -157,10 +181,18 @@ export const getPendingProductsForAccount = async (accountId, skipIds = []) => {
     if (String(l.account_id) === String(accountId)) inThisAccount.add(k);
   }
 
-  const candidates = (products || []).filter((p) => {
-    const k = String(p.id);
-    return !skip.has(k) && !inThisAccount.has(k) && (countByProduct[k] || 0) < p.cantidad;
-  });
+  const accountsByProduct = {};
+  for (const l of listings) {
+    (accountsByProduct[String(l.product_id)] ||= []).push(l.account_id);
+  }
+
+  const candidates = (products || [])
+    .filter((p) => {
+      const k = String(p.id);
+      return !skip.has(k) && !inThisAccount.has(k) && (countByProduct[k] || 0) < p.cantidad;
+    })
+    // ids de las cuentas donde ya está anunciado (para mostrarlas)
+    .map((p) => ({ ...p, listedAccountIds: accountsByProduct[String(p.id)] || [] }));
 
   candidates.sort(
     (a, b) =>

@@ -137,12 +137,10 @@ const VintedCopyModal = ({ product, accounts = [], activeListings = [], onClose,
               ))}
             </ul>
           )}
-          {overListed && (
-            <p className="text-xs text-amber-700 bg-amber-50 rounded-md px-2 py-1 mt-2">
-              ⚠️ Tienes {activeListings.length} anuncio(s) activo(s) y {stock} unidad(es). Si publicas
-              en otra cuenta podrías vender más de lo que tienes.
-            </p>
-          )}
+          <p className="text-xs text-gray-500 mt-2">
+            Anuncios activos: <strong>{activeListings.length}</strong> de <strong>{stock}</strong>{" "}
+            (uno por unidad en stock)
+          </p>
         </div>
 
         {/* Campos a copiar */}
@@ -153,7 +151,13 @@ const VintedCopyModal = ({ product, accounts = [], activeListings = [], onClose,
           <label className="block text-sm font-semibold text-gray-700 mb-1">
             ¿En qué cuenta lo has subido?
           </label>
-          {availableAccounts.length === 0 ? (
+          {overListed ? (
+            <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+              {stock <= 0
+                ? "⚠️ No queda stock de este producto, no se puede anunciar."
+                : `⚠️ Ya está anunciado en ${activeListings.length} cuenta(s) y solo tienes ${stock} unidad(es). Retira un anuncio o añade stock para publicarlo en otra cuenta.`}
+            </p>
+          ) : availableAccounts.length === 0 ? (
             <p className="text-sm text-gray-400 italic">
               {accounts.length === 0
                 ? "No hay cuentas de Vinted o Wallapop activas en Cuentas."

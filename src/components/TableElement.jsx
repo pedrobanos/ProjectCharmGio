@@ -571,6 +571,16 @@ const TableElement = ({
                             {prodListings.map((l) => (
                               <AccountBadge key={l.id} account={l.account} size={16} />
                             ))}
+                            <span
+                              className={`text-[10px] ${
+                                prodListings.length > Number(product.cantidad)
+                                  ? "text-red-600 font-semibold"
+                                  : "text-gray-500"
+                              }`}
+                              title="Anuncios activos / unidades en stock"
+                            >
+                              {prodListings.length}/{product.cantidad} anunciados
+                            </span>
                           </button>
                         );
                       })()}

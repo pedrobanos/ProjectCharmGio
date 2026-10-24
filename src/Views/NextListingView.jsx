@@ -10,7 +10,6 @@ import {
   createListing,
   getListingAccounts,
   getPendingProductsForAccount,
-  pickAutoAccount,
 } from "../services/listingsServices";
 
 const PLATFORM_URLS = {
@@ -35,6 +34,24 @@ const writeSkipped = (ids) => {
   }
 };
 
+// Cuenta elegida a mano: se recuerda en este móvil/tablet/ordenador
+const ACCOUNT_KEY = "anuncios_cuenta";
+const readSavedAccount = () => {
+  try {
+    return localStorage.getItem(ACCOUNT_KEY) || "";
+  } catch {
+    return "";
+  }
+};
+const saveAccount = (id) => {
+  try {
+    if (id) localStorage.setItem(ACCOUNT_KEY, String(id));
+    else localStorage.removeItem(ACCOUNT_KEY);
+  } catch {
+    // sin localStorage: habrá que elegirla cada vez
+  }
+};
+
 // Texto en el que se busca (sin tildes y en minúsculas)
 const haystackOf = (p) =>
   normalizeString(
@@ -42,14 +59,16 @@ const haystackOf = (p) =>
   );
 
 /**
- * /anuncios?cuenta=ID   → productos pendientes de publicar en esa cuenta
- * /anuncios?cuenta=auto → elige la cuenta que lleva más tiempo sin publicar
+ * /anuncios            → usa la última cuenta elegida a mano en este dispositivo
+ * /anuncios?cuenta=ID   → productos pendientes de publicar en esa cuenta (y la recuerda)
  * Filtros opcionales en la URL: q (texto), lugar, tema, prov
  * Pensada para abrirla desde un atajo de iPhone.
  */
 const NextListingView = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const cuentaParam = searchParams.get("cuenta") || "auto";
+  // "auto" se trata igual que sin cuenta (por si el atajo antiguo lo lleva)
+  const rawCuenta = searchParams.get("cuenta") || "";
+  const cuentaParam = rawCuenta && rawCuenta !== "auto" ? rawCuenta : "";
   const q = searchParams.get("q") || "";
   const lugar = searchParams.get("lugar") || "";
   const tema = searchParams.get("tema") || "";
@@ -100,10 +119,9 @@ const NextListingView = () => {
         if (cancelled) return;
         if (!accounts.length) setAccounts(accs);
 
-        const acc =
-          cuentaParam === "auto"
-            ? await pickAutoAccount(accs)
-            : accs.find((a) => String(a.id) === String(cuentaParam)) || null;
+        const wantedId = cuentaParam || readSavedAccount();
+        const acc = accs.find((a) => String(a.id) === String(wantedId)) || null;
+        if (acc) saveAccount(acc.id);
         if (cancelled) return;
         setAccount(acc);
         setSelectedId(null);
@@ -193,6 +211,7 @@ const NextListingView = () => {
   const changeAccount = (value) => {
     writeSkipped([]);
     setDone(null);
+    saveAccount(value);
     setParam("cuenta", value);
   };
 
@@ -207,6 +226,11 @@ const NextListingView = () => {
     );
   };
 
+  const listedAccounts = (p) =>
+    (p?.listedAccountIds || [])
+      .map((id) => accounts.find((a) => String(a.id) === String(id)))
+      .filter(Boolean);
+
   const color = PLATFORM_STYLES[account?.platform]?.bg || "#374151";
   const selectClass = "border border-gray-300 rounded-md p-2 w-full text-base bg-white";
 
@@ -216,11 +240,13 @@ const NextListingView = () => {
     <section>
       <label className="block text-sm font-semibold text-gray-700 mb-1">Cuenta</label>
       <select
-        value={cuentaParam}
+        value={account ? String(account.id) : ""}
         onChange={(e) => changeAccount(e.target.value)}
-        className={`${selectClass} mb-2`}
+        className={`${selectClass} mb-2 ${!account && !loading ? "border-amber-400 ring-2 ring-amber-200" : ""}`}
       >
-        <option value="auto">🔄 Automático (la que lleva más tiempo sin publicar)</option>
+        <option value="" disabled>
+          Elige la cuenta...
+        </option>
         {accounts.map((a) => (
           <option key={a.id} value={a.id}>
             {a.platform} · {accountLabel(a)}
@@ -345,7 +371,11 @@ const NextListingView = () => {
   const emptyBlock = (
     <div className="text-center text-gray-600 mt-6 md:mt-0 md:bg-white md:rounded-xl md:shadow md:p-10 lg:shadow-none lg:p-6">
       {!account ? (
-        <p>No hay cuentas de Vinted o Wallapop activas. Revisa la sección Cuentas.</p>
+        accounts.length ? (
+          <p className="text-lg">👆 Elige arriba la cuenta en la que vas a publicar.</p>
+        ) : (
+          <p>No hay cuentas de Vinted o Wallapop activas. Revisa la sección Cuentas.</p>
+        )
       ) : pending.length > 0 && activeFilters > 0 ? (
         <p className="text-lg mb-2">No hay pendientes con estos filtros.</p>
       ) : (
@@ -375,7 +405,9 @@ const NextListingView = () => {
         )}
         <div className="min-w-0">
           <p className="font-semibold text-gray-800 md:text-lg">{product.nombre}</p>
-          <p className="text-xs md:text-sm text-gray-500">Stock: {product.cantidad}</p>
+          <p className="text-xs md:text-sm text-gray-500">
+            Stock: {product.cantidad} · Anunciado en {listedAccounts(product).length}/{product.cantidad}
+          </p>
           {product.lugar && <p className="text-xs md:text-sm text-gray-500">📍 {product.lugar}</p>}
           {product.proveedor && (
             <p className="hidden md:block text-sm text-gray-500">
@@ -385,6 +417,17 @@ const NextListingView = () => {
           )}
         </div>
       </div>
+
+      {listedAccounts(product).length > 0 && (
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-gray-600 mb-1">Ya anunciado en</p>
+          <div className="flex flex-wrap gap-1.5">
+            {listedAccounts(product).map((a) => (
+              <AccountBadge key={a.id} account={a} size={16} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <ListingCopyFields product={product} />
 
@@ -455,6 +498,13 @@ const NextListingView = () => {
                   <p className="text-xs text-gray-500 truncate">
                     {p.lugar || "Sin lugar"} · Stock {p.cantidad}
                   </p>
+                  {listedAccounts(p).length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {listedAccounts(p).map((a) => (
+                        <AccountBadge key={a.id} account={a} size={14} />
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <span className="md:hidden">
                   <i className="fa-solid fa-chevron-right text-gray-300 text-xs"></i>
