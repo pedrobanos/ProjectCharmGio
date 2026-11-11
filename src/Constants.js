@@ -52,12 +52,14 @@ export const LugaresDisponibles = [
   "Felpudo Negro",
   "Negro Alfa",
   "Negro Beta",
+  "Netflix",
   "Rincón mágico Disney 🐭",
   "Rosa Grande",
   "Pixar",
   "Transparente 1",
   "Transparente 2",
   "Transparente 3",
+  "Transparente 4",
 ];
 
 export const MONTHS = [
