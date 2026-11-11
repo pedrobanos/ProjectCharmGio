@@ -54,6 +54,7 @@ export const LugaresDisponibles = [
   "Negro Beta",
   "Rincón mágico Disney 🐭",
   "Rosa Grande",
+  "Pixar",
   "Transparente 1",
   "Transparente 2",
   "Transparente 3",
